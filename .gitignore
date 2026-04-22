@@ -1,0 +1,21 @@
+.DS_Store
+
+# Build output
+Build/
+.build/
+
+# SwiftPM
+Packages/
+.swiftpm/
+Package.resolved
+
+# Xcode
+xcuserdata/
+DerivedData/
+
+# Editor / tooling
+.vscode/
+.idea/
+
+# Secrets
+.netrc

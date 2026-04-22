@@ -1,0 +1,1 @@
+If you want Raptor to generate pages based on Markdown files, you should place them in here. You can group your posts however, you want – category, year, etc – just by placing them into subfolders of Posts.
