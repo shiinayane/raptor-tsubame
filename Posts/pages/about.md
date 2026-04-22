@@ -1,14 +1,12 @@
 ---
-title: About
-date: 2026-04-10
-description: About this site and its first-pass structure.
-published: true
+title: About This Site
+date: 2026-01-15
+description: About page rendered from Markdown.
 kind: page
 path: /about/
+published: true
 ---
 
-# About
+# About This Site
 
-This page is backed by Markdown content instead of hardcoded Swift.
-
-It will eventually become the standalone About page in the new IA.
+This page is authored in Markdown.

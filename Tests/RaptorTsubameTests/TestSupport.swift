@@ -2,36 +2,39 @@ import Foundation
 @testable import Raptor
 @testable import RaptorTsubame
 
-enum TestSupport {
-    static let packageRootURL: URL = try! URL.packageDirectory(from: #filePath)
-    static let buildDirectoryName = "Build"
-    static let buildDirectoryURL = packageRootURL.appending(path: buildDirectoryName)
+struct TestPublishHarness {
+    let buildDirectory: URL
 
-    static func buildFileExists(at relativePath: String) -> Bool {
-        let fileURL = buildDirectoryURL.appending(path: relativePath)
-        return FileManager.default.fileExists(atPath: fileURL.path)
+    init() throws {
+        let root = URL(filePath: FileManager.default.currentDirectoryPath)
+        self.buildDirectory = root
+            .appending(path: ".build")
+            .appending(path: "raptor-tsubame-test-site")
+
+        cleanup()
     }
 
-    static func buildFileContents(at relativePath: String) throws -> String {
-        let fileURL = buildDirectoryURL.appending(path: relativePath)
-        return try String(contentsOf: fileURL, encoding: .utf8)
-    }
-
-    static func resetBuildDirectory() throws {
-        try? FileManager.default.removeItem(at: buildDirectoryURL)
-    }
-
-    static func publishStarterSite() async throws {
-        try resetBuildDirectory()
-
+    func publish() async throws {
         var publisher = try SitePublisher(
             for: ExampleSite(),
             with: [],
             buildContext: BuildContext(),
-            rootDirectory: packageRootURL,
-            buildDirectory: buildDirectoryURL
+            rootDirectory: URL(filePath: FileManager.default.currentDirectoryPath),
+            buildDirectory: buildDirectory
         )
 
         try await publisher.publish()
+    }
+
+    func fileExists(_ relativePath: String) -> Bool {
+        FileManager.default.fileExists(atPath: buildDirectory.appending(path: relativePath).path)
+    }
+
+    func contents(of relativePath: String) throws -> String {
+        try String(contentsOf: buildDirectory.appending(path: relativePath), encoding: .utf8)
+    }
+
+    func cleanup() {
+        try? FileManager.default.removeItem(at: buildDirectory)
     }
 }

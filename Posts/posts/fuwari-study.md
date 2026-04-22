@@ -1,14 +1,11 @@
 ---
-title: Fuwari Study
-date: 2026-04-15
-description: A reference note on the first-pass structure.
-published: true
+title: Fuwari Study Notes
+date: 2026-03-01
+description: Structural notes from studying the Fuwari theme.
 kind: post
-path: /posts/fuwari-study/
+published: true
 ---
 
-# Fuwari Study
+# Fuwari Study Notes
 
-This fixture exists to support pagination and archive coverage.
-
-It keeps the content set realistic without depending on any visual design work yet.
+Newest post used to verify descending homepage ordering.

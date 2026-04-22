@@ -1,14 +1,11 @@
 ---
-title: Welcome to Tsubame
-date: 2026-04-21
-description: The first post introducing the new site.
-published: true
+title: Welcome To Tsubame
+date: 2026-01-01
+description: The first published post in the fixture set.
 kind: post
-path: /posts/welcome-to-tsubame/
+published: true
 ---
 
-# Welcome to Tsubame
+# Welcome To Tsubame
 
-This is the first fixture post for the new information architecture.
-
-It gives the site a real Markdown article with a canonical `/posts/` URL.
+This is the first published post.
