@@ -21,10 +21,7 @@ let package = Package(
         ),
         .testTarget(
             name: "RaptorTsubameTests",
-            dependencies: [
-                "RaptorTsubame",
-                .product(name: "Raptor", package: "Raptor")
-            ],
+            dependencies: ["RaptorTsubame"],
             path: "Tests/RaptorTsubameTests"
         )
     ]

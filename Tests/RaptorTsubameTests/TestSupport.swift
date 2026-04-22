@@ -1,5 +1,4 @@
 import Foundation
-@testable import Raptor
 @testable import RaptorTsubame
 
 struct TestPublishHarness {
@@ -15,15 +14,8 @@ struct TestPublishHarness {
     }
 
     func publish() async throws {
-        var publisher = try SitePublisher(
-            for: ExampleSite(),
-            with: [],
-            buildContext: BuildContext(),
-            rootDirectory: URL(filePath: FileManager.default.currentDirectoryPath),
-            buildDirectory: buildDirectory
-        )
-
-        try await publisher.publish()
+        var site = ExampleSite()
+        try await site.publish(buildDirectoryPath: ".build/raptor-tsubame-test-site")
     }
 
     func fileExists(_ relativePath: String) -> Bool {
