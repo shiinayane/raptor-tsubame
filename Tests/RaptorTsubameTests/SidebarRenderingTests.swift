@@ -85,6 +85,7 @@ private func expectSidebarShell(in html: String) throws {
     #expect(html.contains("data-sidebar-profile"))
     #expect(html.contains("data-sidebar-categories"))
     #expect(html.contains("data-sidebar-tags"))
+    #expect(html.contains("data-sidebar-position=\"leading\""))
 }
 
 private func expectSidebarSection(
