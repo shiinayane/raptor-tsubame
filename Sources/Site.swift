@@ -26,7 +26,7 @@ struct ExampleSite: Site {
 
     var homePage = HomePage(pageNumber: 1, totalPages: 1)
     var layout = MainLayout()
-    var postPages: [any PostPage] = [ArticlePage()]
+    var postPages: [any PostPage] = [ArticlePage(), MarkdownPage()]
     var generatedPages: [HomePage] = []
 
     init(rootDirectory: URL = sitePackageRoot()) {
@@ -34,7 +34,7 @@ struct ExampleSite: Site {
     }
 
     var pages: [any Page] {
-        generatedPages + [ArchivePage(), AboutPage()]
+        generatedPages + [ArchivePage()]
     }
 
     mutating func prepare() async throws {
@@ -51,6 +51,12 @@ struct ExampleSite: Site {
 }
 
 struct ArticlePage: PostPage {
+    var body: some HTML {
+        Text(post.title)
+    }
+}
+
+struct MarkdownPage: PostPage {
     var body: some HTML {
         MarkdownContent(post: post)
     }
