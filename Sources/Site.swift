@@ -32,13 +32,17 @@ struct ExampleSite: Site {
     var postPages: [any PostPage] = [ArticlePage(), MarkdownPage()]
     var generatedPages: [HomePage] = []
     var generatedTagPages: [TagPage] = []
+    var generatedCategoryPages: [CategoryTermPage] = []
 
     init(rootDirectory: URL = sitePackageRoot()) {
         self.rootDirectory = rootDirectory
     }
 
     var pages: [any Page] {
-        generatedPages + [ArchivePage(), TagsIndexPage()] + generatedTagPages
+        generatedPages +
+        [ArchivePage(), TagsIndexPage(), CategoriesIndexPage()] +
+        generatedTagPages +
+        generatedCategoryPages
     }
 
     mutating func prepare() async throws {
@@ -52,6 +56,8 @@ struct ExampleSite: Site {
             ? (2...totalPages).map { HomePage(pageNumber: $0, totalPages: totalPages) }
             : []
         generatedTagPages = contentLoader.publishedTagTerms(in: descriptors).map(TagPage.init(term:))
+        generatedCategoryPages = contentLoader.publishedCategoryTerms(in: descriptors)
+            .map(CategoryTermPage.init(term:))
     }
 }
 
