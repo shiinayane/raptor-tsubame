@@ -34,7 +34,12 @@ struct SidebarSupportTests {
 
     @Test("example site name and title suffix stay aligned with the sidebar profile")
     func exampleSiteUsesProfileIdentity() {
-        let site = ExampleSite()
+        var site = ExampleSite()
+        site.profile = SiteProfile(
+            name: "Custom Tsubame",
+            description: "Custom description.",
+            avatarText: "CT"
+        )
 
         #expect(site.name == site.profile.name)
         #expect(site.titleSuffix == " – \(site.profile.name)")
