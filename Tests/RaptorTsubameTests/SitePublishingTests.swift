@@ -71,6 +71,9 @@ struct SitePublishingTests {
 
         let archive = try harness.contents(of: "archive/index.html")
         #expect(archive.contains("data-sidebar-shell"))
+        #expect(archive.contains("data-sidebar-profile"))
+        #expect(archive.contains("data-sidebar-categories"))
+        #expect(archive.contains("data-sidebar-tags"))
         #expect(archive.contains("Welcome To Tsubame"))
         #expect(archive.contains("Raptor Notes"))
         #expect(archive.contains("Fuwari Study Notes"))
