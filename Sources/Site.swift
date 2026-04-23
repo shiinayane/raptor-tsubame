@@ -50,42 +50,9 @@ struct ExampleSite: Site {
     }
 }
 
-struct HomePage: Page {
-    let pageNumber: Int
-    let totalPages: Int
-
-    var title: String { "Home" }
-
-    var path: String {
-        SiteRoutes.homePage(pageNumber)
-    }
-
-    var body: some HTML {
-        Text("Home")
-    }
-}
-
-struct ArchivePage: Page {
-    var title: String { "Archive" }
-    var path: String { SiteRoutes.archive }
-
-    var body: some HTML {
-        Text("Archive")
-    }
-}
-
-struct AboutPage: Page {
-    var title: String { "About" }
-    var path: String { SiteRoutes.about }
-
-    var body: some HTML {
-        Text("About")
-    }
-}
-
 struct ArticlePage: PostPage {
     var body: some HTML {
-        Text(post.title)
+        MarkdownContent(post: post)
     }
 }
 

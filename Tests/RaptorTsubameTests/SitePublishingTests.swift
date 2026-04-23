@@ -50,6 +50,31 @@ struct SitePublishingTests {
         #expect(first.lowerBound < second.lowerBound)
     }
 
+    @Test("renders second homepage page with only the remaining posts")
+    func rendersSecondHomepagePage() async throws {
+        let harness = try TestPublishHarness()
+        defer { harness.cleanup() }
+
+        try await harness.publish()
+
+        let pageTwo = try harness.contents(of: "2/index.html")
+        #expect(pageTwo.contains("Welcome To Tsubame"))
+        #expect(!pageTwo.contains("Raptor Notes"))
+    }
+
+    @Test("archive contains all published posts")
+    func archiveContainsAllPublishedPosts() async throws {
+        let harness = try TestPublishHarness()
+        defer { harness.cleanup() }
+
+        try await harness.publish()
+
+        let archive = try harness.contents(of: "archive/index.html")
+        #expect(archive.contains("Welcome To Tsubame"))
+        #expect(archive.contains("Raptor Notes"))
+        #expect(archive.contains("Fuwari Study Notes"))
+    }
+
     @Test("renders about from markdown content")
     func rendersAboutFromMarkdown() async throws {
         let harness = try TestPublishHarness()
