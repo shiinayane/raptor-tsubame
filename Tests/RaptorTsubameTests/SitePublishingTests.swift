@@ -91,6 +91,36 @@ struct SitePublishingTests {
         #expect(about.contains("This page is authored in Markdown."))
     }
 
+    @Test("homepage about tags and categories render inside the shared sidebar shell")
+    func rendersSharedSidebarShellAcrossMajorRoutes() async throws {
+        let harness = try TestPublishHarness()
+        defer { harness.cleanup() }
+
+        try await harness.publish()
+
+        let homepage = try harness.contents(of: "index.html")
+        let about = try harness.contents(of: "about/index.html")
+        let tags = try harness.contents(of: "tags/index.html")
+        let categories = try harness.contents(of: "categories/index.html")
+
+        try expectSharedSidebarShell(
+            in: homepage,
+            contentNeedles: ["Fuwari Study Notes", "Raptor Notes"]
+        )
+        try expectSharedSidebarShell(
+            in: about,
+            contentNeedles: ["This page is authored in Markdown."]
+        )
+        try expectSharedSidebarShell(
+            in: tags,
+            contentNeedles: ["Tags", "Design (1)", "Raptor (2)"]
+        )
+        try expectSharedSidebarShell(
+            in: categories,
+            contentNeedles: ["Categories", "Notes (2)", "Updates (1)"]
+        )
+    }
+
     @Test("article page renders markdown body and metadata")
     func rendersArticlePage() async throws {
         let harness = try TestPublishHarness()
@@ -201,6 +231,25 @@ private func expectFooterOutsideMain(in html: String) throws {
 
     let mainSlice = html[mainOpen.lowerBound..<mainClose.upperBound]
     #expect(!mainSlice.contains("<footer"))
+}
+
+private func expectSharedSidebarShell(
+    in html: String,
+    contentNeedles: [String]
+) throws {
+    let main = try mainSlice(of: html)
+
+    #expect(main.contains("data-sidebar-shell=\"true\""))
+    #expect(main.contains("class=\"site-shell\""))
+    #expect(main.contains("data-shell-layout=\"two-column\""))
+    #expect(main.contains("data-sidebar-position=\"leading\""))
+    #expect(main.contains("data-sidebar-profile"))
+    #expect(main.contains("data-sidebar-categories"))
+    #expect(main.contains("data-sidebar-tags"))
+
+    for needle in contentNeedles {
+        #expect(main.contains(needle))
+    }
 }
 
 private func mainSlice(of html: String) throws -> String {

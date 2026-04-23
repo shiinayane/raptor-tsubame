@@ -36,10 +36,18 @@ struct TaxonomyPublishingTests {
         try await harness.publish()
 
         let tags = try harness.contents(of: "tags/index.html")
+        try expectSharedSidebarShell(
+            in: tags,
+            contentNeedles: ["Tags", "Design (1)", "Raptor (2)"]
+        )
         #expect(tags.contains("Design (1)"))
         #expect(tags.contains("Raptor (2)"))
 
         let raptor = try harness.contents(of: "tags/raptor/index.html")
+        try expectSharedSidebarShell(
+            in: raptor,
+            contentNeedles: ["Tag: Raptor", "Raptor Notes", "Fuwari Study Notes"]
+        )
         #expect(raptor.contains("Raptor Notes"))
         #expect(raptor.contains("Fuwari Study Notes"))
         #expect(!raptor.contains("Welcome To Tsubame"))
@@ -53,10 +61,18 @@ struct TaxonomyPublishingTests {
         try await harness.publish()
 
         let categories = try harness.contents(of: "categories/index.html")
+        try expectSharedSidebarShell(
+            in: categories,
+            contentNeedles: ["Categories", "Notes (2)", "Updates (1)"]
+        )
         #expect(categories.contains("Notes (2)"))
         #expect(categories.contains("Updates (1)"))
 
         let notes = try harness.contents(of: "categories/notes/index.html")
+        try expectSharedSidebarShell(
+            in: notes,
+            contentNeedles: ["Category: Notes", "Raptor Notes", "Fuwari Study Notes"]
+        )
         #expect(notes.contains("Raptor Notes"))
         #expect(notes.contains("Fuwari Study Notes"))
         #expect(!notes.contains("Welcome To Tsubame"))
@@ -77,4 +93,29 @@ struct TaxonomyPublishingTests {
         #expect(article.contains(">Intro<"))
         #expect(article.contains(">Site<"))
     }
+}
+
+private func expectSharedSidebarShell(
+    in html: String,
+    contentNeedles: [String]
+) throws {
+    let main = try mainSlice(of: html)
+
+    #expect(main.contains("data-sidebar-shell=\"true\""))
+    #expect(main.contains("class=\"site-shell\""))
+    #expect(main.contains("data-shell-layout=\"two-column\""))
+    #expect(main.contains("data-sidebar-position=\"leading\""))
+    #expect(main.contains("data-sidebar-profile"))
+    #expect(main.contains("data-sidebar-categories"))
+    #expect(main.contains("data-sidebar-tags"))
+
+    for needle in contentNeedles {
+        #expect(main.contains(needle))
+    }
+}
+
+private func mainSlice(of html: String) throws -> String {
+    let mainOpen = try #require(html.range(of: "<main"))
+    let mainClose = try #require(html.range(of: "</main>"))
+    return String(html[mainOpen.lowerBound..<mainClose.upperBound])
 }

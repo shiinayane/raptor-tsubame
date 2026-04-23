@@ -39,6 +39,8 @@ struct MainLayout: Layout {
                     .data("sidebar-position", "leading")
                 }
             }
+            .class("site-shell")
+            .data("shell-layout", "two-column")
             .data("sidebar-shell", "true")
         }
         Footer { PageFooter() }
