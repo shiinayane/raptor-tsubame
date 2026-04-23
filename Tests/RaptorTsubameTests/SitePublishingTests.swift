@@ -70,10 +70,10 @@ struct SitePublishingTests {
         try await harness.publish()
 
         let archive = try harness.contents(of: "archive/index.html")
-        #expect(archive.contains("data-sidebar-shell"))
-        #expect(archive.contains("data-sidebar-profile"))
-        #expect(archive.contains("data-sidebar-categories"))
-        #expect(archive.contains("data-sidebar-tags"))
+        try expectSharedSidebarShell(
+            in: archive,
+            contentNeedles: ["Welcome To Tsubame", "Raptor Notes", "Fuwari Study Notes"]
+        )
         #expect(archive.contains("Welcome To Tsubame"))
         #expect(archive.contains("Raptor Notes"))
         #expect(archive.contains("Fuwari Study Notes"))
@@ -130,6 +130,10 @@ struct SitePublishingTests {
 
         let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
         let main = try mainSlice(of: article)
+        try expectSharedSidebarShell(
+            in: article,
+            contentNeedles: ["Welcome To Tsubame", "The first published post in the fixture set."]
+        )
 
         // Avoid duplicated title from both the page chrome and the markdown body.
         #expect(occurrenceCount(of: "Welcome To Tsubame", in: main) == 1)
