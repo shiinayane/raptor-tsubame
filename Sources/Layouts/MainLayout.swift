@@ -26,13 +26,13 @@ struct MainLayout: Layout {
         Main {
             Tag("div") {
                 HStack(alignment: .top, spacing: 32) {
-                    content
-
                     SidebarContainer {
                         SidebarProfile(profile: sidebarProfile)
                         SidebarCategories(items: sidebarCategories)
                         SidebarTags(items: sidebarTags)
                     }
+
+                    content
                 }
             }
             .data("sidebar-shell", "true")
