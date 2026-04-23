@@ -23,6 +23,7 @@ struct ExampleSite: Site {
     var titleSuffix = " – Raptor Tsubame"
     var url = URL(static: "https://raptor-tsubame.example.com")
     var author = "Tsubame"
+    var profile = SiteProfile.default
 
     var homePage = HomePage(pageNumber: 1, totalPages: 1)
     var layout = MainLayout()

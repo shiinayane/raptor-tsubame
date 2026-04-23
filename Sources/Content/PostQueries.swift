@@ -1,6 +1,15 @@
 import Foundation
 import Raptor
 
+struct SidebarTaxonomyItem: Identifiable, Sendable, Equatable {
+    let term: TaxonomyTerm
+    let count: Int
+
+    var id: String { term.id }
+    var name: String { term.name }
+    var path: String { term.path }
+}
+
 enum PostQueries {
     static func publishedPosts<S: Sequence>(_ posts: S) -> [Post] where S.Element == Post {
         posts
@@ -135,5 +144,19 @@ enum PostQueries {
     private static func contentKind(for post: Post) -> SiteContentKind {
         let rawValue = post.metadata.stringValue(for: SiteContentMetadataKey.kind.rawValue)
         return SiteContentKind(rawValue: rawValue ?? "") ?? .post
+    }
+}
+
+extension PostQueries {
+    static func sidebarCategories<S: Sequence>(_ posts: S) -> [SidebarTaxonomyItem] where S.Element == Post {
+        categoryGroups(posts).map { group in
+            SidebarTaxonomyItem(term: group.term, count: group.posts.count)
+        }
+    }
+
+    static func sidebarTags<S: Sequence>(_ posts: S) -> [SidebarTaxonomyItem] where S.Element == Post {
+        tagGroups(posts).map { group in
+            SidebarTaxonomyItem(term: group.term, count: group.posts.count)
+        }
     }
 }
