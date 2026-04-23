@@ -3,9 +3,10 @@ import Raptor
 
 struct MainLayout: Layout {
     var body: some Document {
+        Navigation { TopNavigation().body }
         Main {
             content
-            RaptorFooter()
         }
+        Footer { PageFooter() }
     }
 }
