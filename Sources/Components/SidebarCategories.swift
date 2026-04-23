@@ -2,7 +2,7 @@ import Foundation
 import Raptor
 
 struct SidebarCategories: HTML {
-    let items: [SidebarTaxonomyItem]
+    let items: [TaxonomyCountItem]
 
     var body: some HTML {
         VStack(alignment: .leading, spacing: 8) {

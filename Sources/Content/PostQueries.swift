@@ -1,7 +1,7 @@
 import Foundation
 import Raptor
 
-struct SidebarTaxonomyItem: Identifiable, Sendable, Equatable {
+struct TaxonomyCountItem: Identifiable, Sendable, Equatable {
     let term: TaxonomyTerm
     let count: Int
 
@@ -148,15 +148,15 @@ enum PostQueries {
 }
 
 extension PostQueries {
-    static func sidebarCategories<S: Sequence>(_ posts: S) -> [SidebarTaxonomyItem] where S.Element == Post {
+    static func sidebarCategories<S: Sequence>(_ posts: S) -> [TaxonomyCountItem] where S.Element == Post {
         categoryGroups(posts).map { group in
-            SidebarTaxonomyItem(term: group.term, count: group.posts.count)
+            TaxonomyCountItem(term: group.term, count: group.posts.count)
         }
     }
 
-    static func sidebarTags<S: Sequence>(_ posts: S) -> [SidebarTaxonomyItem] where S.Element == Post {
+    static func sidebarTags<S: Sequence>(_ posts: S) -> [TaxonomyCountItem] where S.Element == Post {
         tagGroups(posts).map { group in
-            SidebarTaxonomyItem(term: group.term, count: group.posts.count)
+            TaxonomyCountItem(term: group.term, count: group.posts.count)
         }
     }
 }

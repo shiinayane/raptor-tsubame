@@ -19,8 +19,6 @@ struct ExampleSite: Site {
 
     let rootDirectory: URL
 
-    var name = "Raptor Tsubame"
-    var titleSuffix = " – Raptor Tsubame"
     var url = URL(static: "https://raptor-tsubame.example.com")
     var author = "Tsubame"
     var profile = SiteProfile.default
@@ -38,6 +36,9 @@ struct ExampleSite: Site {
     init(rootDirectory: URL = sitePackageRoot()) {
         self.rootDirectory = rootDirectory
     }
+
+    var name: String { profile.name }
+    var titleSuffix: String { " – \(profile.name)" }
 
     var pages: [any Page] {
         generatedPages +
