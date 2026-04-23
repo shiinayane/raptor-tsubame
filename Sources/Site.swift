@@ -50,12 +50,6 @@ struct ExampleSite: Site {
     }
 }
 
-struct ArticlePage: PostPage {
-    var body: some HTML {
-        Text(post.title)
-    }
-}
-
 struct MarkdownPage: PostPage {
     var body: some HTML {
         MarkdownContent(post: post)

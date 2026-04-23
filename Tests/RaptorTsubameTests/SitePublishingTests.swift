@@ -87,6 +87,19 @@ struct SitePublishingTests {
         #expect(about.contains("This page is authored in Markdown."))
     }
 
+    @Test("article page renders markdown body and metadata")
+    func rendersArticlePage() async throws {
+        let harness = try TestPublishHarness()
+        defer { harness.cleanup() }
+
+        try await harness.publish()
+
+        let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
+        #expect(article.contains("Welcome To Tsubame"))
+        #expect(article.contains("This is the first published post."))
+        #expect(article.contains("Raptor Tsubame"))
+    }
+
     @Test("homepage and about include shared navigation")
     func includesSharedNavigation() async throws {
         let harness = try TestPublishHarness()
