@@ -61,4 +61,21 @@ struct SitePublishingTests {
         #expect(about.contains("About This Site"))
         #expect(about.contains("This page is authored in Markdown."))
     }
+
+    @Test("homepage and about include shared navigation")
+    func includesSharedNavigation() async throws {
+        let harness = try TestPublishHarness()
+        defer { harness.cleanup() }
+
+        try await harness.publish()
+
+        let homepage = try harness.contents(of: "index.html")
+        let about = try harness.contents(of: "about/index.html")
+
+        #expect(homepage.contains("Home"))
+        #expect(homepage.contains("Archive"))
+        #expect(homepage.contains("About"))
+        #expect(about.contains("Archive"))
+    }
 }
+
