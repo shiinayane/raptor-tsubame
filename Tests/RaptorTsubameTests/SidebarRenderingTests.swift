@@ -62,6 +62,22 @@ struct SidebarRenderingTests {
         try expectSidebarShell(in: about)
         #expect(about.contains("About This Site"))
     }
+
+    @Test("taxonomy detail pages inherit the shared shell")
+    func taxonomyDetailPagesRenderSharedShell() async throws {
+        let harness = try TestPublishHarness()
+        defer { harness.cleanup() }
+
+        try await harness.publish()
+
+        let category = try harness.contents(of: "categories/updates/index.html")
+        try expectSidebarShell(in: category)
+        #expect(category.contains("Category: Updates"))
+
+        let tag = try harness.contents(of: "tags/intro/index.html")
+        try expectSidebarShell(in: tag)
+        #expect(tag.contains("Tag: Intro"))
+    }
 }
 
 private func expectSidebarShell(in html: String) throws {
