@@ -16,7 +16,7 @@ struct ContentMetadataTests {
         }
 
         #expect(site.homePage.totalPages == 2)
-        #expect(site.generatedPages.map(\.path) == ["/2"])
+        #expect(site.generatedPages.map(\.path) == [SiteRoutes.homePage(2)])
     }
 
     @Test("malformed front matter without closing delimiter does not leak body metadata")

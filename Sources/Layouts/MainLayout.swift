@@ -3,7 +3,7 @@ import Raptor
 
 struct MainLayout: Layout {
     var body: some Document {
-        Navigation { TopNavigation() }
+        Navigation { TopNavigation().body }
         Main {
             content
         }

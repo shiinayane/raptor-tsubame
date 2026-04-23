@@ -89,6 +89,39 @@ private func expectSharedNavigation(in html: String) throws {
     try expectLink(in: html, label: "Home", href: "/")
     try expectLink(in: html, label: "Archive", href: "/archive/")
     try expectLink(in: html, label: "About", href: "/about/")
+    try expectOneNavLinkPerListItem(in: html)
+}
+
+private func expectOneNavLinkPerListItem(in html: String) throws {
+    let navStart = try #require(html.range(of: "<nav"))
+    let navEnd = try #require(html.range(of: "</nav>"))
+    let nav = String(html[navStart.lowerBound..<navEnd.upperBound])
+
+    let listItemFragments = nav.components(separatedBy: "<li").dropFirst()
+    var listItems: [String] = []
+    listItems.reserveCapacity(listItemFragments.count)
+
+    for fragment in listItemFragments {
+        let candidate = "<li" + fragment
+        guard let end = candidate.range(of: "</li>") else { continue }
+        listItems.append(String(candidate[..<end.upperBound]))
+    }
+
+    #expect(listItems.count == 3)
+
+    let expectedHrefs = ["/", "/archive/", "/about/"]
+    for href in expectedHrefs {
+        let matches = listItems.filter { $0.contains("href=\"\(href)\"") }
+        #expect(matches.count == 1)
+    }
+
+    // Ensure each item doesn't contain multiple nav destinations.
+    for item in listItems {
+        let hrefCount = expectedHrefs.reduce(into: 0) { count, href in
+            if item.contains("href=\"\(href)\"") { count += 1 }
+        }
+        #expect(hrefCount == 1)
+    }
 }
 
 private func expectLink(
