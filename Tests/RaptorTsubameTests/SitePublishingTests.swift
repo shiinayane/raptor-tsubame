@@ -95,8 +95,19 @@ struct SitePublishingTests {
         try await harness.publish()
 
         let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
-        #expect(article.contains("Welcome To Tsubame"))
-        #expect(article.contains("This is the first published post."))
+        let main = try mainSlice(of: article)
+
+        // Avoid duplicated title from both the page chrome and the markdown body.
+        #expect(occurrenceCount(of: "Welcome To Tsubame", in: main) == 1)
+
+        // Body content comes from the markdown fixture.
+        #expect(main.contains("This is the first published post."))
+
+        // PostMeta should render visible metadata in the page body.
+        #expect(main.contains("<time"))
+        #expect(main.contains("The first published post in the fixture set."))
+
+        // Site chrome should still include the site name.
         #expect(article.contains("Raptor Tsubame"))
     }
 
@@ -186,4 +197,15 @@ private func expectFooterOutsideMain(in html: String) throws {
 
     let mainSlice = html[mainOpen.lowerBound..<mainClose.upperBound]
     #expect(!mainSlice.contains("<footer"))
+}
+
+private func mainSlice(of html: String) throws -> String {
+    let mainOpen = try #require(html.range(of: "<main"))
+    let mainClose = try #require(html.range(of: "</main>"))
+    return String(html[mainOpen.lowerBound..<mainClose.upperBound])
+}
+
+private func occurrenceCount(of needle: String, in haystack: String) -> Int {
+    guard !needle.isEmpty else { return 0 }
+    return haystack.components(separatedBy: needle).count - 1
 }

@@ -26,6 +26,9 @@ struct ExampleSite: Site {
 
     var homePage = HomePage(pageNumber: 1, totalPages: 1)
     var layout = MainLayout()
+
+    // `ArticlePage` is the default for regular posts.
+    // `MarkdownPage` is selected explicitly via front matter `layout: MarkdownPage` (e.g. Posts/pages/about.md).
     var postPages: [any PostPage] = [ArticlePage(), MarkdownPage()]
     var generatedPages: [HomePage] = []
 
