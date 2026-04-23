@@ -17,6 +17,8 @@ struct RaptorWebsite {
 struct ExampleSite: Site {    
     static let homePageSize = 2
 
+    let rootDirectory: URL
+
     var name = "Raptor Tsubame"
     var titleSuffix = " – Raptor Tsubame"
     var url = URL(static: "https://raptor-tsubame.example.com")
@@ -24,22 +26,27 @@ struct ExampleSite: Site {
 
     var homePage = HomePage(pageNumber: 1, totalPages: 1)
     var layout = MainLayout()
-    var postPages = [ArticlePage()]
+    var postPages: [any PostPage] = [ArticlePage()]
     var generatedPages: [HomePage] = []
+
+    init(rootDirectory: URL = sitePackageRoot()) {
+        self.rootDirectory = rootDirectory
+    }
 
     var pages: [any Page] {
         generatedPages + [ArchivePage(), AboutPage()]
     }
 
     mutating func prepare() async throws {
-        let rootDirectory = URL(filePath: FileManager.default.currentDirectoryPath)
         let contentLoader = SiteContentLoader()
         let descriptors = try contentLoader.load(from: rootDirectory)
         let publishedPostCount = contentLoader.publishedPostCount(in: descriptors)
         let totalPages = max(1, Int(ceil(Double(publishedPostCount) / Double(Self.homePageSize))))
 
         homePage = HomePage(pageNumber: 1, totalPages: totalPages)
-        generatedPages = (2...totalPages).map { HomePage(pageNumber: $0, totalPages: totalPages) }
+        generatedPages = totalPages > 1
+            ? (2...totalPages).map { HomePage(pageNumber: $0, totalPages: totalPages) }
+            : []
     }
 }
 
@@ -80,4 +87,17 @@ struct ArticlePage: PostPage {
     var body: some HTML {
         Text(post.title)
     }
+}
+
+private func sitePackageRoot(from file: StaticString = #filePath) -> URL {
+    var directory = URL(filePath: "\(file)").deletingLastPathComponent()
+
+    while directory.path != "/" {
+        if FileManager.default.fileExists(atPath: directory.appending(path: "Package.swift").path) {
+            return directory
+        }
+        directory.deleteLastPathComponent()
+    }
+
+    fatalError("Unable to locate package root.")
 }

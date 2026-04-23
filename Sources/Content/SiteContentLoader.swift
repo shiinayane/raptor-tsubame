@@ -59,15 +59,15 @@ struct SiteContentLoader {
             return [:]
         }
 
+        guard let closingIndex = lines[1...].firstIndex(of: "---") else {
+            return [:]
+        }
+
         var metadata = [String: any Sendable]()
         var index = 1
 
-        while index < lines.count {
+        while index < closingIndex {
             let line = lines[index]
-            if line == "---" {
-                break
-            }
-
             if let separator = line.firstIndex(of: ":") {
                 let key = line[..<separator].trimmingCharacters(in: .whitespaces)
                 let value = line[line.index(after: separator)...].trimmingCharacters(in: .whitespaces)

@@ -4,7 +4,7 @@ import Raptor
 enum PostQueries {
     static func publishedPosts<S: Sequence>(_ posts: S) -> [Post] where S.Element == Post {
         posts
-            .filter { $0.metadata.stringValue(for: SiteContentMetadataKey.kind.rawValue) == SiteContentKind.post.rawValue }
+            .filter { contentKind(for: $0) == .post }
             .filter(\.isPublished)
             .sorted(by: \.date, order: .reverse)
     }
@@ -13,7 +13,7 @@ enum PostQueries {
         let normalizedPath = normalized(path)
 
         return posts.first {
-            $0.metadata.stringValue(for: SiteContentMetadataKey.kind.rawValue) == SiteContentKind.page.rawValue &&
+            contentKind(for: $0) == .page &&
             $0.isPublished &&
             normalized($0.metadata.stringValue(for: SiteContentMetadataKey.path.rawValue) ?? $0.path) == normalizedPath
         }
@@ -43,6 +43,11 @@ enum PostQueries {
 
     private static func normalized(_ path: String) -> String {
         let trimmed = path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        return "/\(trimmed)/"
+        return trimmed.isEmpty ? "/" : "/\(trimmed)/"
+    }
+
+    private static func contentKind(for post: Post) -> SiteContentKind {
+        let rawValue = post.metadata.stringValue(for: SiteContentMetadataKey.kind.rawValue)
+        return SiteContentKind(rawValue: rawValue ?? "") ?? .post
     }
 }
