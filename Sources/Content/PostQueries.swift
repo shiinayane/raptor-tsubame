@@ -41,6 +41,92 @@ enum PostQueries {
         }
     }
 
+    static func category(for post: Post) -> TaxonomyTerm? {
+        guard contentKind(for: post) == .post,
+              post.isPublished,
+              let rawValue = post.metadata.stringValue(for: SiteContentMetadataKey.category.rawValue)?
+                .trimmingCharacters(in: .whitespacesAndNewlines),
+              !rawValue.isEmpty else {
+            return nil
+        }
+
+        return TaxonomyTerm(kind: .category, name: rawValue)
+    }
+
+    static func tags(for post: Post) -> [TaxonomyTerm] {
+        guard contentKind(for: post) == .post, post.isPublished else {
+            return []
+        }
+
+        let rawValue = post.metadata.stringValue(for: SiteContentMetadataKey.tags.rawValue) ?? ""
+        var seenTermIDs = Set<String>()
+        var terms = [TaxonomyTerm]()
+
+        for tag in rawValue.split(separator: ",") {
+            let trimmed = tag.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else {
+                continue
+            }
+
+            let term = TaxonomyTerm(kind: .tag, name: trimmed)
+            if seenTermIDs.insert(term.id).inserted {
+                terms.append(term)
+            }
+        }
+
+        return terms
+    }
+
+    static func tagGroups<S: Sequence>(_ posts: S) -> [(term: TaxonomyTerm, posts: [Post])] where S.Element == Post {
+        let published = publishedPosts(posts)
+        let grouped = Dictionary(
+            grouping: published.flatMap { post in
+                tags(for: post).map { ($0, post) }
+            },
+            by: \.0
+        )
+
+        return grouped
+            .map { entry in
+                (
+                    term: entry.key,
+                    posts: entry.value.map(\.1).sorted(by: \.date, order: .reverse)
+                )
+            }
+            .sorted { $0.term.name.localizedCaseInsensitiveCompare($1.term.name) == .orderedAscending }
+    }
+
+    static func categoryGroups<S: Sequence>(_ posts: S) -> [(term: TaxonomyTerm, posts: [Post])] where S.Element == Post {
+        let published = publishedPosts(posts)
+        let grouped = Dictionary(
+            grouping: published.compactMap { post in
+                category(for: post).map { ($0, post) }
+            },
+            by: \.0
+        )
+
+        return grouped
+            .map { entry in
+                (
+                    term: entry.key,
+                    posts: entry.value.map(\.1).sorted(by: \.date, order: .reverse)
+                )
+            }
+            .sorted { $0.term.name.localizedCaseInsensitiveCompare($1.term.name) == .orderedAscending }
+    }
+
+    static func posts<S: Sequence>(tagged slug: String, in posts: S) -> [Post] where S.Element == Post {
+        tagGroups(posts)
+            .first { $0.term.slug == slug }?
+            .posts ?? []
+    }
+
+    static func posts<S: Sequence>(inCategory slug: String, posts: S) -> [Post] where S.Element == Post {
+        categoryGroups(posts)
+            .first { $0.term.slug == slug }?
+            .posts ?? []
+    }
+
     private static func normalized(_ path: String) -> String {
         let trimmed = path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         return trimmed.isEmpty ? "/" : "/\(trimmed)/"

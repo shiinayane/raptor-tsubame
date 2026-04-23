@@ -3,6 +3,8 @@ title: Welcome To Tsubame
 date: 2026-01-01
 description: The first published post in the fixture set.
 kind: post
+category: Updates
+tags: Intro, Site
 published: true
 ---
 

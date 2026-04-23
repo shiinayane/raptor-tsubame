@@ -3,20 +3,20 @@ import Foundation
 
 struct TestPublishHarness {
     let rootDirectory: URL
+    let buildDirectoryPath: String
     let buildDirectory: URL
 
     init() throws {
         self.rootDirectory = packageRoot()
-        self.buildDirectory = rootDirectory
-            .appending(path: ".build")
-            .appending(path: "raptor-tsubame-test-site")
+        self.buildDirectoryPath = ".build/raptor-tsubame-test-sites/\(UUID().uuidString)"
+        self.buildDirectory = rootDirectory.appending(path: buildDirectoryPath)
 
         cleanup()
     }
 
     func publish() async throws {
         var site = ExampleSite()
-        try await site.publish(buildDirectoryPath: ".build/raptor-tsubame-test-site")
+        try await site.publish(buildDirectoryPath: buildDirectoryPath)
     }
 
     func fileExists(_ relativePath: String) -> Bool {
