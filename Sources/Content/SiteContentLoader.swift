@@ -2,9 +2,6 @@ import Foundation
 
 struct SiteContentDescriptor: Sendable {
     let sourceURL: URL
-    let title: String
-    let description: String
-    let date: Date?
     let path: String?
     let kind: SiteContentKind
     let isPublished: Bool
@@ -50,22 +47,19 @@ struct SiteContentLoader {
 
         return SiteContentDescriptor(
             sourceURL: fileURL,
-            title: metadata[.title] ?? "",
-            description: metadata[.description] ?? "",
-            date: parseDate(metadata[.date]),
-            path: metadata[.path],
-            kind: parseKind(metadata[.kind]),
-            isPublished: parsePublished(metadata[.published])
+            path: metadata.stringValue(for: SiteContentMetadataKey.path.rawValue),
+            kind: parseKind(metadata.stringValue(for: SiteContentMetadataKey.kind.rawValue)),
+            isPublished: parsePublished(metadata.stringValue(for: SiteContentMetadataKey.published.rawValue))
         )
     }
 
-    private func parseFrontMatter(in contents: String) -> [SiteContentMetadataKey: String] {
+    private func parseFrontMatter(in contents: String) -> [String: any Sendable] {
         let lines = contents.components(separatedBy: .newlines)
         guard lines.first == "---" else {
             return [:]
         }
 
-        var metadata = [SiteContentMetadataKey: String]()
+        var metadata = [String: any Sendable]()
         var index = 1
 
         while index < lines.count {
@@ -77,10 +71,7 @@ struct SiteContentLoader {
             if let separator = line.firstIndex(of: ":") {
                 let key = line[..<separator].trimmingCharacters(in: .whitespaces)
                 let value = line[line.index(after: separator)...].trimmingCharacters(in: .whitespaces)
-
-                if let metadataKey = SiteContentMetadataKey(rawValue: key) {
-                    metadata[metadataKey] = value
-                }
+                metadata[key] = value
             }
 
             index += 1
@@ -104,15 +95,7 @@ struct SiteContentLoader {
         return rawValue.lowercased() != "false"
     }
 
-    private func parseDate(_ rawValue: String?) -> Date? {
-        guard let rawValue else {
-            return nil
-        }
-
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: rawValue)
+    func publishedPostCount(in content: [SiteContentDescriptor]) -> Int {
+        content.count { $0.kind == .post && $0.isPublished }
     }
 }

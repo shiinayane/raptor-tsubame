@@ -1,34 +1,48 @@
 import Foundation
+import Raptor
 
 enum PostQueries {
-    static func publishedPosts(in content: [SiteContentDescriptor]) -> [SiteContentDescriptor] {
-        content
-            .filter { $0.kind == .post && $0.isPublished }
-            .sorted {
-                switch ($0.date, $1.date) {
-                case let (lhs?, rhs?):
-                    if lhs != rhs {
-                        return lhs > rhs
-                    }
-                case (_?, nil):
-                    return true
-                case (nil, _?):
-                    return false
-                case (nil, nil):
-                    break
-                }
-
-                return $0.sourceURL.lastPathComponent < $1.sourceURL.lastPathComponent
-            }
+    static func publishedPosts<S: Sequence>(_ posts: S) -> [Post] where S.Element == Post {
+        posts
+            .filter { $0.metadata.stringValue(for: SiteContentMetadataKey.kind.rawValue) == SiteContentKind.post.rawValue }
+            .filter(\.isPublished)
+            .sorted(by: \.date, order: .reverse)
     }
 
-    static func pageCount(
-        forPublishedPostsIn content: [SiteContentDescriptor],
-        pageSize: Int
-    ) -> Int {
+    static func standalonePage<S: Sequence>(at path: String, in posts: S) -> Post? where S.Element == Post {
+        let normalizedPath = normalized(path)
+
+        return posts.first {
+            $0.metadata.stringValue(for: SiteContentMetadataKey.kind.rawValue) == SiteContentKind.page.rawValue &&
+            $0.isPublished &&
+            normalized($0.metadata.stringValue(for: SiteContentMetadataKey.path.rawValue) ?? $0.path) == normalizedPath
+        }
+    }
+
+    static func archiveGroups<S: Sequence>(_ posts: S) -> [(year: Int, posts: [Post])] where S.Element == Post {
+        let groupedPosts = Dictionary(grouping: publishedPosts(posts)) {
+            Calendar(identifier: .gregorian).component(.year, from: $0.date)
+        }
+
+        return groupedPosts
+            .map { (year: $0.key, posts: $0.value.sorted(by: \.date, order: .reverse)) }
+            .sorted { $0.year > $1.year }
+    }
+
+    static func paginate(_ posts: [Post], pageSize: Int) -> [[Post]] {
         precondition(pageSize > 0, "Page size must be greater than zero.")
 
-        let count = publishedPosts(in: content).count
-        return max(1, Int(ceil(Double(count) / Double(pageSize))))
+        guard !posts.isEmpty else {
+            return []
+        }
+
+        return stride(from: 0, to: posts.count, by: pageSize).map { index in
+            Array(posts[index..<min(index + pageSize, posts.count)])
+        }
+    }
+
+    private static func normalized(_ path: String) -> String {
+        let trimmed = path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        return "/\(trimmed)/"
     }
 }

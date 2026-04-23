@@ -6,10 +6,13 @@ enum SiteContentKind: String, Sendable {
 }
 
 enum SiteContentMetadataKey: String, Sendable {
-    case title
-    case date
-    case description
+    case kind
     case published
     case path
-    case kind
+}
+
+extension Dictionary where Key == String, Value == any Sendable {
+    func stringValue(for key: String) -> String? {
+        self[key] as? String
+    }
 }

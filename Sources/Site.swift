@@ -33,11 +33,10 @@ struct ExampleSite: Site {
 
     mutating func prepare() async throws {
         let rootDirectory = URL(filePath: FileManager.default.currentDirectoryPath)
-        let descriptors = try SiteContentLoader().load(from: rootDirectory)
-        let totalPages = PostQueries.pageCount(
-            forPublishedPostsIn: descriptors,
-            pageSize: Self.homePageSize
-        )
+        let contentLoader = SiteContentLoader()
+        let descriptors = try contentLoader.load(from: rootDirectory)
+        let publishedPostCount = contentLoader.publishedPostCount(in: descriptors)
+        let totalPages = max(1, Int(ceil(Double(publishedPostCount) / Double(Self.homePageSize))))
 
         homePage = HomePage(pageNumber: 1, totalPages: totalPages)
         generatedPages = (2...totalPages).map { HomePage(pageNumber: $0, totalPages: totalPages) }
