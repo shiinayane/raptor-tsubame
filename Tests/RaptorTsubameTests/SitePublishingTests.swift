@@ -13,7 +13,7 @@ struct SitePublishingTests {
         try await site.prepare()
 
         #expect(site.homePage.totalPages == 2)
-        #expect(site.generatedPages.contains { $0.path == "/2" })
+        #expect(site.generatedPages.contains { $0.path == "/2/" })
     }
 
     @Test("publishes homepage pagination, archive, about, and post routes")
@@ -70,12 +70,49 @@ struct SitePublishingTests {
         try await harness.publish()
 
         let homepage = try harness.contents(of: "index.html")
+        let pageTwo = try harness.contents(of: "2/index.html")
+        let archive = try harness.contents(of: "archive/index.html")
         let about = try harness.contents(of: "about/index.html")
+        let post = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
 
-        #expect(homepage.contains("Home"))
-        #expect(homepage.contains("Archive"))
-        #expect(homepage.contains("About"))
-        #expect(about.contains("Archive"))
+        try expectSharedNavigation(in: homepage)
+        try expectSharedNavigation(in: pageTwo)
+        try expectSharedNavigation(in: archive)
+        try expectSharedNavigation(in: about)
+        try expectSharedNavigation(in: post)
+
+        try expectFooterOutsideMain(in: homepage)
     }
 }
 
+private func expectSharedNavigation(in html: String) throws {
+    try expectLink(in: html, label: "Home", href: "/")
+    try expectLink(in: html, label: "Archive", href: "/archive/")
+    try expectLink(in: html, label: "About", href: "/about/")
+}
+
+private func expectLink(
+    in html: String,
+    label: String,
+    href: String
+) throws {
+    let hrefNeedle = "href=\"\(href)\""
+    let labelNeedle = ">\(label)<"
+
+    let hrefRange = try #require(html.range(of: hrefNeedle))
+
+    // Tighten enough to avoid unrelated text matches without depending on exact HTML formatting.
+    let window = html[hrefRange.upperBound...].prefix(512)
+    #expect(window.contains(labelNeedle))
+}
+
+private func expectFooterOutsideMain(in html: String) throws {
+    let mainOpen = try #require(html.range(of: "<main"))
+    let mainClose = try #require(html.range(of: "</main>"))
+
+    let footer = try #require(html.range(of: "<footer"))
+    #expect(footer.lowerBound > mainClose.upperBound)
+
+    let mainSlice = html[mainOpen.lowerBound..<mainClose.upperBound]
+    #expect(!mainSlice.contains("<footer"))
+}

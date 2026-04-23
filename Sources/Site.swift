@@ -57,7 +57,7 @@ struct HomePage: Page {
     var title: String { "Home" }
 
     var path: String {
-        pageNumber == 1 ? "/" : "/\(pageNumber)"
+        SiteRoutes.homePage(pageNumber)
     }
 
     var body: some HTML {
@@ -67,7 +67,7 @@ struct HomePage: Page {
 
 struct ArchivePage: Page {
     var title: String { "Archive" }
-    var path: String { "/archive" }
+    var path: String { SiteRoutes.archive }
 
     var body: some HTML {
         Text("Archive")
@@ -76,7 +76,7 @@ struct ArchivePage: Page {
 
 struct AboutPage: Page {
     var title: String { "About" }
-    var path: String { "/about" }
+    var path: String { SiteRoutes.about }
 
     var body: some HTML {
         Text("About")

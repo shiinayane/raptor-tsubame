@@ -1,10 +1,10 @@
 import Foundation
 import Raptor
 
-func TopNavigation() -> Navigation {
-    Navigation {
-        Link("Home", destination: "/")
-        Link("Archive", destination: "/archive/")
-        Link("About", destination: "/about/")
+struct TopNavigation: HTML {
+    var body: some HTML {
+        Link("Home", destination: SiteRoutes.home)
+        Link("Archive", destination: SiteRoutes.archive)
+        Link("About", destination: SiteRoutes.about)
     }
 }
