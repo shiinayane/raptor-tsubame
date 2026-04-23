@@ -4,6 +4,18 @@ import Testing
 
 @Suite("Site publishing", .serialized)
 struct SitePublishingTests {
+    @Test("derives two homepage pages from three published posts with page size two")
+    func derivesHomepagePageCount() async throws {
+        let harness = try TestPublishHarness()
+        defer { harness.cleanup() }
+
+        var site = ExampleSite()
+        try await site.prepare()
+
+        #expect(site.homePage.totalPages == 2)
+        #expect(site.generatedPages.contains { $0.path == "/2" })
+    }
+
     @Test("publishes homepage pagination, archive, about, and post routes")
     func publishesPrimaryRoutes() async throws {
         let harness = try TestPublishHarness()
