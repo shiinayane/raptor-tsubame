@@ -80,14 +80,21 @@ struct SiteContentLoader {
     }
 
     private func aggregatedTerms(kind: TaxonomyKind, names: [String]) -> [TaxonomyTerm] {
-        let uniqueNames = Set(
-            names
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                .filter { !$0.isEmpty }
-        )
+        var uniqueTermsByID = [String: TaxonomyTerm]()
 
-        return uniqueNames
-            .map { TaxonomyTerm(kind: kind, name: $0) }
+        for name in names {
+            let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else {
+                continue
+            }
+
+            let term = TaxonomyTerm(kind: kind, name: trimmed)
+            if uniqueTermsByID[term.id] == nil {
+                uniqueTermsByID[term.id] = term
+            }
+        }
+
+        return uniqueTermsByID.values
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 

@@ -59,11 +59,22 @@ enum PostQueries {
         }
 
         let rawValue = post.metadata.stringValue(for: SiteContentMetadataKey.tags.rawValue) ?? ""
-        return rawValue
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-            .map { TaxonomyTerm(kind: .tag, name: $0) }
+        var seenTermIDs = Set<String>()
+        var terms = [TaxonomyTerm]()
+
+        for tag in rawValue.split(separator: ",") {
+            let trimmed = tag.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else {
+                continue
+            }
+
+            let term = TaxonomyTerm(kind: .tag, name: trimmed)
+            if seenTermIDs.insert(term.id).inserted {
+                terms.append(term)
+            }
+        }
+
+        return terms
     }
 
     static func tagGroups<S: Sequence>(_ posts: S) -> [(term: TaxonomyTerm, posts: [Post])] where S.Element == Post {

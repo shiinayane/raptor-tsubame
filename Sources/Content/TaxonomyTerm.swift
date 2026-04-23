@@ -6,7 +6,7 @@ enum TaxonomyKind: String, Sendable {
     case category
 }
 
-struct TaxonomyTerm: Hashable, Sendable, Identifiable {
+struct TaxonomyTerm: Sendable, Identifiable {
     let kind: TaxonomyKind
     let name: String
 
@@ -25,5 +25,16 @@ struct TaxonomyTerm: Hashable, Sendable, Identifiable {
         case .category:
             SiteRoutes.category(slug)
         }
+    }
+}
+
+extension TaxonomyTerm: Hashable {
+    static func == (lhs: TaxonomyTerm, rhs: TaxonomyTerm) -> Bool {
+        lhs.kind == rhs.kind && lhs.slug == rhs.slug
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(kind)
+        hasher.combine(slug)
     }
 }
