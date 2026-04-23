@@ -5,6 +5,8 @@ struct SiteContentDescriptor: Sendable {
     let path: String?
     let kind: SiteContentKind
     let isPublished: Bool
+    let category: String?
+    let tags: [String]
 }
 
 struct SiteContentLoader {
@@ -17,6 +19,28 @@ struct SiteContentLoader {
 
         let markdownFiles = try markdownFiles(in: postsDirectory)
         return try markdownFiles.map(loadDescriptor(from:))
+    }
+
+    func publishedPostCount(in content: [SiteContentDescriptor]) -> Int {
+        content.count { $0.kind == .post && $0.isPublished }
+    }
+
+    func publishedTagTerms(in content: [SiteContentDescriptor]) -> [TaxonomyTerm] {
+        aggregatedTerms(
+            kind: .tag,
+            names: content
+                .filter { $0.kind == .post && $0.isPublished }
+                .flatMap(\.tags)
+        )
+    }
+
+    func publishedCategoryTerms(in content: [SiteContentDescriptor]) -> [TaxonomyTerm] {
+        aggregatedTerms(
+            kind: .category,
+            names: content
+                .filter { $0.kind == .post && $0.isPublished }
+                .compactMap(\.category)
+        )
     }
 
     private func markdownFiles(in directory: URL) throws -> [URL] {
@@ -49,8 +73,22 @@ struct SiteContentLoader {
             sourceURL: fileURL,
             path: metadata.stringValue(for: SiteContentMetadataKey.path.rawValue),
             kind: parseKind(metadata.stringValue(for: SiteContentMetadataKey.kind.rawValue)),
-            isPublished: parsePublished(metadata.stringValue(for: SiteContentMetadataKey.published.rawValue))
+            isPublished: parsePublished(metadata.stringValue(for: SiteContentMetadataKey.published.rawValue)),
+            category: parseSingleValue(metadata.stringValue(for: SiteContentMetadataKey.category.rawValue)),
+            tags: parseTags(metadata.stringValue(for: SiteContentMetadataKey.tags.rawValue))
         )
+    }
+
+    private func aggregatedTerms(kind: TaxonomyKind, names: [String]) -> [TaxonomyTerm] {
+        let uniqueNames = Set(
+            names
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+        )
+
+        return uniqueNames
+            .map { TaxonomyTerm(kind: kind, name: $0) }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     private func parseFrontMatter(in contents: String) -> [String: any Sendable] {
@@ -95,7 +133,22 @@ struct SiteContentLoader {
         return rawValue.lowercased() != "false"
     }
 
-    func publishedPostCount(in content: [SiteContentDescriptor]) -> Int {
-        content.count { $0.kind == .post && $0.isPublished }
+    private func parseSingleValue(_ rawValue: String?) -> String? {
+        guard let rawValue = rawValue?.trimmingCharacters(in: .whitespacesAndNewlines), !rawValue.isEmpty else {
+            return nil
+        }
+
+        return rawValue
+    }
+
+    private func parseTags(_ rawValue: String?) -> [String] {
+        guard let rawValue else {
+            return []
+        }
+
+        return rawValue
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
     }
 }
