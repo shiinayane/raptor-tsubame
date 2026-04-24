@@ -243,10 +243,11 @@ private func expectSharedSidebarShell(
 ) throws {
     let main = try mainSlice(of: html)
 
-    #expect(main.contains("data-sidebar-shell=\"true\""))
+    #expect(occurrenceCount(of: "data-sidebar-shell=\"true\"", in: main) == 1)
     #expect(main.contains("class=\"site-shell\""))
     #expect(main.contains("data-shell-layout=\"two-column\""))
     #expect(main.contains("data-sidebar-position=\"leading\""))
+    #expect(main.contains("data-sidebar-container=\"true\""))
     #expect(main.contains("data-sidebar-profile"))
     #expect(main.contains("data-sidebar-categories"))
     #expect(main.contains("data-sidebar-tags"))

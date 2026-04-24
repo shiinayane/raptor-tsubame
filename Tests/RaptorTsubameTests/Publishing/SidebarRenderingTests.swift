@@ -81,11 +81,14 @@ struct SidebarRenderingTests {
 }
 
 private func expectSidebarShell(in html: String) throws {
-    #expect(html.contains("data-sidebar-shell"))
-    #expect(html.contains("data-sidebar-profile"))
-    #expect(html.contains("data-sidebar-categories"))
-    #expect(html.contains("data-sidebar-tags"))
-    #expect(html.contains("data-sidebar-position=\"leading\""))
+    let main = try mainSlice(of: html)
+
+    #expect(occurrenceCount(of: "data-sidebar-shell=\"true\"", in: main) == 1)
+    #expect(main.contains("data-sidebar-container=\"true\""))
+    #expect(main.contains("data-sidebar-profile"))
+    #expect(main.contains("data-sidebar-categories"))
+    #expect(main.contains("data-sidebar-tags"))
+    #expect(main.contains("data-sidebar-position=\"leading\""))
 }
 
 private func expectSidebarSection(
@@ -99,4 +102,15 @@ private func expectSidebarSection(
     for needle in needles {
         #expect(window.contains(needle))
     }
+}
+
+private func mainSlice(of html: String) throws -> String {
+    let mainOpen = try #require(html.range(of: "<main"))
+    let mainClose = try #require(html.range(of: "</main>"))
+    return String(html[mainOpen.lowerBound..<mainClose.upperBound])
+}
+
+private func occurrenceCount(of needle: String, in haystack: String) -> Int {
+    guard !needle.isEmpty else { return 0 }
+    return haystack.components(separatedBy: needle).count - 1
 }

@@ -101,10 +101,11 @@ private func expectSharedSidebarShell(
 ) throws {
     let main = try mainSlice(of: html)
 
-    #expect(main.contains("data-sidebar-shell=\"true\""))
+    #expect(occurrenceCount(of: "data-sidebar-shell=\"true\"", in: main) == 1)
     #expect(main.contains("class=\"site-shell\""))
     #expect(main.contains("data-shell-layout=\"two-column\""))
     #expect(main.contains("data-sidebar-position=\"leading\""))
+    #expect(main.contains("data-sidebar-container=\"true\""))
     #expect(main.contains("data-sidebar-profile"))
     #expect(main.contains("data-sidebar-categories"))
     #expect(main.contains("data-sidebar-tags"))
@@ -118,4 +119,9 @@ private func mainSlice(of html: String) throws -> String {
     let mainOpen = try #require(html.range(of: "<main"))
     let mainClose = try #require(html.range(of: "</main>"))
     return String(html[mainOpen.lowerBound..<mainClose.upperBound])
+}
+
+private func occurrenceCount(of needle: String, in haystack: String) -> Int {
+    guard !needle.isEmpty else { return 0 }
+    return haystack.components(separatedBy: needle).count - 1
 }
