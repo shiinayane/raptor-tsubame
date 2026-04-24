@@ -290,8 +290,15 @@ private func expectSharedSidebarShell(
 
 private func expectWarmVisualHTML(in html: String) throws {
     let main = try mainSlice(of: html)
+    let pageCanvasTag = try openingTag(containingClass: "page-canvas-style", in: main)
+    let siteShellTag = try openingTag(containingClass: "site-shell", in: main)
+    let pageCanvasRange = try #require(main.range(of: pageCanvasTag))
+    let siteShellRange = try #require(main.range(of: siteShellTag))
 
-    #expect(main.contains("page-canvas-style"))
+    #expect(pageCanvasTag.contains("page-canvas-style"))
+    #expect(siteShellTag.contains("site-shell"))
+    #expect(pageCanvasRange.lowerBound < siteShellRange.lowerBound)
+    #expect(!siteShellTag.contains("page-canvas-style"))
     #expect(main.contains("post-card-style"))
     #expect(main.contains("content-surface-style"))
     #expect(main.contains("metadata-text-style"))
@@ -480,7 +487,7 @@ private func openingTag(_ tag: String, containsClass className: String) -> Bool 
     let classStart = attributeStart.upperBound
     guard let classEnd = tag[classStart...].firstIndex(of: "\"") else { return false }
     let classes = tag[classStart..<classEnd].split(separator: " ")
-    return classes.contains(Substring(className))
+    return classes.contains { $0.contains(className) }
 }
 
 private func openingTag(containing index: String.Index, in html: String) throws -> String {

@@ -26,25 +26,27 @@ struct MainLayout: Layout {
         Main {
             Tag("div") {
                 Tag("div") {
-                    content
-                }
-                .style(ShellMainStyle())
-
-                Tag("div") {
-                    SidebarContainer {
-                        SidebarProfile(profile: sidebarProfile)
-                        SidebarCategories(items: sidebarCategories)
-                        SidebarTags(items: sidebarTags)
+                    Tag("div") {
+                        content
                     }
+                    .style(ShellMainStyle())
+
+                    Tag("div") {
+                        SidebarContainer {
+                            SidebarProfile(profile: sidebarProfile)
+                            SidebarCategories(items: sidebarCategories)
+                            SidebarTags(items: sidebarTags)
+                        }
+                    }
+                    .style(ShellSidebarStyle())
+                    .data("sidebar-position", "leading")
                 }
-                .style(ShellSidebarStyle())
-                .data("sidebar-position", "leading")
+                .class("site-shell")
+                .style(SiteShellStyle())
+                .data("shell-layout", "two-column")
+                .data("sidebar-shell", "true")
             }
-            .class("site-shell")
-            .style(SiteShellStyle())
             .style(PageCanvasStyle())
-            .data("shell-layout", "two-column")
-            .data("sidebar-shell", "true")
         }
         Footer { PageFooter() }
     }
