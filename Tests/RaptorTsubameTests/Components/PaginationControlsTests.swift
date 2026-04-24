@@ -15,4 +15,3 @@ struct PaginationControlsTests {
         #expect(model.olderPath == "/p/3/")
     }
 }
-

@@ -8,4 +8,3 @@ struct MarkdownContent: HTML {
         post.text
     }
 }
-
