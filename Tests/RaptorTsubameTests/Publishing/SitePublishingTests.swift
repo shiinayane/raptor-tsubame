@@ -373,7 +373,6 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(css.contains(".metadata-text-style"))
     #expect(css.contains(".sidebar-panel-style"))
 
-    #expect(css.contains("rgb(247 251 255 / 100%)"))
     #expect(css.contains("rgb(242 248 255 / 100%)"))
     #expect(css.contains("rgb(251 253 255 / 100%)"))
     #expect(css.contains("rgb(200 221 242 / 100%)"))

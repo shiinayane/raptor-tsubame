@@ -7,14 +7,12 @@ struct PageCanvasStyle: Style {
 
         if environment.horizontalSizeClass < .regular {
             content
-                .background(palette.pageBackground)
                 .background(palette.canvasBackground)
                 .style(.paddingBlock(.px(24)))
                 .style(.paddingInline(.px(16)))
                 .style(.minWidth(.px(0)))
         } else {
             content
-                .background(palette.pageBackground)
                 .background(palette.canvasBackground)
                 .style(.paddingBlock(.px(40)))
                 .style(.paddingInline(.px(24)))
