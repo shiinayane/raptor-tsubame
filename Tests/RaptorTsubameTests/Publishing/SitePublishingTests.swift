@@ -306,6 +306,8 @@ private func expectWarmVisualHTML(in html: String) throws {
 }
 
 private func expectWarmShellHTML(in html: String) throws {
+    try expectWarmPageBackground(in: html)
+
     let main = try mainSlice(of: html)
     let pageCanvasTag = try openingTag(containingClass: "page-canvas-style", in: main)
     let siteShellTag = try openingTag(containingClass: "site-shell", in: main)
@@ -317,6 +319,11 @@ private func expectWarmShellHTML(in html: String) throws {
     #expect(pageCanvasRange.lowerBound < siteShellRange.lowerBound)
     #expect(!siteShellTag.contains("page-canvas-style"))
     #expect(main.contains("sidebar-panel-style"))
+}
+
+private func expectWarmPageBackground(in html: String) throws {
+    let htmlTag = try openingTag(startingWith: "<html", in: html)
+    #expect(htmlTag.contains("--bg-page: rgb(252 246 236 / 100%)"))
 }
 
 private func expectResponsiveShellCSS(in css: String) throws {
