@@ -6,5 +6,6 @@ struct MarkdownContent: HTML {
 
     var body: some HTML {
         post.text
+            .data("markdown-content", "true")
     }
 }

@@ -17,16 +17,12 @@ struct ArticlePage: PostPage {
     }
 
     var body: some HTML {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(post.title)
-                .font(.title1)
-
-            PostMeta(post: post)
-            ArticleReadingStats(post: post)
-            TaxonomyBadgeList(category: category, tags: tags)
-
-            MarkdownContent(post: post)
-            ArticleNavigation(newer: adjacentPosts.newer, older: adjacentPosts.older)
-        }
+        ArticleContent(
+            post: post,
+            category: category,
+            tags: tags,
+            newer: adjacentPosts.newer,
+            older: adjacentPosts.older
+        )
     }
 }

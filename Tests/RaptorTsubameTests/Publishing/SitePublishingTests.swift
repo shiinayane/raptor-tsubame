@@ -106,6 +106,10 @@ struct SitePublishingTests {
 
         let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
         let main = try mainSlice(of: article)
+        #expect(main.contains("data-article-page=\"true\""))
+        #expect(main.contains("data-article-header=\"true\""))
+        #expect(main.contains("data-article-body=\"true\""))
+        #expect(main.contains("data-markdown-content=\"true\""))
         try expectSharedSidebarShell(
             in: article,
             contentNeedles: ["Welcome To Tsubame", "The first published post in the fixture set."]
@@ -120,6 +124,10 @@ struct SitePublishingTests {
         // PostMeta should render visible metadata in the page body.
         #expect(main.contains("<time"))
         #expect(main.contains("The first published post in the fixture set."))
+        #expect(main.contains("data-reading-stats=\"true\""))
+        #expect(main.contains("data-post-meta=\"true\""))
+        #expect(main.contains("href=\"/categories/updates/\""))
+        #expect(main.contains("href=\"/tags/intro/\""))
 
         // Site chrome should still include the site name.
         #expect(article.contains("Raptor Tsubame"))
@@ -198,6 +206,13 @@ struct SitePublishingTests {
         #expect(article.contains("page-canvas-style"))
         #expect(article.contains("sidebar-panel-style"))
         #expect(article.contains("metadata-text-style"))
+        #expect(article.contains("article-surface-style"))
+        #expect(article.contains("article-header-style"))
+        #expect(article.contains("article-body-style"))
+        #expect(article.contains("data-article-page=\"true\""))
+        #expect(article.contains("data-article-header=\"true\""))
+        #expect(article.contains("data-article-body=\"true\""))
+        #expect(article.contains("data-markdown-content=\"true\""))
         #expect(article.contains("data-post-meta=\"true\""))
     }
 }
@@ -369,6 +384,9 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(css.contains(".content-surface-style"))
     #expect(css.contains(".metadata-text-style"))
     #expect(css.contains(".sidebar-panel-style"))
+    #expect(css.contains(".article-surface-style"))
+    #expect(css.contains(".article-header-style"))
+    #expect(css.contains(".article-body-style"))
 
     #expect(css.contains("rgb(247 251 255 / 100%)"))
     #expect(css.contains("rgb(242 248 255 / 100%)"))
@@ -383,11 +401,19 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(!css.contains("@media (min-width: 0px) {\n    .content-surface-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .metadata-text-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .sidebar-panel-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-surface-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-header-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-body-style"))
 
     let sidebarPanelRule = try cssRule(in: css, containing: ".sidebar-panel-style")
     #expect(sidebarPanelRule.contains("rgb(251 253 255 / 100%)"))
     #expect(sidebarPanelRule.contains("rgb(200 221 242 / 100%)"))
     #expect(sidebarPanelRule.contains("rgb(19 40 62 / 100%)"))
+
+    let articleSurfaceRule = try cssRule(in: css, containing: ".article-surface-style")
+    #expect(articleSurfaceRule.contains("rgb(251 253 255 / 100%)"))
+    #expect(articleSurfaceRule.contains("rgb(200 221 242 / 100%)"))
+    #expect(articleSurfaceRule.contains("rgb(19 40 62 / 100%)"))
 
     try expectDarkBlueThemeRule(in: css, containing: ".page-canvas-style") { rule in
         #expect(rule.contains("rgb(7 17 29 / 100%)"))
@@ -405,6 +431,17 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     try expectDarkBlueThemeRule(in: css, containing: ".sidebar-panel-style") { rule in
         #expect(rule.contains("rgb(11 23 38 / 100%)"))
         #expect(rule.contains("rgb(36 71 98 / 100%)"))
+        #expect(rule.contains("rgb(220 236 255 / 100%)"))
+    }
+    try expectDarkBlueThemeRule(in: css, containing: ".article-surface-style") { rule in
+        #expect(rule.contains("rgb(11 23 38 / 100%)"))
+        #expect(rule.contains("rgb(36 71 98 / 100%)"))
+        #expect(rule.contains("rgb(220 236 255 / 100%)"))
+    }
+    try expectDarkBlueThemeRule(in: css, containing: ".article-header-style") { rule in
+        #expect(rule.contains("rgb(36 71 98 / 100%)"))
+    }
+    try expectDarkBlueThemeRule(in: css, containing: ".article-body-style") { rule in
         #expect(rule.contains("rgb(220 236 255 / 100%)"))
     }
     try expectDarkThemeVariables(in: css)

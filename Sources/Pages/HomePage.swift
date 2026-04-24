@@ -24,9 +24,14 @@ struct HomePage: Page {
 
     var body: some HTML {
         VStack(alignment: .leading, spacing: 24) {
+            if pageNumber == 1 {
+                // Raptor renders post bodies in an isolated build context, so
+                // article-only styles are seeded once through a normal page render.
+                ArticleStyleSeed()
+            }
+
             PostList(posts: pagePosts)
             PaginationControls(currentPage: pageNumber, totalPages: totalPages)
         }
     }
 }
-
