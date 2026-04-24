@@ -16,6 +16,7 @@ DerivedData/
 # Editor / tooling
 .vscode/
 .idea/
+.superpowers/
 
 # Secrets
 .netrc
