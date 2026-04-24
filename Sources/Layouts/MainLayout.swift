@@ -48,7 +48,7 @@ struct MainLayout: Layout {
             }
             .style(PageCanvasStyle())
         }
-        .background(Color(red: 252, green: 246, blue: 236))
+        .background(SiteThemePalette.light.pageBackground)
         Footer { PageFooter() }
     }
 }

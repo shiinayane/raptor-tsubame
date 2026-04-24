@@ -3,15 +3,19 @@ import Raptor
 
 struct PageCanvasStyle: Style {
     func style(content: Content, environment: EnvironmentConditions) -> Content {
+        let palette = SiteThemePalette.resolve(for: environment)
+
         if environment.horizontalSizeClass < .regular {
             content
-                .style(.backgroundColor(.rgb(252, 246, 236)))
+                .background(palette.pageBackground)
+                .background(palette.canvasBackground)
                 .style(.paddingBlock(.px(24)))
                 .style(.paddingInline(.px(16)))
                 .style(.minWidth(.px(0)))
         } else {
             content
-                .style(.backgroundColor(.rgb(252, 246, 236)))
+                .background(palette.pageBackground)
+                .background(palette.canvasBackground)
                 .style(.paddingBlock(.px(40)))
                 .style(.paddingInline(.px(24)))
                 .style(.minWidth(.px(0)))

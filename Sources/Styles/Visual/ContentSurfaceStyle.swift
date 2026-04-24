@@ -3,19 +3,21 @@ import Raptor
 
 struct ContentSurfaceStyle: Style {
     func style(content: Content, environment: EnvironmentConditions) -> Content {
+        let palette = SiteThemePalette.resolve(for: environment)
+
         if environment.horizontalSizeClass < .regular {
             content
                 .style(.width(.percent(100)))
-                .style(.backgroundColor(.rgb(255, 251, 244)))
+                .background(palette.surface)
                 .style(.borderRadius(.px(16)))
-                .border(Color(red: 232, green: 213, blue: 190), width: 1, style: .solid)
+                .border(palette.border, width: 1, style: .solid)
         } else {
             content
                 .style(.width(.percent(100)))
-                .style(.backgroundColor(.rgb(255, 251, 244)))
+                .background(palette.surface)
                 .style(.borderRadius(.px(18)))
-                .border(Color(red: 232, green: 213, blue: 190), width: 1, style: .solid)
-                .shadow(Color(red: 82, green: 49, blue: 28, opacity: 8%), radius: 22, x: 0, y: 12)
+                .border(palette.border, width: 1, style: .solid)
+                .shadow(palette.shadow, radius: 22, x: 0, y: 12)
         }
     }
 }
