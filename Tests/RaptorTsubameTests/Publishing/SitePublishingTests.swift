@@ -180,11 +180,11 @@ struct SitePublishingTests {
 
         let css = try harness.contents(of: "css/raptor-core.css")
         try expectResponsiveShellCSS(in: css)
-        try expectWarmVisualCSS(in: css)
+        try expectBlueThemeVisualCSS(in: css)
     }
 
-    @Test("published pages include warm visual style classes")
-    func publishedPagesIncludeWarmVisualStyleClasses() async throws {
+    @Test("published pages include blue theme visual styles")
+    func publishedPagesIncludeBlueThemeVisualStyles() async throws {
         let harness = try TestPublishHarness()
         defer { harness.cleanup() }
 
@@ -195,10 +195,10 @@ struct SitePublishingTests {
         let about = try harness.contents(of: "about/index.html")
         let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
 
-        try expectWarmVisualHTML(in: homepage)
-        try expectWarmVisualHTML(in: archive)
-        try expectWarmShellHTML(in: about)
-        try expectWarmShellHTML(in: article)
+        try expectBlueThemeVisualHTML(in: homepage)
+        try expectBlueThemeVisualHTML(in: archive)
+        try expectBlueThemeShellHTML(in: about)
+        try expectBlueThemeShellHTML(in: article)
         #expect(article.contains("page-canvas-style"))
         #expect(article.contains("sidebar-panel-style"))
         #expect(article.contains("metadata-text-style"))
@@ -293,8 +293,8 @@ private func expectSharedSidebarShell(
     }
 }
 
-private func expectWarmVisualHTML(in html: String) throws {
-    try expectWarmShellHTML(in: html)
+private func expectBlueThemeVisualHTML(in html: String) throws {
+    try expectBlueThemeShellHTML(in: html)
 
     let main = try mainSlice(of: html)
 
@@ -305,8 +305,8 @@ private func expectWarmVisualHTML(in html: String) throws {
     #expect(main.contains("data-post-meta=\"true\""))
 }
 
-private func expectWarmShellHTML(in html: String) throws {
-    try expectWarmPageBackground(in: html)
+private func expectBlueThemeShellHTML(in html: String) throws {
+    try expectBlueThemePageBackground(in: html)
 
     let main = try mainSlice(of: html)
     let pageCanvasTag = try openingTag(containingClass: "page-canvas-style", in: main)
@@ -321,9 +321,9 @@ private func expectWarmShellHTML(in html: String) throws {
     #expect(main.contains("sidebar-panel-style"))
 }
 
-private func expectWarmPageBackground(in html: String) throws {
+private func expectBlueThemePageBackground(in html: String) throws {
     let htmlTag = try openingTag(startingWith: "<html", in: html)
-    #expect(htmlTag.contains("--bg-page: rgb(252 246 236 / 100%)"))
+    #expect(htmlTag.contains("--bg-page: rgb(247 251 255 / 100%)"))
 }
 
 private func expectResponsiveShellCSS(in css: String) throws {
@@ -366,28 +366,37 @@ private func expectResponsiveShellCSS(in css: String) throws {
     #expect(regularPanel.contains("box-shadow:"))
 }
 
-private func expectWarmVisualCSS(in css: String) throws {
+private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(css.contains(".page-canvas-style"))
     #expect(css.contains(".post-card-style"))
     #expect(css.contains(".content-surface-style"))
     #expect(css.contains(".metadata-text-style"))
     #expect(css.contains(".sidebar-panel-style"))
 
-    #expect(css.contains("rgb(252 246 236 / 100%)"))
-    #expect(css.contains("rgb(255 251 244 / 100%)"))
-    #expect(css.contains("rgb(232 213 190 / 100%)"))
-    #expect(css.contains("rgb(126 83 47 / 100%)"))
+    #expect(css.contains("rgb(247 251 255 / 100%)"))
+    #expect(css.contains("rgb(242 248 255 / 100%)"))
+    #expect(css.contains("rgb(251 253 255 / 100%)"))
+    #expect(css.contains("rgb(200 221 242 / 100%)"))
+    #expect(css.contains("rgb(19 40 62 / 100%)"))
+    #expect(css.contains("rgb(88 113 139 / 100%)"))
+    #expect(css.contains("rgb(7 17 29 / 100%)"))
+    #expect(css.contains("rgb(11 23 38 / 100%)"))
+    #expect(css.contains("rgb(36 71 98 / 100%)"))
+    #expect(css.contains("rgb(220 236 255 / 100%)"))
+    #expect(css.contains("rgb(142 169 197 / 100%)"))
+    #expect(css.contains("[data-color-scheme=\"dark\"]"))
     #expect(css.contains("box-shadow:"))
 
     #expect(!css.contains("@media (min-width: 0px) {\n    .page-canvas-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .post-card-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .content-surface-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .metadata-text-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .sidebar-panel-style"))
 
     let sidebarPanelRule = try cssRule(in: css, containing: ".sidebar-panel-style")
-    #expect(sidebarPanelRule.contains("rgb(255 251 244 / 100%)"))
-    #expect(sidebarPanelRule.contains("rgb(232 213 190 / 100%)"))
-    #expect(sidebarPanelRule.contains("rgb(73 48 31 / 100%)"))
+    #expect(sidebarPanelRule.contains("rgb(251 253 255 / 100%)"))
+    #expect(sidebarPanelRule.contains("rgb(200 221 242 / 100%)"))
+    #expect(sidebarPanelRule.contains("rgb(19 40 62 / 100%)"))
 }
 
 private func cssWindow(
