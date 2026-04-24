@@ -37,16 +37,16 @@ Goal: define the long-term front matter contract before adding more article feat
 
 Candidate fields:
 
-- `cover`: optional article cover image path.
-- `series`: optional series name for grouped posts.
-- `toc`: optional table-of-contents preference.
-- `pinned`: optional homepage/discovery weight.
+- `image`: optional article cover image path, aligned with Fuwari front matter.
+- `updated`: optional deterministic updated date from front matter.
 - `lang`: optional content language marker if multilingual content becomes real.
+- `draft`: documented only as a Fuwari migration input; Raptor-facing publishing should keep using `published`.
+- `series`, `pinned`, and per-post `toc`: deferred extension candidates, not Stage 7.1 core fields.
 
 Initial implementation should be conservative:
 
 - Document all candidate fields.
-- Implement only fields needed by the next stage.
+- Implement only Fuwari-aligned fields needed by the next stage.
 - Add tests proving parsing defaults and invalid values.
 - Keep existing `kind`, `path`, `category`, `tags`, and `published` behavior stable.
 
@@ -130,6 +130,6 @@ Visual acceptance:
 
 ## Current Recommendation
 
-The next implementation stage should be Stage 7.1, limited to a content contract design and the smallest metadata parsing support needed for Stage 7.2. Avoid implementing cover images, series pages, TOC, and search all at once.
+The next implementation stage should be Stage 7.1, limited to a content contract design and the smallest metadata parsing support needed for Stage 7.2. Avoid implementing image rendering, series pages, TOC, and search all at once.
 
 After Stage 7.1, move into Stage 7.2 article reading work. That is the best place to improve both core blog value and visual expression without scattering effort across unrelated surfaces.
