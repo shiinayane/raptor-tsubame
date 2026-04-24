@@ -48,7 +48,6 @@ struct MainLayout: Layout {
             }
             .style(PageCanvasStyle())
         }
-        .background(SiteThemePalette.light.pageBackground)
         Footer { PageFooter() }
     }
 }

@@ -323,7 +323,8 @@ private func expectBlueThemeShellHTML(in html: String) throws {
 
 private func expectBlueThemePageBackground(in html: String) throws {
     let htmlTag = try openingTag(startingWith: "<html", in: html)
-    #expect(htmlTag.contains("--bg-page: rgb(247 251 255 / 100%)"))
+    #expect(htmlTag.contains("data-theme=\"site-theme\""))
+    #expect(!htmlTag.contains("--bg-page:"))
 }
 
 private func expectResponsiveShellCSS(in css: String) throws {
@@ -373,6 +374,7 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(css.contains(".metadata-text-style"))
     #expect(css.contains(".sidebar-panel-style"))
 
+    #expect(css.contains("rgb(247 251 255 / 100%)"))
     #expect(css.contains("rgb(242 248 255 / 100%)"))
     #expect(css.contains("rgb(251 253 255 / 100%)"))
     #expect(css.contains("rgb(200 221 242 / 100%)"))
@@ -409,6 +411,12 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
         #expect(rule.contains("rgb(36 71 98 / 100%)"))
         #expect(rule.contains("rgb(220 236 255 / 100%)"))
     }
+    try expectDarkThemeVariables(in: css)
+}
+
+private func expectDarkThemeVariables(in css: String) throws {
+    let rule = try cssRule(in: css, containing: #"[data-theme="site-theme"][data-color-scheme="dark"]"#)
+    #expect(rule.contains("--bg-page: rgb(7 17 29 / 100%);"))
 }
 
 private func expectDarkBlueThemeRule(

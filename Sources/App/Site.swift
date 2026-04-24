@@ -22,6 +22,7 @@ struct ExampleSite: Site {
     var url = URL(static: "https://raptor-tsubame.example.com")
     var author = "Tsubame"
     var profile = SiteProfile.default
+    nonisolated var themes: [any Theme] { SiteTheme() }
 
     var homePage = HomePage(pageNumber: 1, totalPages: 1)
     var layout = MainLayout()
