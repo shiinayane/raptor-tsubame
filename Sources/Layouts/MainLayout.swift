@@ -42,6 +42,7 @@ struct MainLayout: Layout {
             }
             .class("site-shell")
             .style(SiteShellStyle())
+            .style(PageCanvasStyle())
             .data("shell-layout", "two-column")
             .data("sidebar-shell", "true")
         }

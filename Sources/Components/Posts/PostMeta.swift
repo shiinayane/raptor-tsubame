@@ -11,5 +11,7 @@ struct PostMeta: HTML {
                 Text { post.description }
             }
         }
+        .style(MetadataTextStyle())
+        .data("post-meta", "true")
     }
 }
