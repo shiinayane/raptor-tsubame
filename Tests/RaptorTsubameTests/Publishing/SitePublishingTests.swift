@@ -180,6 +180,24 @@ struct SitePublishingTests {
 
         let css = try harness.contents(of: "css/raptor-core.css")
         try expectResponsiveShellCSS(in: css)
+        try expectWarmVisualCSS(in: css)
+    }
+
+    @Test("published pages include warm visual style classes")
+    func publishedPagesIncludeWarmVisualStyleClasses() async throws {
+        let harness = try TestPublishHarness()
+        defer { harness.cleanup() }
+
+        try await harness.publish()
+
+        let homepage = try harness.contents(of: "index.html")
+        let archive = try harness.contents(of: "archive/index.html")
+        let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
+
+        try expectWarmVisualHTML(in: homepage)
+        try expectWarmVisualHTML(in: archive)
+        #expect(article.contains("page-canvas-style"))
+        #expect(article.contains("sidebar-panel-style"))
     }
 }
 
@@ -270,6 +288,18 @@ private func expectSharedSidebarShell(
     }
 }
 
+private func expectWarmVisualHTML(in html: String) throws {
+    let main = try mainSlice(of: html)
+
+    #expect(main.contains("page-canvas-style"))
+    #expect(main.contains("post-card-style"))
+    #expect(main.contains("content-surface-style"))
+    #expect(main.contains("metadata-text-style"))
+    #expect(main.contains("sidebar-panel-style"))
+    #expect(main.contains("data-post-card=\"true\""))
+    #expect(main.contains("data-post-meta=\"true\""))
+}
+
 private func expectResponsiveShellCSS(in css: String) throws {
     #expect(!css.contains("@media (min-width: 0px) {\n    .site-shell-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .shell-main-style"))
@@ -308,6 +338,30 @@ private func expectResponsiveShellCSS(in css: String) throws {
     )
     #expect(regularPanel.contains("padding: 18px;"))
     #expect(regularPanel.contains("box-shadow:"))
+}
+
+private func expectWarmVisualCSS(in css: String) throws {
+    #expect(css.contains(".page-canvas-style"))
+    #expect(css.contains(".post-card-style"))
+    #expect(css.contains(".content-surface-style"))
+    #expect(css.contains(".metadata-text-style"))
+    #expect(css.contains(".sidebar-panel-style"))
+
+    #expect(css.contains("rgb(252 246 236 / 100%)"))
+    #expect(css.contains("rgb(255 251 244 / 100%)"))
+    #expect(css.contains("rgb(232 213 190 / 100%)"))
+    #expect(css.contains("rgb(126 83 47 / 100%)"))
+    #expect(css.contains("box-shadow:"))
+
+    #expect(!css.contains("@media (min-width: 0px) {\n    .page-canvas-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .post-card-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .content-surface-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .metadata-text-style"))
+
+    let sidebarPanelRule = try cssRule(in: css, containing: ".sidebar-panel-style")
+    #expect(sidebarPanelRule.contains("rgb(255 251 244 / 100%)"))
+    #expect(sidebarPanelRule.contains("rgb(232 213 190 / 100%)"))
+    #expect(sidebarPanelRule.contains("rgb(73 48 31 / 100%)"))
 }
 
 private func cssWindow(
@@ -351,6 +405,29 @@ private func cssBlock(startingAt start: String.Index, in css: String) throws -> 
 
     let missingBlock: String? = nil
     return try #require(missingBlock)
+}
+
+private func cssRule(in css: String, containing selectorNeedle: String) throws -> String {
+    let selectorRange = try #require(css.range(of: selectorNeedle))
+    let ruleOpen = try #require(css[selectorRange.lowerBound...].firstIndex(of: "{"))
+    var depth = 0
+    var index = ruleOpen
+
+    while index < css.endIndex {
+        if css[index] == "{" {
+            depth += 1
+        } else if css[index] == "}" {
+            depth -= 1
+            if depth == 0 {
+                return String(css[selectorRange.lowerBound...index])
+            }
+        }
+
+        index = css.index(after: index)
+    }
+
+    let missingRule: String? = nil
+    return try #require(missingRule)
 }
 
 private func mainSlice(of html: String) throws -> String {
