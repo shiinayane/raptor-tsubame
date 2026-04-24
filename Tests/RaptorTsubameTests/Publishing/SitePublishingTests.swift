@@ -379,12 +379,6 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(css.contains("rgb(200 221 242 / 100%)"))
     #expect(css.contains("rgb(19 40 62 / 100%)"))
     #expect(css.contains("rgb(88 113 139 / 100%)"))
-    #expect(css.contains("rgb(7 17 29 / 100%)"))
-    #expect(css.contains("rgb(11 23 38 / 100%)"))
-    #expect(css.contains("rgb(36 71 98 / 100%)"))
-    #expect(css.contains("rgb(220 236 255 / 100%)"))
-    #expect(css.contains("rgb(142 169 197 / 100%)"))
-    #expect(css.contains("[data-color-scheme=\"dark\"]"))
     #expect(css.contains("box-shadow:"))
 
     #expect(!css.contains("@media (min-width: 0px) {\n    .page-canvas-style"))
@@ -397,6 +391,34 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(sidebarPanelRule.contains("rgb(251 253 255 / 100%)"))
     #expect(sidebarPanelRule.contains("rgb(200 221 242 / 100%)"))
     #expect(sidebarPanelRule.contains("rgb(19 40 62 / 100%)"))
+
+    try expectDarkBlueThemeRule(in: css, containing: ".page-canvas-style") { rule in
+        #expect(rule.contains("rgb(7 17 29 / 100%)"))
+    }
+    try expectDarkBlueThemeRule(in: css, containing: ".content-surface-style") { rule in
+        #expect(rule.contains("rgb(11 23 38 / 100%)"))
+        #expect(rule.contains("rgb(36 71 98 / 100%)"))
+    }
+    try expectDarkBlueThemeRule(in: css, containing: ".post-card-style") { rule in
+        #expect(rule.contains("rgb(220 236 255 / 100%)"))
+    }
+    try expectDarkBlueThemeRule(in: css, containing: ".metadata-text-style") { rule in
+        #expect(rule.contains("rgb(142 169 197 / 100%)"))
+    }
+    try expectDarkBlueThemeRule(in: css, containing: ".sidebar-panel-style") { rule in
+        #expect(rule.contains("rgb(11 23 38 / 100%)"))
+        #expect(rule.contains("rgb(36 71 98 / 100%)"))
+        #expect(rule.contains("rgb(220 236 255 / 100%)"))
+    }
+}
+
+private func expectDarkBlueThemeRule(
+    in css: String,
+    containing selectorNeedle: String,
+    assertions: (String) throws -> Void
+) throws {
+    let rule = try cssRule(in: css, containing: "[data-color-scheme=\"dark\"] \(selectorNeedle)")
+    try assertions(rule)
 }
 
 private func cssWindow(
