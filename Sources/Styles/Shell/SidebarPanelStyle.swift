@@ -5,12 +5,14 @@ struct SidebarPanelStyle: Style {
     func style(content: Content, environment: EnvironmentConditions) -> Content {
         if environment.horizontalSizeClass == .compact {
             content
+                .style(.width(.percent(100)))
                 .style(.padding(.px(16)))
                 .style(.borderRadius(.px(10)))
                 .style(.backgroundColor(.rgb(250, 250, 248)))
                 .border(Color(red: 230, green: 228, blue: 222), width: 1, style: .solid)
         } else {
             content
+                .style(.width(.percent(100)))
                 .style(.padding(.px(18)))
                 .style(.borderRadius(.px(12)))
                 .style(.backgroundColor(.rgb(250, 250, 248)))
