@@ -113,7 +113,7 @@ private func mainSlice(of html: String) throws -> String {
 }
 
 private func expectSidebarMarkerOwnership(in main: String) throws {
-    let siteShellTag = try openingTag(containing: "class=\"site-shell\"", in: main)
+    let siteShellTag = try openingTag(containingClass: "site-shell", in: main)
     let sidebarContainerTag = try sidebarContainerOpeningTag(in: main)
 
     #expect(siteShellTag.contains("data-sidebar-shell=\"true\""))
@@ -132,6 +132,31 @@ private func sidebarContainerOpeningTag(in html: String) throws -> String {
 private func openingTag(containing needle: String, in html: String) throws -> String {
     let needleRange = try #require(html.range(of: needle))
     return try openingTag(containing: needleRange.lowerBound, in: html)
+}
+
+private func openingTag(containingClass className: String, in html: String) throws -> String {
+    var searchStart = html.startIndex
+
+    while let classRange = html.range(of: className, range: searchStart..<html.endIndex) {
+        let tag = try openingTag(containing: classRange.lowerBound, in: html)
+
+        if openingTag(tag, containsClass: className) {
+            return tag
+        }
+
+        searchStart = classRange.upperBound
+    }
+
+    let missingTag: String? = nil
+    return try #require(missingTag)
+}
+
+private func openingTag(_ tag: String, containsClass className: String) -> Bool {
+    guard let attributeStart = tag.range(of: "class=\"") else { return false }
+    let classStart = attributeStart.upperBound
+    guard let classEnd = tag[classStart...].firstIndex(of: "\"") else { return false }
+    let classes = tag[classStart..<classEnd].split(separator: " ")
+    return classes.contains(Substring(className))
 }
 
 private func openingTag(containing index: String.Index, in html: String) throws -> String {
