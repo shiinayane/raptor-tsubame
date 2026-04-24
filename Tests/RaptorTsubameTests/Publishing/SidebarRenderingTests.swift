@@ -89,6 +89,8 @@ private func expectSidebarShell(in html: String) throws {
     #expect(main.contains("data-sidebar-categories"))
     #expect(main.contains("data-sidebar-tags"))
     #expect(main.contains("data-sidebar-position=\"leading\""))
+
+    try expectSidebarMarkerOwnership(in: main)
 }
 
 private func expectSidebarSection(
@@ -108,6 +110,43 @@ private func mainSlice(of html: String) throws -> String {
     let mainOpen = try #require(html.range(of: "<main"))
     let mainClose = try #require(html.range(of: "</main>"))
     return String(html[mainOpen.lowerBound..<mainClose.upperBound])
+}
+
+private func expectSidebarMarkerOwnership(in main: String) throws {
+    let siteShellTag = try openingTag(containing: "class=\"site-shell\"", in: main)
+    let sidebarContainerTag = try sidebarContainerOpeningTag(in: main)
+
+    #expect(siteShellTag.contains("data-sidebar-shell=\"true\""))
+    #expect(sidebarContainerTag.contains("data-sidebar-container=\"true\""))
+    #expect(!sidebarContainerTag.contains("data-sidebar-shell=\"true\""))
+}
+
+private func sidebarContainerOpeningTag(in html: String) throws -> String {
+    if let containerRange = html.range(of: "data-sidebar-container=\"true\"") {
+        return try openingTag(containing: containerRange.lowerBound, in: html)
+    }
+
+    return try openingTag(startingWith: "<aside", in: html)
+}
+
+private func openingTag(containing needle: String, in html: String) throws -> String {
+    let needleRange = try #require(html.range(of: needle))
+    return try openingTag(containing: needleRange.lowerBound, in: html)
+}
+
+private func openingTag(containing index: String.Index, in html: String) throws -> String {
+    let beforeNeedle = html[..<index]
+    let afterNeedle = html[index...]
+    let open = try #require(beforeNeedle.lastIndex(of: "<"))
+    let close = try #require(afterNeedle.firstIndex(of: ">"))
+    return String(html[open...close])
+}
+
+private func openingTag(startingWith prefix: String, in html: String) throws -> String {
+    let open = try #require(html.range(of: prefix))
+    let afterOpen = html[open.lowerBound...]
+    let close = try #require(afterOpen.firstIndex(of: ">"))
+    return String(html[open.lowerBound...close])
 }
 
 private func occurrenceCount(of needle: String, in haystack: String) -> Int {
