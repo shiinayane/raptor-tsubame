@@ -274,6 +274,7 @@ private func expectResponsiveShellCSS(in css: String) throws {
     #expect(!css.contains("@media (min-width: 0px) {\n    .site-shell-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .shell-main-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .shell-sidebar-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .sidebar-panel-style"))
 
     let regularShell = try cssWindow(
         in: css,
@@ -299,6 +300,14 @@ private func expectResponsiveShellCSS(in css: String) throws {
     )
     #expect(regularMain.contains("flex-basis: 0px;"))
     #expect(regularMain.contains("max-width: 760px;"))
+
+    let regularPanel = try cssWindow(
+        in: css,
+        from: "@media (min-width: 575px)",
+        containing: ".sidebar-panel-style"
+    )
+    #expect(regularPanel.contains("padding: 18px;"))
+    #expect(regularPanel.contains("box-shadow:"))
 }
 
 private func cssWindow(
