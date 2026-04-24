@@ -38,11 +38,20 @@ The article header should be stronger than the list-card header but still calm:
 - Cover image: optional, only rendered when `image` exists.
 - Cover caption/source: optional and only rendered when source metadata exists in a later contract stage; Stage 7.3 may reserve a component boundary but should not invent ad hoc front matter parsing for it.
 
+Use Fuwari's post page as the size reference, not as a template to copy:
+
+- Fuwari's post container uses compact card padding: about 24px on mobile and 36px on desktop.
+- Fuwari's reading stats row uses smaller 24px icon blocks.
+- Fuwari's publish/category/tag metadata row uses 32px icon blocks.
+- Fuwari's title scale is about `text-3xl` on mobile and 36px/44px on desktop.
+- Fuwari's title accent is a narrow 4px vertical bar, offset into the card's left padding on wider screens.
+- Fuwari's cover sits inside the post card, uses the content width, has a rounded-xl feel, and appears after metadata with clear bottom spacing.
+
 The reference image uses compact square icon blocks with visible glyphs centered inside the block. The implementation should preserve that principle:
 
-- Icon blocks should be compact, around the visual density of the reference image.
-- Reading stat icon blocks and metadata icon blocks may share the same block size unless implementation proves a smaller stats block is cleaner.
-- If different block sizes are used, glyphs must occupy a similar percentage of their block.
+- Icon blocks should be compact, around the visual density of Fuwari and the reference image.
+- Reading stat icon blocks should be smaller than metadata icon blocks, matching Fuwari's 24px vs 32px rhythm.
+- Glyphs must occupy a similar percentage of their block even when the block sizes differ.
 - Glyphs must be centered with a reusable layout rule such as flex/grid centering, not by relying on text baseline behavior.
 - Title color should use a high-contrast text token.
 - Stats and metadata text should use muted text tokens that remain readable in both light and dark mode.

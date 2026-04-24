@@ -10,6 +10,19 @@
 
 ---
 
+## Fuwari Size Reference
+
+Stage 7.3 should use Fuwari's post page dimensions as a reference while preserving Tsubame's Raptor implementation and blue theme tokens:
+
+- Fuwari post card padding: `px-6 md:px-9 pt-6 pb-4`, roughly 24px mobile horizontal, 36px desktop horizontal, 24px top, 16px bottom.
+- Fuwari reading stats icons: `h-6 w-6`, 24px square.
+- Fuwari metadata icons: `.meta-icon`, `w-8 h-8`, 32px square.
+- Fuwari title: `text-3xl md:text-[2.25rem]/[2.75rem]`, roughly 30px mobile and 36px/44px desktop.
+- Fuwari title accent: `md:before:w-1 before:h-5`, a narrow 4px by 20px vertical bar on desktop.
+- Fuwari cover: `mb-8 rounded-xl banner-container`, full content width, rounded-xl density, and clear 32px bottom spacing.
+
+Implementation should not copy Tailwind classes. It should translate these sizes into Raptor `Style` values that fit the existing Tsubame article surface.
+
 ## File Structure
 
 - Modify `Posts/posts/welcome-to-tsubame.md`: add fixture metadata for `image`, `updated`, and `lang`.
@@ -112,6 +125,7 @@ In `publishedPagesIncludeBlueThemeVisualStyles()`, add article-specific style ex
 #expect(article.contains("article-title-block-style"))
 #expect(article.contains("article-title-accent-style"))
 #expect(article.contains("article-metadata-item-style"))
+#expect(article.contains("article-reading-icon-style"))
 #expect(article.contains("article-metadata-icon-style"))
 #expect(article.contains("article-cover-style"))
 #expect(article.contains("data-article-meta-icon=\"true\""))
@@ -125,14 +139,21 @@ In `expectBlueThemeVisualCSS(in:)`, add:
 #expect(css.contains(".article-title-block-style"))
 #expect(css.contains(".article-title-accent-style"))
 #expect(css.contains(".article-metadata-item-style"))
+#expect(css.contains(".article-reading-icon-style"))
 #expect(css.contains(".article-metadata-icon-style"))
 #expect(css.contains(".article-cover-style"))
+
+let readingIconRule = try cssRule(in: css, containing: ".article-reading-icon-style")
+#expect(readingIconRule.contains("align-items: center;"))
+#expect(readingIconRule.contains("justify-content: center;"))
+#expect(readingIconRule.contains("width: 24px;"))
+#expect(readingIconRule.contains("height: 24px;"))
 
 let metadataIconRule = try cssRule(in: css, containing: ".article-metadata-icon-style")
 #expect(metadataIconRule.contains("align-items: center;"))
 #expect(metadataIconRule.contains("justify-content: center;"))
-#expect(metadataIconRule.contains("width: 34px;"))
-#expect(metadataIconRule.contains("height: 34px;"))
+#expect(metadataIconRule.contains("width: 32px;"))
+#expect(metadataIconRule.contains("height: 32px;"))
 #expect(metadataIconRule.contains("rgb(74 139 203 / 100%)"))
 
 try expectDarkBlueThemeRule(in: css, containing: ".article-metadata-icon-style") { rule in
@@ -202,25 +223,24 @@ import Raptor
 struct ArticleMetadataItem<Content: HTML>: HTML {
     let kind: String
     let icon: String
+    var scale: ArticleMetadataIconScale = .metadata
     private let content: Content
 
     init(
         kind: String,
         icon: String,
+        scale: ArticleMetadataIconScale = .metadata,
         @HTMLBuilder content: () -> Content
     ) {
         self.kind = kind
         self.icon = icon
+        self.scale = scale
         self.content = content()
     }
 
     var body: some HTML {
         HStack(spacing: 10) {
-            Tag("span") {
-                Text(icon)
-            }
-            .style(ArticleMetadataIconStyle())
-            .data("article-meta-icon", "true")
+            iconBlock
 
             Tag("span") {
                 content
@@ -229,6 +249,23 @@ struct ArticleMetadataItem<Content: HTML>: HTML {
         }
         .style(ArticleMetadataItemStyle())
         .data("article-meta-item", kind)
+    }
+
+    @HTMLBuilder private var iconBlock: some HTML {
+        switch scale {
+        case .reading:
+            Tag("span") {
+                Text(icon)
+            }
+            .style(ArticleReadingIconStyle())
+            .data("article-meta-icon", "true")
+        case .metadata:
+            Tag("span") {
+                Text(icon)
+            }
+            .style(ArticleMetadataIconStyle())
+            .data("article-meta-icon", "true")
+        }
     }
 }
 ```
@@ -335,11 +372,11 @@ struct ArticleReadingStats: HTML {
 
     var body: some HTML {
         HStack(spacing: 16) {
-            ArticleMetadataItem(kind: "reading-words", icon: "☰") {
+            ArticleMetadataItem(kind: "reading-words", icon: "☰", scale: .reading) {
                 Text("\(post.estimatedWordCount) words")
             }
 
-            ArticleMetadataItem(kind: "reading-minutes", icon: "◷") {
+            ArticleMetadataItem(kind: "reading-minutes", icon: "◷", scale: .reading) {
                 Text("\(post.estimatedReadingMinutes) min read")
             }
         }
@@ -417,8 +454,8 @@ struct ArticleTitleAccentStyle: Style {
         let palette = SiteThemePalette.resolve(for: environment)
 
         return content
-            .style(.width(.px(5)))
-            .style(.height(.px(42)))
+            .style(.width(.px(4)))
+            .style(.height(.px(20)))
             .style(.borderRadius(.px(999)))
             .background(palette.accent)
     }
@@ -461,6 +498,28 @@ struct ArticleMetadataItemStyle: Style {
     }
 }
 
+enum ArticleMetadataIconScale: Sendable {
+    case reading
+    case metadata
+}
+
+struct ArticleReadingIconStyle: Style {
+    func style(content: Content, environment: EnvironmentConditions) -> Content {
+        let palette = SiteThemePalette.resolve(for: environment)
+
+        return content
+            .style(.display(.flex))
+            .style(.alignItems(.center))
+            .style(.justifyContent(.center))
+            .style(.width(.px(24)))
+            .style(.height(.px(24)))
+            .style(.borderRadius(.px(6)))
+            .style(.lineHeight(1))
+            .background(palette.surfaceRaised)
+            .foregroundStyle(palette.accent)
+    }
+}
+
 struct ArticleMetadataIconStyle: Style {
     func style(content: Content, environment: EnvironmentConditions) -> Content {
         let palette = SiteThemePalette.resolve(for: environment)
@@ -469,9 +528,9 @@ struct ArticleMetadataIconStyle: Style {
             .style(.display(.flex))
             .style(.alignItems(.center))
             .style(.justifyContent(.center))
-            .style(.width(.px(34)))
-            .style(.height(.px(34)))
-            .style(.borderRadius(.px(9)))
+            .style(.width(.px(32)))
+            .style(.height(.px(32)))
+            .style(.borderRadius(.px(8)))
             .style(.lineHeight(1))
             .background(palette.surfaceRaised)
             .foregroundStyle(palette.accent)
@@ -537,6 +596,7 @@ var body: some HTML {
     EmptyHTML().style(ArticleTitleAccentStyle())
     EmptyHTML().style(ArticleTitleTextStyle())
     EmptyHTML().style(ArticleMetadataItemStyle())
+    EmptyHTML().style(ArticleReadingIconStyle())
     EmptyHTML().style(ArticleMetadataIconStyle())
     EmptyHTML().style(ArticleCoverStyle())
     EmptyHTML().style(ArticleCoverImageStyle())
@@ -585,7 +645,7 @@ Run:
 
 ```bash
 rg -n "data-article-title|data-article-meta-item|data-article-meta-icon|data-article-cover|tsubame-cover" Build/posts/welcome-to-tsubame/index.html
-rg -n "article-title-block-style|article-title-accent-style|article-metadata-item-style|article-metadata-icon-style|article-cover-style" Build/css/raptor-core.css
+rg -n "article-title-block-style|article-title-accent-style|article-metadata-item-style|article-reading-icon-style|article-metadata-icon-style|article-cover-style" Build/css/raptor-core.css
 ```
 
 Expected: all markers and style classes are present.
