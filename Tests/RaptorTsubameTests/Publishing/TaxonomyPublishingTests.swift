@@ -6,10 +6,7 @@ import Testing
 struct TaxonomyPublishingTests {
     @Test("publishes tag routes")
     func publishesTagRoutes() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         #expect(harness.fileExists("tags/index.html"))
         #expect(harness.fileExists("tags/raptor/index.html"))
@@ -18,10 +15,7 @@ struct TaxonomyPublishingTests {
 
     @Test("publishes category routes")
     func publishesCategoryRoutes() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         #expect(harness.fileExists("categories/index.html"))
         #expect(harness.fileExists("categories/notes/index.html"))
@@ -30,10 +24,7 @@ struct TaxonomyPublishingTests {
 
     @Test("renders tag index and detail pages")
     func rendersTagIndexAndDetailPages() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let tags = try harness.contents(of: "tags/index.html")
         try expectSharedSidebarShell(
@@ -55,10 +46,7 @@ struct TaxonomyPublishingTests {
 
     @Test("renders category index and detail pages")
     func rendersCategoryIndexAndDetailPages() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let categories = try harness.contents(of: "categories/index.html")
         try expectSharedSidebarShell(
@@ -80,10 +68,7 @@ struct TaxonomyPublishingTests {
 
     @Test("article page shows category and tag links")
     func articlePageShowsTaxonomyLinks() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
         #expect(article.contains("href=\"/categories/updates/\""))

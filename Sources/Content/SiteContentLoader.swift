@@ -67,15 +67,15 @@ struct SiteContentLoader {
 
     private func loadDescriptor(from fileURL: URL) throws -> SiteContentDescriptor {
         let contents = try String(contentsOf: fileURL, encoding: .utf8)
-        let metadata = parseFrontMatter(in: contents)
+        let metadata = SiteContentMetadata(parseFrontMatter(in: contents))
 
         return SiteContentDescriptor(
             sourceURL: fileURL,
-            path: metadata.stringValue(for: SiteContentMetadataKey.path.rawValue),
-            kind: parseKind(metadata.stringValue(for: SiteContentMetadataKey.kind.rawValue)),
-            isPublished: parsePublished(metadata.stringValue(for: SiteContentMetadataKey.published.rawValue)),
-            category: parseSingleValue(metadata.stringValue(for: SiteContentMetadataKey.category.rawValue)),
-            tags: parseTags(metadata.stringValue(for: SiteContentMetadataKey.tags.rawValue))
+            path: metadata.path,
+            kind: metadata.kind,
+            isPublished: metadata.isPublished,
+            category: metadata.category,
+            tags: metadata.tags
         )
     }
 
@@ -125,37 +125,4 @@ struct SiteContentLoader {
         return metadata
     }
 
-    private func parseKind(_ rawValue: String?) -> SiteContentKind {
-        guard let rawValue, let kind = SiteContentKind(rawValue: rawValue) else {
-            return .post
-        }
-        return kind
-    }
-
-    private func parsePublished(_ rawValue: String?) -> Bool {
-        guard let rawValue else {
-            return true
-        }
-
-        return rawValue.lowercased() != "false"
-    }
-
-    private func parseSingleValue(_ rawValue: String?) -> String? {
-        guard let rawValue = rawValue?.trimmingCharacters(in: .whitespacesAndNewlines), !rawValue.isEmpty else {
-            return nil
-        }
-
-        return rawValue
-    }
-
-    private func parseTags(_ rawValue: String?) -> [String] {
-        guard let rawValue else {
-            return []
-        }
-
-        return rawValue
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-    }
 }

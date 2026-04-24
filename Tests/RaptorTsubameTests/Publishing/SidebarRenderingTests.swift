@@ -6,10 +6,7 @@ import Testing
 struct SidebarRenderingTests {
     @Test("homepage renders persistent sidebar blocks")
     func homepageRendersSidebarBlocks() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let homepage = try harness.contents(of: "index.html")
         try expectSidebarShell(in: homepage)
@@ -32,10 +29,7 @@ struct SidebarRenderingTests {
 
     @Test("article page renders shared shell and sidebar taxonomy blocks")
     func articlePageRendersSharedShellAndSidebar() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
         try expectSidebarShell(in: article)
@@ -53,10 +47,7 @@ struct SidebarRenderingTests {
 
     @Test("about page also renders inside the shared shell")
     func aboutPageRendersSharedShell() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let about = try harness.contents(of: "about/index.html")
         try expectSidebarShell(in: about)
@@ -65,10 +56,7 @@ struct SidebarRenderingTests {
 
     @Test("taxonomy detail pages inherit the shared shell")
     func taxonomyDetailPagesRenderSharedShell() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let category = try harness.contents(of: "categories/updates/index.html")
         try expectSidebarShell(in: category)

@@ -1,7 +1,7 @@
 import Foundation
 @testable import RaptorTsubame
 
-struct TestPublishHarness {
+struct TestPublishHarness: Sendable {
     let rootDirectory: URL
     let buildDirectoryPath: String
     let buildDirectory: URL
@@ -15,7 +15,7 @@ struct TestPublishHarness {
     }
 
     func publish() async throws {
-        var site = ExampleSite()
+        var site = ExampleSite(rootDirectory: rootDirectory)
         try await site.publish(buildDirectoryPath: buildDirectoryPath)
     }
 
@@ -29,6 +29,31 @@ struct TestPublishHarness {
 
     func cleanup() {
         try? FileManager.default.removeItem(at: buildDirectory)
+    }
+}
+
+func publishedSite() async throws -> TestPublishHarness {
+    try await PublishedSiteCache.shared.harness()
+}
+
+private actor PublishedSiteCache {
+    static let shared = PublishedSiteCache()
+
+    private var harnessTask: Task<TestPublishHarness, Error>?
+
+    func harness() async throws -> TestPublishHarness {
+        if let harnessTask {
+            return try await harnessTask.value
+        }
+
+        let harnessTask = Task {
+            let harness = try TestPublishHarness()
+            try await harness.publish()
+            return harness
+        }
+
+        self.harnessTask = harnessTask
+        return try await harnessTask.value
     }
 }
 

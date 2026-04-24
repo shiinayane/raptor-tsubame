@@ -46,4 +46,63 @@ struct ContentMetadataTests {
         #expect(descriptor.isPublished)
         #expect(descriptor.path == nil)
     }
+
+    @Test("published metadata follows Raptor Bool parsing")
+    func publishedMetadataFollowsRaptorBoolParsing() throws {
+        let rootDirectory = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: rootDirectory) }
+
+        let postsDirectory = rootDirectory.appending(path: "Posts/posts")
+        try FileManager.default.createDirectory(at: postsDirectory, withIntermediateDirectories: true)
+
+        try writePost(named: "draft.md", published: "false", to: postsDirectory)
+        try writePost(named: "uppercase.md", published: "FALSE", to: postsDirectory)
+
+        let loader = SiteContentLoader()
+        let content = try loader.load(from: rootDirectory)
+
+        #expect(loader.publishedPostCount(in: content) == 1)
+        #expect(try #require(content.first { $0.sourceURL.lastPathComponent == "draft.md" }).isPublished == false)
+        #expect(try #require(content.first { $0.sourceURL.lastPathComponent == "uppercase.md" }).isPublished)
+    }
+
+    @Test("shared site metadata parser normalizes custom content fields")
+    func sharedSiteMetadataParserNormalizesCustomContentFields() {
+        let metadata = SiteContentMetadata(
+            [
+                "kind": "page",
+                "published": "FALSE",
+                "path": " about ",
+                "category": " Notes ",
+                "tags": "Raptor, Swift, "
+            ]
+        )
+
+        #expect(metadata.kind == .page)
+        #expect(metadata.isPublished)
+        #expect(metadata.path == "about")
+        #expect(metadata.category == "Notes")
+        #expect(metadata.tags == ["Raptor", "Swift"])
+    }
+
+    @Test("published site helper reuses generated output")
+    func publishedSiteHelperReusesGeneratedOutput() async throws {
+        let first = try await publishedSite()
+        let second = try await publishedSite()
+
+        #expect(first.buildDirectory == second.buildDirectory)
+    }
+
+    private func writePost(named fileName: String, published: String, to directory: URL) throws {
+        let fileURL = directory.appending(path: fileName)
+        try """
+        ---
+        title: \(fileName)
+        kind: post
+        published: \(published)
+        ---
+
+        Body.
+        """.write(to: fileURL, atomically: true, encoding: .utf8)
+    }
 }

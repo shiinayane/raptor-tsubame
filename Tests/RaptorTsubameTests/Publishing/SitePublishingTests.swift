@@ -6,9 +6,6 @@ import Testing
 struct SitePublishingTests {
     @Test("derives two homepage pages from three published posts with page size two")
     func derivesHomepagePageCount() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
         var site = ExampleSite()
         try await site.prepare()
 
@@ -18,10 +15,7 @@ struct SitePublishingTests {
 
     @Test("publishes homepage pagination, archive, about, and post routes")
     func publishesPrimaryRoutes() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         #expect(harness.fileExists("index.html"))
         #expect(harness.fileExists("2/index.html"))
@@ -32,10 +26,7 @@ struct SitePublishingTests {
 
     @Test("does not publish drafts and orders homepage newest first")
     func excludesDraftsAndOrdersHomepage() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let homepage = try harness.contents(of: "index.html")
         let pageTwo = try harness.contents(of: "2/index.html")
@@ -52,10 +43,7 @@ struct SitePublishingTests {
 
     @Test("renders second homepage page with only the remaining posts")
     func rendersSecondHomepagePage() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let pageTwo = try harness.contents(of: "2/index.html")
         #expect(pageTwo.contains("Welcome To Tsubame"))
@@ -64,10 +52,7 @@ struct SitePublishingTests {
 
     @Test("archive contains all published posts")
     func archiveContainsAllPublishedPosts() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let archive = try harness.contents(of: "archive/index.html")
         try expectSharedSidebarShell(
@@ -81,10 +66,7 @@ struct SitePublishingTests {
 
     @Test("renders about from markdown content")
     func rendersAboutFromMarkdown() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let about = try harness.contents(of: "about/index.html")
         #expect(about.contains("About This Site"))
@@ -93,10 +75,7 @@ struct SitePublishingTests {
 
     @Test("homepage about tags and categories render inside the shared sidebar shell")
     func rendersSharedSidebarShellAcrossMajorRoutes() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let homepage = try harness.contents(of: "index.html")
         let about = try harness.contents(of: "about/index.html")
@@ -123,10 +102,7 @@ struct SitePublishingTests {
 
     @Test("article page renders markdown body and metadata")
     func rendersArticlePage() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
         let main = try mainSlice(of: article)
@@ -151,10 +127,7 @@ struct SitePublishingTests {
 
     @Test("homepage and about include shared navigation")
     func includesSharedNavigation() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let homepage = try harness.contents(of: "index.html")
         let pageTwo = try harness.contents(of: "2/index.html")
@@ -173,10 +146,7 @@ struct SitePublishingTests {
 
     @Test("generated shell CSS keeps desktop layout behind regular breakpoint")
     func generatedShellCSSKeepsDesktopLayoutBehindRegularBreakpoint() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let css = try harness.contents(of: "css/raptor-core.css")
         try expectResponsiveShellCSS(in: css)
@@ -185,10 +155,7 @@ struct SitePublishingTests {
 
     @Test("published pages include blue theme visual styles")
     func publishedPagesIncludeBlueThemeVisualStyles() async throws {
-        let harness = try TestPublishHarness()
-        defer { harness.cleanup() }
-
-        try await harness.publish()
+        let harness = try await publishedSite()
 
         let homepage = try harness.contents(of: "index.html")
         let archive = try harness.contents(of: "archive/index.html")

@@ -13,9 +13,9 @@ enum PostQueries {
         let normalizedPath = normalized(path)
 
         return posts.first {
-            contentKind(for: $0) == .page &&
+            metadata(for: $0).kind == .page &&
             $0.isPublished &&
-            normalized($0.metadata.stringValue(for: SiteContentMetadataKey.path.rawValue) ?? $0.path) == normalizedPath
+            normalized(metadata(for: $0).path ?? $0.path) == normalizedPath
         }
     }
 
@@ -42,11 +42,11 @@ enum PostQueries {
     }
 
     static func category(for post: Post) -> TaxonomyTerm? {
-        guard contentKind(for: post) == .post,
+        let metadata = metadata(for: post)
+
+        guard metadata.kind == .post,
               post.isPublished,
-              let rawValue = post.metadata.stringValue(for: SiteContentMetadataKey.category.rawValue)?
-                .trimmingCharacters(in: .whitespacesAndNewlines),
-              !rawValue.isEmpty else {
+              let rawValue = metadata.category else {
             return nil
         }
 
@@ -54,21 +54,17 @@ enum PostQueries {
     }
 
     static func tags(for post: Post) -> [TaxonomyTerm] {
-        guard contentKind(for: post) == .post, post.isPublished else {
+        let metadata = metadata(for: post)
+
+        guard metadata.kind == .post, post.isPublished else {
             return []
         }
 
-        let rawValue = post.metadata.stringValue(for: SiteContentMetadataKey.tags.rawValue) ?? ""
         var seenTermIDs = Set<String>()
         var terms = [TaxonomyTerm]()
 
-        for tag in rawValue.split(separator: ",") {
-            let trimmed = tag.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmed.isEmpty else {
-                continue
-            }
-
-            let term = TaxonomyTerm(kind: .tag, name: trimmed)
+        for tag in metadata.tags {
+            let term = TaxonomyTerm(kind: .tag, name: tag)
             if seenTermIDs.insert(term.id).inserted {
                 terms.append(term)
             }
@@ -133,8 +129,11 @@ enum PostQueries {
     }
 
     private static func contentKind(for post: Post) -> SiteContentKind {
-        let rawValue = post.metadata.stringValue(for: SiteContentMetadataKey.kind.rawValue)
-        return SiteContentKind(rawValue: rawValue ?? "") ?? .post
+        metadata(for: post).kind
+    }
+
+    private static func metadata(for post: Post) -> SiteContentMetadata {
+        SiteContentMetadata(post.metadata)
     }
 }
 
