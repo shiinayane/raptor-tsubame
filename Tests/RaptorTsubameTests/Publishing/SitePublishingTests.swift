@@ -125,6 +125,35 @@ struct SitePublishingTests {
         #expect(article.contains("Raptor Tsubame"))
     }
 
+    @Test("article page renders reading stats and adjacent post navigation")
+    func rendersArticleReadingStatsAndAdjacentNavigation() async throws {
+        let harness = try await publishedSite()
+
+        let newest = try mainSlice(of: harness.contents(of: "posts/fuwari-study/index.html"))
+        let middle = try mainSlice(of: harness.contents(of: "posts/raptor-notes/index.html"))
+        let oldest = try mainSlice(of: harness.contents(of: "posts/welcome-to-tsubame/index.html"))
+
+        #expect(oldest.contains("data-reading-stats=\"true\""))
+        #expect(oldest.contains("1 min read"))
+        #expect(oldest.contains("8 words"))
+
+        #expect(newest.contains("data-article-navigation=\"true\""))
+        #expect(newest.contains("Older"))
+        #expect(newest.contains("href=\"/posts/raptor-notes\""))
+        #expect(!newest.contains("Newer"))
+
+        #expect(middle.contains("data-article-navigation=\"true\""))
+        #expect(middle.contains("Newer"))
+        #expect(middle.contains("href=\"/posts/fuwari-study\""))
+        #expect(middle.contains("Older"))
+        #expect(middle.contains("href=\"/posts/welcome-to-tsubame\""))
+
+        #expect(oldest.contains("data-article-navigation=\"true\""))
+        #expect(oldest.contains("Newer"))
+        #expect(oldest.contains("href=\"/posts/raptor-notes\""))
+        #expect(!oldest.contains("Older"))
+    }
+
     @Test("homepage and about include shared navigation")
     func includesSharedNavigation() async throws {
         let harness = try await publishedSite()

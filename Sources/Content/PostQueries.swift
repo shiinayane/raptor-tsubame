@@ -123,6 +123,20 @@ enum PostQueries {
             .posts ?? []
     }
 
+    static func adjacentPosts<S: Sequence>(
+        to post: Post,
+        in posts: S
+    ) -> (newer: Post?, older: Post?) where S.Element == Post {
+        let published = publishedPosts(posts)
+        guard let index = published.firstIndex(where: { normalized($0.path) == normalized(post.path) }) else {
+            return (nil, nil)
+        }
+
+        let newer = index > published.startIndex ? published[published.index(before: index)] : nil
+        let older = published.index(after: index) < published.endIndex ? published[published.index(after: index)] : nil
+        return (newer, older)
+    }
+
     private static func normalized(_ path: String) -> String {
         let trimmed = path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         return trimmed.isEmpty ? "/" : "/\(trimmed)/"
