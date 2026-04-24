@@ -25,21 +25,23 @@ struct MainLayout: Layout {
         Navigation { TopNavigation().body }
         Main {
             Tag("div") {
-                HStack(alignment: .top, spacing: 32) {
+                Tag("div") {
                     content
-
-                    Tag("div") {
-                        SidebarContainer {
-                            SidebarProfile(profile: sidebarProfile)
-                            SidebarCategories(items: sidebarCategories)
-                            SidebarTags(items: sidebarTags)
-                        }
-                    }
-                    .style(.custom("order", value: "-1"))
-                    .data("sidebar-position", "leading")
                 }
+                .style(ShellMainStyle())
+
+                Tag("div") {
+                    SidebarContainer {
+                        SidebarProfile(profile: sidebarProfile)
+                        SidebarCategories(items: sidebarCategories)
+                        SidebarTags(items: sidebarTags)
+                    }
+                }
+                .style(ShellSidebarStyle())
+                .data("sidebar-position", "leading")
             }
             .class("site-shell")
+            .style(SiteShellStyle())
             .data("shell-layout", "two-column")
             .data("sidebar-shell", "true")
         }
