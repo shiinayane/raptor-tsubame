@@ -39,6 +39,22 @@ struct SiteContentMetadata: Sendable {
             .filter { !$0.isEmpty }
     }
 
+    var image: String? {
+        trimmedValue(for: .image)
+    }
+
+    var updated: String? {
+        trimmedValue(for: .updated)
+    }
+
+    var lang: String? {
+        trimmedValue(for: .lang)
+    }
+
+    var isDraftMarked: Bool {
+        Bool(stringValue(for: .draft) ?? "") ?? false
+    }
+
     private func stringValue(for key: SiteContentMetadataKey) -> String? {
         values.stringValue(for: key.rawValue)
     }

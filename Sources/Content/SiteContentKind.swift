@@ -11,6 +11,10 @@ enum SiteContentMetadataKey: String, Sendable {
     case path
     case category
     case tags
+    case image
+    case updated
+    case lang
+    case draft
 }
 
 extension Dictionary where Key == String, Value == any Sendable {

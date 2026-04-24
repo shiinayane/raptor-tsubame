@@ -66,6 +66,19 @@ struct ContentMetadataTests {
         #expect(try #require(content.first { $0.sourceURL.lastPathComponent == "uppercase.md" }).isPublished)
     }
 
+    @Test("draft metadata is compatibility-only and does not affect publishing")
+    func draftMetadataDoesNotAffectPublishing() {
+        let metadata = SiteContentMetadata(
+            [
+                "published": "true",
+                "draft": "true"
+            ]
+        )
+
+        #expect(metadata.isPublished)
+        #expect(metadata.isDraftMarked)
+    }
+
     @Test("shared site metadata parser normalizes custom content fields")
     func sharedSiteMetadataParserNormalizesCustomContentFields() {
         let metadata = SiteContentMetadata(
@@ -74,7 +87,11 @@ struct ContentMetadataTests {
                 "published": "FALSE",
                 "path": " about ",
                 "category": " Notes ",
-                "tags": "Raptor, Swift, "
+                "tags": "Raptor, Swift, ",
+                "image": " ./cover.jpg ",
+                "updated": " 2026-04-25 ",
+                "lang": " zh_CN ",
+                "draft": "true"
             ]
         )
 
@@ -83,6 +100,26 @@ struct ContentMetadataTests {
         #expect(metadata.path == "about")
         #expect(metadata.category == "Notes")
         #expect(metadata.tags == ["Raptor", "Swift"])
+        #expect(metadata.image == "./cover.jpg")
+        #expect(metadata.updated == "2026-04-25")
+        #expect(metadata.lang == "zh_CN")
+        #expect(metadata.isDraftMarked)
+    }
+
+    @Test("Fuwari aligned metadata fields default to nil when absent or empty")
+    func fuwariAlignedMetadataFieldsDefaultToNil() {
+        let metadata = SiteContentMetadata(
+            [
+                "image": " ",
+                "updated": "",
+                "lang": "\n"
+            ]
+        )
+
+        #expect(metadata.image == nil)
+        #expect(metadata.updated == nil)
+        #expect(metadata.lang == nil)
+        #expect(!metadata.isDraftMarked)
     }
 
     @Test("published site helper reuses generated output")
