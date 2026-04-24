@@ -12,6 +12,7 @@ struct SidebarProfile: HTML {
                 .font(.title3)
             Text(profile.description)
         }
+        .style(SidebarPanelStyle())
         .data("sidebar-profile", "true")
     }
 }

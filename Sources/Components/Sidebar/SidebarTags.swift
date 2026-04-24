@@ -11,6 +11,7 @@ struct SidebarTags: HTML {
                 Link("\(item.name) (\(item.count))", destination: item.path)
             }
         }
+        .style(SidebarPanelStyle())
         .data("sidebar-tags", "true")
     }
 }

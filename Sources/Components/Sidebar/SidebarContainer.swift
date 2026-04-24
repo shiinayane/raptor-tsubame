@@ -6,10 +6,10 @@ struct SidebarContainer<Content: HTML>: HTML {
 
     var body: some HTML {
         Tag("aside") {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 16) {
                 content()
             }
         }
-        .data("sidebar-shell", "true")
+        .data("sidebar-container", "true")
     }
 }
