@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Abstract blue Tsubame cover">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9fddff"/>
+      <stop offset="0.48" stop-color="#f7fbff"/>
+      <stop offset="1" stop-color="#163454"/>
+    </linearGradient>
+    <linearGradient id="wing" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4a8bcb"/>
+      <stop offset="1" stop-color="#78b8f5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#sky)"/>
+  <circle cx="1000" cy="110" r="140" fill="#ffd874" opacity="0.85"/>
+  <path d="M110 455 C310 275 475 245 640 355 C790 455 960 410 1095 250 C960 520 720 570 520 470 C355 390 230 420 110 455Z" fill="#102a44" opacity="0.78"/>
+  <path d="M235 300 C395 115 585 95 760 220 C610 205 495 260 395 370 C340 330 285 310 235 300Z" fill="url(#wing)" opacity="0.92"/>
+  <path d="M565 310 C705 145 910 135 1065 265 C895 245 780 300 680 410 C640 365 600 335 565 310Z" fill="#244762" opacity="0.86"/>
+  <text x="80" y="120" font-family="Arial, sans-serif" font-size="54" font-weight="800" fill="#13283e">Raptor Tsubame</text>
+  <text x="84" y="176" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#58718b">Swift static site notes</text>
+</svg>

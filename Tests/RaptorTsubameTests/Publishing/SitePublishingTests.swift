@@ -108,6 +108,23 @@ struct SitePublishingTests {
         let main = try mainSlice(of: article)
         #expect(main.contains("data-article-page=\"true\""))
         #expect(main.contains("data-article-header=\"true\""))
+        #expect(main.contains("data-article-title=\"true\""))
+        #expect(main.contains("data-article-title-accent=\"true\""))
+        #expect(main.contains("<span class=\"article-title-accent-style"))
+        #expect(!main.contains("<p class=\"article-title-accent-style"))
+        #expect(main.contains("data-article-metadata-row=\"true\""))
+        #expect(main.contains("data-article-meta-item=\"reading-words\""))
+        #expect(main.contains("data-article-meta-item=\"reading-minutes\""))
+        #expect(main.contains("data-article-meta-item=\"published\""))
+        #expect(main.contains("data-article-meta-item=\"updated\""))
+        #expect(main.contains("data-article-meta-item=\"lang\""))
+        #expect(main.contains("data-article-meta-item=\"category\""))
+        #expect(main.contains("data-article-meta-item=\"tags\""))
+        #expect(main.contains("2026-02-01"))
+        #expect(main.contains("data-article-meta-content=\"lang\""))
+        #expect(main.contains(">en<"))
+        #expect(main.contains("data-article-cover=\"true\""))
+        #expect(main.contains("tsubame-cover"))
         #expect(main.contains("data-article-body=\"true\""))
         #expect(main.contains("data-markdown-content=\"true\""))
         try expectSharedSidebarShell(
@@ -123,14 +140,19 @@ struct SitePublishingTests {
 
         // PostMeta should render visible metadata in the page body.
         #expect(main.contains("<time"))
+        #expect(occurrenceCount(of: "datetime=\"2026-01-01T00:00:00Z\"", in: main) == 1)
         #expect(main.contains("The first published post in the fixture set."))
+        #expect(main.contains("data-article-description=\"true\""))
         #expect(main.contains("data-reading-stats=\"true\""))
-        #expect(main.contains("data-post-meta=\"true\""))
+        #expect(!main.contains("data-post-meta=\"true\""))
         #expect(main.contains("href=\"/categories/updates/\""))
         #expect(main.contains("href=\"/tags/intro/\""))
 
         // Site chrome should still include the site name.
         #expect(article.contains("Raptor Tsubame"))
+
+        let articleWithoutCover = try mainSlice(of: harness.contents(of: "posts/raptor-notes/index.html"))
+        #expect(!articleWithoutCover.contains("data-article-cover=\"true\""))
     }
 
     @Test("article page renders reading stats and adjacent post navigation")
@@ -208,12 +230,19 @@ struct SitePublishingTests {
         #expect(article.contains("metadata-text-style"))
         #expect(article.contains("article-surface-style"))
         #expect(article.contains("article-header-style"))
+        #expect(article.contains("article-title-block-style"))
+        #expect(article.contains("article-title-accent-style"))
+        #expect(article.contains("article-metadata-item-style"))
+        #expect(article.contains("article-reading-icon-style"))
+        #expect(article.contains("article-metadata-icon-style"))
+        #expect(article.contains("article-cover-style"))
         #expect(article.contains("article-body-style"))
         #expect(article.contains("data-article-page=\"true\""))
         #expect(article.contains("data-article-header=\"true\""))
         #expect(article.contains("data-article-body=\"true\""))
         #expect(article.contains("data-markdown-content=\"true\""))
-        #expect(article.contains("data-post-meta=\"true\""))
+        #expect(article.contains("data-article-description=\"true\""))
+        #expect(article.contains("data-article-meta-icon=\"true\""))
     }
 }
 
@@ -386,6 +415,12 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(css.contains(".sidebar-panel-style"))
     #expect(css.contains(".article-surface-style"))
     #expect(css.contains(".article-header-style"))
+    #expect(css.contains(".article-title-block-style"))
+    #expect(css.contains(".article-title-accent-style"))
+    #expect(css.contains(".article-metadata-item-style"))
+    #expect(css.contains(".article-reading-icon-style"))
+    #expect(css.contains(".article-metadata-icon-style"))
+    #expect(css.contains(".article-cover-style"))
     #expect(css.contains(".article-body-style"))
 
     #expect(css.contains("rgb(247 251 255 / 100%)"))
@@ -403,6 +438,12 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(!css.contains("@media (min-width: 0px) {\n    .sidebar-panel-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .article-surface-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .article-header-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-title-block-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-title-accent-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-metadata-item-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-reading-icon-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-metadata-icon-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-cover-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .article-body-style"))
 
     let sidebarPanelRule = try cssRule(in: css, containing: ".sidebar-panel-style")
@@ -414,6 +455,19 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(articleSurfaceRule.contains("rgb(251 253 255 / 100%)"))
     #expect(articleSurfaceRule.contains("rgb(200 221 242 / 100%)"))
     #expect(articleSurfaceRule.contains("rgb(19 40 62 / 100%)"))
+
+    let readingIconRule = try cssRule(in: css, containing: ".article-reading-icon-style")
+    #expect(readingIconRule.contains("align-items: center;"))
+    #expect(readingIconRule.contains("justify-content: center;"))
+    #expect(readingIconRule.contains("width: 24px;"))
+    #expect(readingIconRule.contains("height: 24px;"))
+
+    let metadataIconRule = try cssRule(in: css, containing: ".article-metadata-icon-style")
+    #expect(metadataIconRule.contains("align-items: center;"))
+    #expect(metadataIconRule.contains("justify-content: center;"))
+    #expect(metadataIconRule.contains("width: 32px;"))
+    #expect(metadataIconRule.contains("height: 32px;"))
+    #expect(metadataIconRule.contains("rgb(74 139 203 / 100%)"))
 
     try expectDarkBlueThemeRule(in: css, containing: ".page-canvas-style") { rule in
         #expect(rule.contains("rgb(7 17 29 / 100%)"))
@@ -440,6 +494,9 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     }
     try expectDarkBlueThemeRule(in: css, containing: ".article-header-style") { rule in
         #expect(rule.contains("rgb(36 71 98 / 100%)"))
+    }
+    try expectDarkBlueThemeRule(in: css, containing: ".article-metadata-icon-style") { rule in
+        #expect(rule.contains("rgb(120 184 245 / 100%)"))
     }
     try expectDarkBlueThemeRule(in: css, containing: ".article-body-style") { rule in
         #expect(rule.contains("rgb(220 236 255 / 100%)"))

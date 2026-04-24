@@ -7,13 +7,18 @@ struct ArticleHeader: HTML {
     let tags: [TaxonomyTerm]
 
     var body: some HTML {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(post.title)
-                .font(.title1)
-
-            PostMeta(post: post)
+        VStack(alignment: .leading, spacing: 16) {
             ArticleReadingStats(post: post)
-            TaxonomyBadgeList(category: category, tags: tags)
+            ArticleTitleBlock(title: post.title)
+            ArticleMetadataRow(post: post, category: category, tags: tags)
+
+            if !post.description.isEmpty {
+                Text(post.description)
+                    .style(MetadataTextStyle())
+                    .data("article-description", "true")
+            }
+
+            ArticleCover(post: post)
         }
         .style(ArticleHeaderStyle())
         .data("article-header", "true")
