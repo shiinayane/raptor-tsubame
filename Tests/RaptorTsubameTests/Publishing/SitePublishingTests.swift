@@ -192,12 +192,17 @@ struct SitePublishingTests {
 
         let homepage = try harness.contents(of: "index.html")
         let archive = try harness.contents(of: "archive/index.html")
+        let about = try harness.contents(of: "about/index.html")
         let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
 
         try expectWarmVisualHTML(in: homepage)
         try expectWarmVisualHTML(in: archive)
+        try expectWarmShellHTML(in: about)
+        try expectWarmShellHTML(in: article)
         #expect(article.contains("page-canvas-style"))
         #expect(article.contains("sidebar-panel-style"))
+        #expect(article.contains("metadata-text-style"))
+        #expect(article.contains("data-post-meta=\"true\""))
     }
 }
 
@@ -289,6 +294,18 @@ private func expectSharedSidebarShell(
 }
 
 private func expectWarmVisualHTML(in html: String) throws {
+    try expectWarmShellHTML(in: html)
+
+    let main = try mainSlice(of: html)
+
+    #expect(main.contains("post-card-style"))
+    #expect(main.contains("content-surface-style"))
+    #expect(main.contains("metadata-text-style"))
+    #expect(main.contains("data-post-card=\"true\""))
+    #expect(main.contains("data-post-meta=\"true\""))
+}
+
+private func expectWarmShellHTML(in html: String) throws {
     let main = try mainSlice(of: html)
     let pageCanvasTag = try openingTag(containingClass: "page-canvas-style", in: main)
     let siteShellTag = try openingTag(containingClass: "site-shell", in: main)
@@ -299,12 +316,7 @@ private func expectWarmVisualHTML(in html: String) throws {
     #expect(siteShellTag.contains("site-shell"))
     #expect(pageCanvasRange.lowerBound < siteShellRange.lowerBound)
     #expect(!siteShellTag.contains("page-canvas-style"))
-    #expect(main.contains("post-card-style"))
-    #expect(main.contains("content-surface-style"))
-    #expect(main.contains("metadata-text-style"))
     #expect(main.contains("sidebar-panel-style"))
-    #expect(main.contains("data-post-card=\"true\""))
-    #expect(main.contains("data-post-meta=\"true\""))
 }
 
 private func expectResponsiveShellCSS(in css: String) throws {
@@ -487,7 +499,9 @@ private func openingTag(_ tag: String, containsClass className: String) -> Bool 
     let classStart = attributeStart.upperBound
     guard let classEnd = tag[classStart...].firstIndex(of: "\"") else { return false }
     let classes = tag[classStart..<classEnd].split(separator: " ")
-    return classes.contains { $0.contains(className) }
+    return classes.contains { candidate in
+        candidate == Substring(className) || candidate.hasPrefix("\(className)-")
+    }
 }
 
 private func openingTag(containing index: String.Index, in html: String) throws -> String {
