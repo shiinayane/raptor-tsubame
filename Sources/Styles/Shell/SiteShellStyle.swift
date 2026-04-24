@@ -3,7 +3,7 @@ import Raptor
 
 struct SiteShellStyle: Style {
     func style(content: Content, environment: EnvironmentConditions) -> Content {
-        if environment.horizontalSizeClass == .compact {
+        if environment.horizontalSizeClass < .regular {
             content
                 .style(.display(.flex))
                 .style(.flexDirection(.column))

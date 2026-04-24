@@ -170,6 +170,17 @@ struct SitePublishingTests {
 
         try expectFooterOutsideMain(in: homepage)
     }
+
+    @Test("generated shell CSS keeps desktop layout behind regular breakpoint")
+    func generatedShellCSSKeepsDesktopLayoutBehindRegularBreakpoint() async throws {
+        let harness = try TestPublishHarness()
+        defer { harness.cleanup() }
+
+        try await harness.publish()
+
+        let css = try harness.contents(of: "css/raptor-core.css")
+        try expectResponsiveShellCSS(in: css)
+    }
 }
 
 private func expectSharedNavigation(in html: String) throws {
@@ -257,6 +268,80 @@ private func expectSharedSidebarShell(
     for needle in contentNeedles {
         #expect(main.contains(needle))
     }
+}
+
+private func expectResponsiveShellCSS(in css: String) throws {
+    #expect(!css.contains("@media (min-width: 0px) {\n    .site-shell-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .shell-main-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .shell-sidebar-style"))
+
+    let regularShell = try cssWindow(
+        in: css,
+        from: "@media (min-width: 575px)",
+        containing: ".site-shell-style"
+    )
+    #expect(regularShell.contains("flex-direction: row;"))
+    #expect(regularShell.contains("max-width: 1120px;"))
+
+    let regularSidebar = try cssWindow(
+        in: css,
+        from: "@media (min-width: 575px)",
+        containing: ".shell-sidebar-style"
+    )
+    #expect(regularSidebar.contains("order: -1;"))
+    #expect(regularSidebar.contains("flex-basis: 280px;"))
+    #expect(regularSidebar.contains("width: 280px;"))
+
+    let regularMain = try cssWindow(
+        in: css,
+        from: "@media (min-width: 575px)",
+        containing: ".shell-main-style"
+    )
+    #expect(regularMain.contains("flex-basis: 0px;"))
+    #expect(regularMain.contains("max-width: 760px;"))
+}
+
+private func cssWindow(
+    in css: String,
+    from mediaNeedle: String,
+    containing selectorNeedle: String
+) throws -> String {
+    var searchStart = css.startIndex
+
+    while let mediaRange = css.range(of: mediaNeedle, range: searchStart..<css.endIndex) {
+        let window = try cssBlock(startingAt: mediaRange.lowerBound, in: css)
+
+        if window.contains(selectorNeedle) {
+            return window
+        }
+
+        searchStart = mediaRange.upperBound
+    }
+
+    let missingWindow: String? = nil
+    return try #require(missingWindow)
+}
+
+private func cssBlock(startingAt start: String.Index, in css: String) throws -> String {
+    let blockOpen = try #require(css[start...].firstIndex(of: "{"))
+    var depth = 0
+    var index = blockOpen
+
+    while index < css.endIndex {
+        if css[index] == "{" {
+            depth += 1
+        } else if css[index] == "}" {
+            depth -= 1
+            if depth == 0 {
+                return String(css[start...index])
+            }
+        }
+
+        index = css.index(after: index)
+    }
+
+    let missingBlock: String? = nil
+    return try #require(missingBlock)
 }
 
 private func mainSlice(of html: String) throws -> String {

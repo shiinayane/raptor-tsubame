@@ -3,7 +3,7 @@ import Raptor
 
 struct ShellSidebarStyle: Style {
     func style(content: Content, environment: EnvironmentConditions) -> Content {
-        if environment.horizontalSizeClass == .compact {
+        if environment.horizontalSizeClass < .regular {
             content
                 .style(.width(.percent(100)))
                 .style(.order(0))
