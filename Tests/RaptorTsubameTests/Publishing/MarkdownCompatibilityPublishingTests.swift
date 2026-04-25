@@ -19,7 +19,7 @@ struct MarkdownCompatibilityPublishingTests {
         #expect(markdown.contains("compat-fenced-html-code-marker"))
     }
 
-    @Test("compatibility lab does not affect post indexes or taxonomy counts")
+    @Test("compatibility lab does not affect post indexes or taxonomy listings")
     func compatibilityLabDoesNotAffectPostIndexes() async throws {
         let harness = try await publishedSite()
 
@@ -27,12 +27,23 @@ struct MarkdownCompatibilityPublishingTests {
         let archive = try harness.contents(of: "archive/index.html")
         let tags = try harness.contents(of: "tags/index.html")
         let categories = try harness.contents(of: "categories/index.html")
+        let raptorTag = try harness.contents(of: "tags/raptor/index.html")
+        let notesCategory = try harness.contents(of: "categories/notes/index.html")
 
-        #expect(!homepage.contains("Markdown Compatibility Lab"))
-        #expect(!archive.contains("Markdown Compatibility Lab"))
-        #expect(tags.contains("Raptor (2)"))
-        #expect(categories.contains("Notes (2)"))
+        try expectCompatibilityLabAbsent(from: homepage)
+        try expectCompatibilityLabAbsent(from: archive)
+        try expectCompatibilityLabAbsent(from: tags)
+        try expectCompatibilityLabAbsent(from: categories)
+        try expectCompatibilityLabAbsent(from: raptorTag)
+        try expectCompatibilityLabAbsent(from: notesCategory)
+        #expect(!tags.contains("Markdown (1)"))
+        #expect(!harness.fileExists("tags/markdown/index.html"))
     }
+}
+
+private func expectCompatibilityLabAbsent(from html: String) throws {
+    #expect(!html.contains("Markdown Compatibility Lab"))
+    #expect(!html.contains("Fixture for auditing Raptor Markdown compatibility in Tsubame."))
 }
 
 private func compatibilityMarkdownSlice(of html: String) throws -> String {
