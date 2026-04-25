@@ -4,7 +4,7 @@ import Testing
 
 @Suite("Site publishing", .serialized)
 struct SitePublishingTests {
-    @Test("derives two homepage pages from three published posts with page size two")
+    @Test("derives homepage pages from published posts with page size two")
     func derivesHomepagePageCount() async throws {
         var site = ExampleSite()
         try await site.prepare()
@@ -24,30 +24,31 @@ struct SitePublishingTests {
         #expect(harness.fileExists("posts/welcome-to-tsubame/index.html"))
     }
 
-    @Test("does not publish drafts and orders homepage newest first")
+    @Test("does not publish drafts and orders fixture posts newest first")
     func excludesDraftsAndOrdersHomepage() async throws {
         let harness = try await publishedSite()
 
         let homepage = try harness.contents(of: "index.html")
-        let pageTwo = try harness.contents(of: "2/index.html")
+        let archive = try harness.contents(of: "archive/index.html")
 
         #expect(homepage.contains("Fuwari Study Notes"))
-        #expect(homepage.contains("Raptor Notes"))
         #expect(!homepage.contains("Draft Hidden"))
-        #expect(pageTwo.contains("Welcome To Tsubame"))
+        #expect(!archive.contains("Draft Hidden"))
 
-        let first = try #require(homepage.range(of: "Fuwari Study Notes"))
-        let second = try #require(homepage.range(of: "Raptor Notes"))
-        #expect(first.lowerBound < second.lowerBound)
+        let newestFixture = try #require(archive.range(of: "Fuwari Study Notes"))
+        let middleFixture = try #require(archive.range(of: "Raptor Notes"))
+        let oldestFixture = try #require(archive.range(of: "Welcome To Tsubame"))
+        #expect(newestFixture.lowerBound < middleFixture.lowerBound)
+        #expect(middleFixture.lowerBound < oldestFixture.lowerBound)
     }
 
-    @Test("renders second homepage page with only the remaining posts")
+    @Test("renders second homepage page with paginated posts")
     func rendersSecondHomepagePage() async throws {
         let harness = try await publishedSite()
 
         let pageTwo = try harness.contents(of: "2/index.html")
-        #expect(pageTwo.contains("Welcome To Tsubame"))
-        #expect(!pageTwo.contains("Raptor Notes"))
+        #expect(pageTwo.contains("data-post-card=\"true\""))
+        #expect(!pageTwo.contains("Draft Hidden"))
     }
 
     @Test("archive contains all published posts")
@@ -84,7 +85,7 @@ struct SitePublishingTests {
 
         try expectSharedSidebarShell(
             in: homepage,
-            contentNeedles: ["Fuwari Study Notes", "Raptor Notes"]
+            contentNeedles: ["data-post-card=\"true\""]
         )
         try expectSharedSidebarShell(
             in: about,
@@ -159,7 +160,7 @@ struct SitePublishingTests {
     func rendersArticleReadingStatsAndAdjacentNavigation() async throws {
         let harness = try await publishedSite()
 
-        let newest = try mainSlice(of: harness.contents(of: "posts/fuwari-study/index.html"))
+        let newestFixture = try mainSlice(of: harness.contents(of: "posts/fuwari-study/index.html"))
         let middle = try mainSlice(of: harness.contents(of: "posts/raptor-notes/index.html"))
         let oldest = try mainSlice(of: harness.contents(of: "posts/welcome-to-tsubame/index.html"))
 
@@ -167,10 +168,9 @@ struct SitePublishingTests {
         #expect(oldest.contains("1 min read"))
         #expect(oldest.contains("8 words"))
 
-        #expect(newest.contains("data-article-navigation=\"true\""))
-        #expect(newest.contains("Older"))
-        #expect(newest.contains("href=\"/posts/raptor-notes\""))
-        #expect(!newest.contains("Newer"))
+        #expect(newestFixture.contains("data-article-navigation=\"true\""))
+        #expect(newestFixture.contains("Older"))
+        #expect(newestFixture.contains("href=\"/posts/raptor-notes\""))
 
         #expect(middle.contains("data-article-navigation=\"true\""))
         #expect(middle.contains("Newer"))
