@@ -126,11 +126,13 @@
 }
 
 [data-markdown-content="true"] table {
+  display: block;
   width: 100%;
+  max-width: 100%;
   margin: 1.35rem 0 0;
   border-collapse: separate;
   border-spacing: 0;
-  overflow: hidden;
+  overflow-x: auto;
   border: 1px solid var(--markdown-border);
   border-radius: 14px;
 }

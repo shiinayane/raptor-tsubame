@@ -299,8 +299,11 @@ struct SitePublishingTests {
 
         let css = try harness.contents(of: "css/markdown-reading.css")
         let article = try harness.contents(of: "posts/markdown-reading-lab/index.html")
+        let head = try headSlice(of: article)
+        let main = try mainSlice(of: article)
 
-        #expect(article.contains("href=\"/css/markdown-reading.css\""))
+        #expect(head.contains("href=\"/css/markdown-reading.css\""))
+        #expect(!main.contains("href=\"/css/markdown-reading.css\""))
         #expect(css.contains("[data-markdown-content=\"true\"]"))
         #expect(css.contains("--markdown-text"))
         #expect(css.contains("[data-color-scheme=\"dark\"] [data-markdown-content=\"true\"]"))
@@ -308,6 +311,12 @@ struct SitePublishingTests {
         #expect(css.contains("[data-markdown-content=\"true\"] :not(pre) > code"))
         #expect(css.contains("[data-markdown-content=\"true\"] table"))
     }
+}
+
+private func headSlice(of html: String) throws -> String {
+    let headOpen = try #require(html.range(of: "<head"))
+    let headClose = try #require(html.range(of: "</head>"))
+    return String(html[headOpen.lowerBound..<headClose.upperBound])
 }
 
 private func markdownSlice(of html: String) throws -> String {

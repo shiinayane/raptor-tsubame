@@ -24,8 +24,6 @@ struct MainLayout: Layout {
     var body: some Document {
         Navigation { TopNavigation().body }
         Main {
-            MarkdownReadingStylesheet()
-
             Tag("div") {
                 Tag("div") {
                     Tag("div") {
@@ -50,6 +48,7 @@ struct MainLayout: Layout {
             }
             .style(PageCanvasStyle())
         }
+        .pageResource("/css/markdown-reading.css", relationship: .stylesheet)
         Footer { PageFooter() }
     }
 }
