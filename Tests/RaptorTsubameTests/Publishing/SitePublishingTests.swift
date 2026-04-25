@@ -244,6 +244,80 @@ struct SitePublishingTests {
         #expect(article.contains("data-article-description=\"true\""))
         #expect(article.contains("data-article-meta-icon=\"true\""))
     }
+
+    @Test("article markdown lab publishes scoped reading markup")
+    func publishesMarkdownReadingLab() async throws {
+        let harness = try await publishedSite()
+
+        #expect(harness.fileExists("posts/markdown-reading-lab/index.html"))
+
+        let page = try harness.contents(of: "posts/markdown-reading-lab/index.html")
+        let main = try mainSlice(of: page)
+        let markdown = try markdownSlice(of: main)
+
+        #expect(main.contains("data-article-page=\"true\""))
+        #expect(markdown.contains("data-markdown-content=\"true\""))
+        #expect(markdown.contains("<h2>Heading Level Two</h2>"))
+        #expect(markdown.contains("<h3>Heading Level Three</h3>"))
+        #expect(markdown.contains("<ul>"))
+        #expect(markdown.contains("<ol>"))
+        #expect(markdown.contains("<blockquote>"))
+        #expect(markdown.contains("<table>"))
+        #expect(markdown.contains("<hr"))
+        #expect(markdown.contains("<img src=\"/images/tsubame-cover.svg\""))
+        #expect(markdown.contains("href=\"https://example.com\""))
+        #expect(markdown.contains("<pre"))
+        #expect(markdown.contains("language-swift"))
+        #expect(markdown.contains("language-html"))
+    }
+
+    @Test("markdown HTML code remains visible while raw HTML stays raw")
+    func keepsMarkdownHTMLCodeVisible() async throws {
+        let harness = try await publishedSite()
+
+        let page = try harness.contents(of: "posts/markdown-reading-lab/index.html")
+        let markdown = try markdownSlice(of: try mainSlice(of: page))
+
+        #expect(markdown.contains("data-raw-html-fixture=\"true\""))
+        #expect(markdown.contains(#"&lt;span class=&quot;inline-html-code&quot;&gt;inline&lt;/span&gt;"#))
+        #expect(markdown.contains(#"&lt;div class=&quot;html-code-sample&quot;&gt;Hello HTML&lt;/div&gt;"#))
+
+        let htmlCodeWindow = try htmlCodeBlockWindow(in: markdown)
+        #expect(htmlCodeWindow.contains("language-html"))
+        #expect(htmlCodeWindow.contains("html-code-sample"))
+        #expect(!htmlCodeWindow.contains("<div class=\"html-code-sample\">Hello HTML</div>"))
+    }
+
+    @Test("generated CSS includes scoped markdown reading rules")
+    func generatedCSSIncludesMarkdownReadingRules() async throws {
+        let harness = try await publishedSite()
+
+        let css = try harness.contents(of: "css/raptor-core.css")
+
+        #expect(css.contains("[data-markdown-content=\"true\"]"))
+        #expect(css.contains("--markdown-text"))
+        #expect(css.contains("[data-color-scheme=\"dark\"] [data-markdown-content=\"true\"]"))
+        #expect(css.contains("[data-markdown-content=\"true\"] pre"))
+        #expect(css.contains("[data-markdown-content=\"true\"] :not(pre) > code"))
+        #expect(css.contains("[data-markdown-content=\"true\"] table"))
+        #expect(!css.contains("\nh1 {"))
+        #expect(!css.contains("\npre {"))
+        #expect(!css.contains("\ncode {"))
+    }
+}
+
+private func markdownSlice(of html: String) throws -> String {
+    let marker = try #require(html.range(of: "data-markdown-content=\"true\""))
+    let openStart = try #require(html[..<marker.lowerBound].range(of: "<", options: .backwards))
+    let end = html[marker.upperBound...].range(of: "data-article-navigation")?.lowerBound ?? html.endIndex
+    return String(html[openStart.lowerBound..<end])
+}
+
+private func htmlCodeBlockWindow(in markdown: String) throws -> String {
+    let language = try #require(markdown.range(of: "language-html"))
+    let preStart = try #require(markdown[..<language.lowerBound].range(of: "<pre", options: .backwards))
+    let preEnd = try #require(markdown[language.upperBound...].range(of: "</pre>"))
+    return String(markdown[preStart.lowerBound..<preEnd.upperBound])
 }
 
 private func expectSharedNavigation(in html: String) throws {
