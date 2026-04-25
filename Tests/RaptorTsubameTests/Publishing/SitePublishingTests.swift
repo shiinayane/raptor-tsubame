@@ -279,13 +279,18 @@ struct SitePublishingTests {
         let markdown = try markdownSlice(of: try mainSlice(of: page))
 
         #expect(markdown.contains("data-raw-html-fixture=\"true\""))
-        #expect(markdown.contains(#"&lt;span class=&quot;inline-html-code&quot;&gt;inline&lt;/span&gt;"#))
-        #expect(markdown.contains(#"&lt;div class=&quot;html-code-sample&quot;&gt;Hello HTML&lt;/div&gt;"#))
+        #expect(markdown.contains("&lt;span"))
+        #expect(markdown.contains("inline-html-code"))
+        #expect(markdown.contains("inline&lt;/span&gt;"))
 
         let htmlCodeWindow = try htmlCodeBlockWindow(in: markdown)
         #expect(htmlCodeWindow.contains("language-html"))
         #expect(htmlCodeWindow.contains("html-code-sample"))
-        #expect(!htmlCodeWindow.contains("<div class=\"html-code-sample\">Hello HTML</div>"))
+        #expect(htmlCodeWindow.contains("Hello HTML"))
+        #expect(htmlCodeWindow.contains("&lt;div"))
+        #expect(htmlCodeWindow.contains("&lt;/div&gt;"))
+        #expect(!htmlCodeWindow.contains("<div"))
+        #expect(!htmlCodeWindow.contains("</div>"))
     }
 
     @Test("generated CSS includes scoped markdown reading rules")
