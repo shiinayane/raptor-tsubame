@@ -177,6 +177,10 @@ struct SitePublishingTests {
         #expect(middle.contains("href=\"/posts/fuwari-study\""))
         #expect(middle.contains("Older"))
         #expect(middle.contains("href=\"/posts/welcome-to-tsubame\""))
+        #expect(middle.contains("data-article-navigation-link=\"newer\""))
+        #expect(middle.contains("data-article-navigation-link=\"older\""))
+        #expect(middle.contains("article-navigation-style"))
+        #expect(middle.contains("article-navigation-link-style"))
 
         #expect(oldest.contains("data-article-navigation=\"true\""))
         #expect(oldest.contains("Newer"))
@@ -509,6 +513,8 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(css.contains(".article-metadata-icon-style"))
     #expect(css.contains(".article-cover-style"))
     #expect(css.contains(".article-body-style"))
+    #expect(css.contains(".article-navigation-style"))
+    #expect(css.contains(".article-navigation-link-style"))
 
     #expect(css.contains("rgb(247 251 255 / 100%)"))
     #expect(css.contains("rgb(242 248 255 / 100%)"))
@@ -532,6 +538,8 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(!css.contains("@media (min-width: 0px) {\n    .article-metadata-icon-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .article-cover-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .article-body-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-navigation-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-navigation-link-style"))
 
     let sidebarPanelRule = try cssRule(in: css, containing: ".sidebar-panel-style")
     #expect(sidebarPanelRule.contains("rgb(251 253 255 / 100%)"))
@@ -555,6 +563,13 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(metadataIconRule.contains("width: 32px;"))
     #expect(metadataIconRule.contains("height: 32px;"))
     #expect(metadataIconRule.contains("rgb(74 139 203 / 100%)"))
+
+    let navigationRule = try cssRule(in: css, containing: ".article-navigation-style")
+    #expect(navigationRule.contains("gap: 12px;"))
+
+    let navigationLinkRule = try cssRule(in: css, containing: ".article-navigation-link-style")
+    #expect(navigationLinkRule.contains("rgb(242 248 255 / 100%)"))
+    #expect(navigationLinkRule.contains("rgb(200 221 242 / 100%)"))
 
     try expectDarkBlueThemeRule(in: css, containing: ".page-canvas-style") { rule in
         #expect(rule.contains("rgb(7 17 29 / 100%)"))
@@ -587,6 +602,10 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     }
     try expectDarkBlueThemeRule(in: css, containing: ".article-body-style") { rule in
         #expect(rule.contains("rgb(220 236 255 / 100%)"))
+    }
+    try expectDarkBlueThemeRule(in: css, containing: ".article-navigation-link-style") { rule in
+        #expect(rule.contains("rgb(16 34 54 / 100%)"))
+        #expect(rule.contains("rgb(36 71 98 / 100%)"))
     }
     try expectDarkThemeVariables(in: css)
 }
