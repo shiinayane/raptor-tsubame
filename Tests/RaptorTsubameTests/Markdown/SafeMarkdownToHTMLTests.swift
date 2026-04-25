@@ -69,6 +69,24 @@ struct SafeMarkdownToHTMLTests {
         #expect(!processed.body.contains(#"<script>alert("block")</script>"#))
     }
 
+    @Test("fence-like code lines with trailing text stay inside escaped code")
+    func doesNotTreatFenceWithTrailingTextAsClosingFence() throws {
+        var processor = SafeMarkdownToHTML()
+
+        let processed = try processor.process(
+            """
+            ```html
+            ```not a close
+            </code><script>alert("still code")</script>
+            ```
+            """
+        )
+
+        #expect(processed.body.contains("```not a close"))
+        #expect(processed.body.contains("&lt;/code&gt;&lt;script&gt;alert(\"still code\")&lt;/script&gt;"))
+        #expect(!processed.body.contains(#"<script>alert("still code")</script>"#))
+    }
+
     @Test("multiple real code elements are escaped")
     func escapesMultipleCodeElements() throws {
         var processor = SafeMarkdownToHTML()

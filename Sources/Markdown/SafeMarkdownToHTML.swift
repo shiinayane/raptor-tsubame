@@ -67,7 +67,10 @@ private func openingFence(in line: String) -> MarkdownFence? {
 private func closesFence(_ line: String, fence: MarkdownFence) -> Bool {
     let trimmed = line.dropFirst(min(indentationCount(in: line), 3))
     let count = trimmed.prefix { $0 == fence.character }.count
-    return count >= fence.count
+    guard count >= fence.count else { return false }
+
+    let remainder = trimmed.dropFirst(count)
+    return remainder.allSatisfy(\.isWhitespace)
 }
 
 private func indentationCount(in line: String) -> Int {
