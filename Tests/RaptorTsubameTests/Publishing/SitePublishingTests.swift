@@ -180,6 +180,7 @@ struct SitePublishingTests {
         #expect(middle.contains("data-article-navigation-link=\"newer\""))
         #expect(middle.contains("data-article-navigation-link=\"older\""))
         #expect(middle.contains("article-navigation-style"))
+        #expect(middle.contains("article-navigation-row-style"))
         #expect(middle.contains("article-navigation-link-style"))
 
         #expect(oldest.contains("data-article-navigation=\"true\""))
@@ -514,6 +515,7 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(css.contains(".article-cover-style"))
     #expect(css.contains(".article-body-style"))
     #expect(css.contains(".article-navigation-style"))
+    #expect(css.contains(".article-navigation-row-style"))
     #expect(css.contains(".article-navigation-link-style"))
 
     #expect(css.contains("rgb(247 251 255 / 100%)"))
@@ -539,6 +541,7 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(!css.contains("@media (min-width: 0px) {\n    .article-cover-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .article-body-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .article-navigation-style"))
+    #expect(!css.contains("@media (min-width: 0px) {\n    .article-navigation-row-style"))
     #expect(!css.contains("@media (min-width: 0px) {\n    .article-navigation-link-style"))
 
     let sidebarPanelRule = try cssRule(in: css, containing: ".sidebar-panel-style")
@@ -564,8 +567,11 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(metadataIconRule.contains("height: 32px;"))
     #expect(metadataIconRule.contains("rgb(74 139 203 / 100%)"))
 
-    let navigationRule = try cssRule(in: css, containing: ".article-navigation-style")
-    #expect(navigationRule.contains("gap: 12px;"))
+    let navigationRowRule = try cssRule(in: css, containing: ".article-navigation-row-style")
+    #expect(navigationRowRule.contains("width: 100%;"))
+    #expect(navigationRowRule.contains("gap: 12px;"))
+    #expect(navigationRowRule.contains("align-items: center;"))
+    #expect(navigationRowRule.contains("flex-wrap: wrap;"))
 
     let navigationLinkRule = try cssRule(in: css, containing: ".article-navigation-link-style")
     #expect(navigationLinkRule.contains("rgb(242 248 255 / 100%)"))

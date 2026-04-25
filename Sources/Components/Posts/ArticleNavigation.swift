@@ -22,6 +22,7 @@ struct ArticleNavigation: HTML {
                         .data("article-navigation-link", "older")
                 }
             }
+            .style(ArticleNavigationRowStyle())
         }
         .style(ArticleNavigationStyle())
         .data("article-navigation", "true")

@@ -6,14 +6,22 @@ struct ArticleNavigationStyle: Style {
         if environment.horizontalSizeClass < .regular {
             content
                 .style(.width(.percent(100)))
-                .style(.gap(.px(12)))
                 .margin(.top, 4)
         } else {
             content
                 .style(.width(.percent(100)))
-                .style(.gap(.px(12)))
                 .margin(.top, 8)
         }
+    }
+}
+
+struct ArticleNavigationRowStyle: Style {
+    func style(content: Content, environment: EnvironmentConditions) -> Content {
+        content
+            .style(.width(.percent(100)))
+            .style(.gap(.px(12)))
+            .style(.alignItems(.center))
+            .style(.flexWrap(.wrap))
     }
 }
 

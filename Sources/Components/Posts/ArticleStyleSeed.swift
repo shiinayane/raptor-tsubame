@@ -14,6 +14,7 @@ struct ArticleStyleSeed: HTML {
         EmptyHTML().style(ArticleCoverImageStyle())
         EmptyHTML().style(ArticleBodyStyle())
         EmptyHTML().style(ArticleNavigationStyle())
+        EmptyHTML().style(ArticleNavigationRowStyle())
         EmptyHTML().style(ArticleNavigationLinkStyle())
     }
 }
