@@ -1,0 +1,40 @@
+import Foundation
+import Raptor
+
+struct ArticleTOC: HTML {
+    let outline: ArticleOutline
+
+    var body: some HTML {
+        if outline.shouldRender {
+            Tag("nav") {
+                Text("Contents")
+                    .font(.title5)
+                    .data("article-toc-title", "true")
+
+                Tag("ol") {
+                    ForEach(outline.items) { item in
+                        Tag("li") {
+                            Link(destination: "#\(item.id)") {
+                                escapedHTML(item.title)
+                            }
+                        }
+                        .data("article-toc-item", "true")
+                        .data("article-toc-level", "h\(item.level.rawValue)")
+                    }
+                }
+            }
+            .style(ArticleTOCStyle())
+            .data("article-toc", "true")
+        } else {
+            EmptyHTML()
+        }
+    }
+}
+
+private func escapedHTML(_ text: String) -> String {
+    text
+        .replacingOccurrences(of: "&", with: "&amp;")
+        .replacingOccurrences(of: "<", with: "&lt;")
+        .replacingOccurrences(of: ">", with: "&gt;")
+        .replacingOccurrences(of: "\"", with: "&quot;")
+}

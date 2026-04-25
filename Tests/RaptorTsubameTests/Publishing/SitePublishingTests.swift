@@ -189,6 +189,32 @@ struct SitePublishingTests {
         #expect(!oldest.contains("Older"))
     }
 
+    @Test("markdown reading lab renders inline TOC")
+    func articlePageRendersInlineTOC() async throws {
+        let harness = try await publishedSite()
+
+        let page = try harness.contents(of: "posts/markdown-reading-lab/index.html")
+        let main = try mainSlice(of: page)
+        let markdown = try markdownSlice(of: main)
+
+        #expect(main.contains("data-article-toc=\"true\""))
+        #expect(main.contains("href=\"#heading-level-two\""))
+        #expect(main.contains("href=\"#heading-level-three\""))
+        #expect(markdown.contains(#"<h2 id="heading-level-two" data-article-heading-anchor="true">Heading Level Two</h2>"#))
+        #expect(markdown.contains(#"<h3 id="heading-level-three" data-article-heading-anchor="true">Heading Level Three</h3>"#))
+    }
+
+    @Test("short article does not render TOC chrome")
+    func shortArticleDoesNotRenderTOC() async throws {
+        let harness = try await publishedSite()
+
+        let page = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
+        let main = try mainSlice(of: page)
+
+        #expect(!main.contains("data-article-toc=\"true\""))
+        #expect(!main.contains("article-toc-style"))
+    }
+
     @Test("homepage and about include shared navigation")
     func includesSharedNavigation() async throws {
         let harness = try await publishedSite()
@@ -262,8 +288,6 @@ struct SitePublishingTests {
 
         #expect(main.contains("data-article-page=\"true\""))
         #expect(markdown.contains("data-markdown-content=\"true\""))
-        #expect(markdown.contains("<h2>Heading Level Two</h2>"))
-        #expect(markdown.contains("<h3>Heading Level Three</h3>"))
         #expect(markdown.contains("<ul>"))
         #expect(markdown.contains("<ol>"))
         #expect(markdown.contains("<blockquote>"))
