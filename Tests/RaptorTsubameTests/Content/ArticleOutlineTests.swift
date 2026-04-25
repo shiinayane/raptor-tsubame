@@ -40,4 +40,59 @@ struct ArticleOutlineTests {
         #expect(!outline.isEmpty)
         #expect(!outline.shouldRender)
     }
+
+    @Test("rendered markdown adds heading IDs and extracts outline")
+    func renderedMarkdownAddsHeadingIDsAndExtractsOutline() {
+        let rendered = ArticleRenderedMarkdown(
+            html: """
+            <div class="markdown" data-markdown-content="true">
+              <h2>Basic Inline Markup</h2>
+              <p>Body.</p>
+              <h3>Details &amp; Examples</h3>
+              <h2>Basic Inline Markup</h2>
+            </div>
+            """
+        )
+
+        #expect(rendered.html.contains(#"<h2 id="basic-inline-markup" data-article-heading-anchor="true">Basic Inline Markup</h2>"#))
+        #expect(rendered.html.contains(#"<h3 id="details-examples" data-article-heading-anchor="true">Details &amp; Examples</h3>"#))
+        #expect(rendered.html.contains(#"<h2 id="basic-inline-markup-2" data-article-heading-anchor="true">Basic Inline Markup</h2>"#))
+        #expect(rendered.outline.items == [
+            ArticleOutlineItem(id: "basic-inline-markup", title: "Basic Inline Markup", level: .h2),
+            ArticleOutlineItem(id: "details-examples", title: "Details & Examples", level: .h3),
+            ArticleOutlineItem(id: "basic-inline-markup-2", title: "Basic Inline Markup", level: .h2)
+        ])
+    }
+
+    @Test("rendered markdown does not overwrite existing heading IDs")
+    func renderedMarkdownPreservesExistingHeadingIDs() {
+        let rendered = ArticleRenderedMarkdown(
+            html: """
+            <h2 id="custom-id">Custom Heading</h2>
+            <h3>Child Heading</h3>
+            """
+        )
+
+        #expect(rendered.html.contains(#"<h2 id="custom-id" data-article-heading-anchor="true">Custom Heading</h2>"#))
+        #expect(rendered.outline.items.first?.id == "custom-id")
+        #expect(rendered.outline.items.first?.title == "Custom Heading")
+        #expect(rendered.outline.items.first?.level == .h2)
+        #expect(rendered.outline.items.last?.id == "child-heading")
+    }
+
+    @Test("rendered markdown ignores h1 and deeper headings")
+    func renderedMarkdownIgnoresUnsupportedHeadingLevels() {
+        let rendered = ArticleRenderedMarkdown(
+            html: """
+            <h1>Page Title</h1>
+            <h2>Included</h2>
+            <h4>Not Included</h4>
+            """
+        )
+
+        #expect(!rendered.html.contains(#"id="page-title""#))
+        #expect(rendered.html.contains(#"id="included""#))
+        #expect(!rendered.html.contains(#"id="not-included""#))
+        #expect(rendered.outline.items.map(\.title) == ["Included"])
+    }
 }
