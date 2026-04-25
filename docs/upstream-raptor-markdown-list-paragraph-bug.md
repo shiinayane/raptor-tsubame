@@ -119,3 +119,11 @@ Option A: wait for upstream fix and keep this documented.
 Option B: implement a temporary custom Markdown processor locally. This is higher risk because our current `SafeMarkdownToHTML` delegates to Raptor's `MarkdownToHTML`; fully fixing list paragraphs would require taking over more of the renderer behavior.
 
 Preferred current action: submit upstream issue first, then decide whether a local workaround is necessary based on frequency and severity in real posts.
+
+## Compatibility Audit Link
+
+The broader Tsubame Markdown compatibility audit is tracked in:
+
+- `docs/markdown-compatibility-audit.md`
+
+The audit keeps this upstream bug visible alongside other Markdown behaviors without adding a local renderer workaround.
