@@ -130,6 +130,10 @@ Visual acceptance:
 
 ## Current Recommendation
 
-The next implementation stage should be Stage 7.1, limited to a content contract design and the smallest metadata parsing support needed for Stage 7.2. Avoid implementing image rendering, series pages, TOC, and search all at once.
+Stage 7.1 is complete as the conservative content contract foundation.
+Stage 7.2A is complete as the article reading structure and container-style foundation.
+Stage 7.2B is complete as the article header and cover upgrade, even though its original documents were initially misnumbered as Stage 7.3.
 
-After Stage 7.1, move into Stage 7.2 article reading work. That is the best place to improve both core blog value and visual expression without scattering effort across unrelated surfaces.
+The next implementation stage should remain inside Stage 7.2 as Stage 7.2C Full Reading System. It should focus on Markdown descendant typography, code block and inline code styling, and the article bottom area before moving into Stage 7.3 Discovery System.
+
+Stage 7.3 Discovery System should start only after Stage 7.2 has a sufficiently complete reading experience. Avoid implementing archive/search/discovery features before article typography and reading affordances are stable.

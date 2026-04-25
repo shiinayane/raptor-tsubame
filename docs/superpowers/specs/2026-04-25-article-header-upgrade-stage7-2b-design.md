@@ -1,10 +1,10 @@
-# Article Header Upgrade Stage 7.3 Design
+# Article Header Upgrade Stage 7.2B Design
 
 ## Context
 
 Stage 7.1 added a stable content metadata contract for `image`, `updated`, and `lang`. Stage 7.2A then split article pages into focused `ArticleContent`, `ArticleHeader`, and `ArticleBody` components with token-driven article surface styles.
 
-Stage 7.3 should use that foundation to make the top of an article feel intentional. The direction is inspired by Fuwari's article header hierarchy, but should not copy its classes, layout implementation, or exact visual values.
+Stage 7.2B should use that foundation to make the top of an article feel intentional. The direction is inspired by Fuwari's article header hierarchy, but should not copy its classes, layout implementation, or exact visual values.
 
 ## Goals
 
@@ -36,7 +36,7 @@ The article header should be stronger than the list-card header but still calm:
 - Title row: large high-contrast title with a small vertical blue accent bar on the leading edge.
 - Metadata row: date, optional updated date, optional language, category, and tags as compact metadata items.
 - Cover image: optional, only rendered when `image` exists.
-- Cover caption/source: optional and only rendered when source metadata exists in a later contract stage; Stage 7.3 may reserve a component boundary but should not invent ad hoc front matter parsing for it.
+- Cover caption/source: optional and only rendered when source metadata exists in a later contract stage; Stage 7.2B may reserve a component boundary but should not invent ad hoc front matter parsing for it.
 
 Use Fuwari's post page as the size reference, not as a template to copy:
 
@@ -60,7 +60,7 @@ The reference image uses compact square icon blocks with visible glyphs centered
 
 ## Metadata Contract
 
-Stage 7.3 should use fields already present in `SiteContentMetadata` and avoid new parser paths.
+Stage 7.2B should use fields already present in `SiteContentMetadata` and avoid new parser paths.
 
 Use now:
 
@@ -77,11 +77,11 @@ Continue using existing Raptor/Post values:
 - `post.estimatedReadingMinutes`: reading time.
 - taxonomy helpers: category and tags.
 
-Do not add `coverSource` or similar front matter in this stage. If cover attribution becomes important, it should be a separate metadata-contract stage or a narrow Stage 7.3 follow-up.
+Do not add `coverSource` or similar front matter in this stage. If cover attribution becomes important, it should be a separate metadata-contract stage or a narrow Stage 7.2B follow-up.
 
 ## Architecture
 
-Keep `ArticlePage` as a thin composition layer. Stage 7.3 should remain inside article header components and styles.
+Keep `ArticlePage` as a thin composition layer. Stage 7.2B should remain inside article header components and styles.
 
 Expected component boundaries:
 
@@ -141,7 +141,7 @@ rg -n "data-article-title|data-article-meta-item|data-article-cover|article-meta
 
 ## Acceptance Criteria
 
-- `ArticleHeader` has a stronger hierarchy matching the approved Stage 7.3 direction.
+- `ArticleHeader` has a stronger hierarchy matching the approved Stage 7.2B direction.
 - Header metadata uses one reusable icon-block pattern.
 - Icons are visually centered in their blocks.
 - Metadata text colors are theme-token based and readable in light and dark mode.
@@ -156,4 +156,4 @@ rg -n "data-article-title|data-article-meta-item|data-article-cover|article-meta
 
 - Raptor's current post-page style registration behavior may still require style seeding for article-only styles. If new article-only styles are added, the implementation must either reuse the existing seed pattern or otherwise prove generated CSS includes those classes.
 - Icon glyph rendering can differ by system font. Implementation should prefer simple, stable symbols or a small internal label abstraction over visually fragile characters.
-- Cover images may have very different aspect ratios. Stage 7.3 should choose one safe aspect-ratio treatment and leave advanced art direction for a later visual stage.
+- Cover images may have very different aspect ratios. Stage 7.2B should choose one safe aspect-ratio treatment and leave advanced art direction for a later visual stage.

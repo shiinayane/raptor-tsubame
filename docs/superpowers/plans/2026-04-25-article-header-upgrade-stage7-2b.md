@@ -1,4 +1,4 @@
-# Article Header Upgrade Stage 7.3 Implementation Plan
+# Article Header Upgrade Stage 7.2B Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -12,7 +12,7 @@
 
 ## Fuwari Size Reference
 
-Stage 7.3 should use Fuwari's post page dimensions as a reference while preserving Tsubame's Raptor implementation and blue theme tokens:
+Stage 7.2B should use Fuwari's post page dimensions as a reference while preserving Tsubame's Raptor implementation and blue theme tokens:
 
 - Fuwari post card padding: `px-6 md:px-9 pt-6 pb-4`, roughly 24px mobile horizontal, 36px desktop horizontal, 24px top, 16px bottom.
 - Fuwari reading stats icons: `h-6 w-6`, 24px square.
@@ -675,10 +675,10 @@ Expected:
 - Muted metadata text remains readable.
 - Cover is rounded, contained, and does not push the sidebar.
 
-## Task 5: Commit Stage 7.3 Implementation
+## Task 5: Commit Stage 7.2B Implementation
 
 **Files:**
-- Commit only Stage 7.3 implementation files.
+- Commit only Stage 7.2B implementation files.
 - Do not stage unrelated `Posts/posts/build-website-in-swift.md` unless the user explicitly says to include it.
 
 - [ ] **Step 1: Check status**
@@ -689,7 +689,7 @@ Run:
 git status --short
 ```
 
-Expected: Stage 7.3 source/test/asset files are modified or untracked; unrelated `Posts/posts/build-website-in-swift.md` may remain untracked.
+Expected: Stage 7.2B source/test/asset files are modified or untracked; unrelated `Posts/posts/build-website-in-swift.md` may remain untracked.
 
 - [ ] **Step 2: Stage implementation files**
 
@@ -699,7 +699,7 @@ Run:
 git add Posts/posts/welcome-to-tsubame.md Assets/images/tsubame-cover.svg Sources Tests
 ```
 
-Expected: only intended Stage 7.3 files are staged.
+Expected: only intended Stage 7.2B files are staged.
 
 - [ ] **Step 3: Review staged diff**
 
@@ -720,4 +720,4 @@ Run:
 git commit -m "feat: upgrade article header"
 ```
 
-Expected: commit succeeds with Stage 7.3 implementation.
+Expected: commit succeeds with Stage 7.2B implementation.
