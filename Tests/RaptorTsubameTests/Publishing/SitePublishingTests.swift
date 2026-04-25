@@ -198,6 +198,7 @@ struct SitePublishingTests {
         let markdown = try markdownSlice(of: main)
 
         #expect(main.contains("data-article-toc=\"true\""))
+        #expect(main.contains(#"aria-label="Contents""#))
         #expect(main.contains("href=\"#heading-level-two\""))
         #expect(main.contains("href=\"#heading-level-three\""))
         #expect(markdown.contains(#"<h2 id="heading-level-two" data-article-heading-anchor="true">Heading Level Two</h2>"#))

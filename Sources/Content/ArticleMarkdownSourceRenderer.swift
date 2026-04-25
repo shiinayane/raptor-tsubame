@@ -23,7 +23,7 @@ struct ArticleMarkdownSourceRenderer {
             }
 
             var processor = SafeMarkdownToHTML()
-            guard let processed = try? processor.process(markdownBody(from: rawMarkdown)) else {
+            guard let processed = try? processor.process(preprocessedMarkdownBody(from: rawMarkdown)) else {
                 return nil
             }
 
@@ -77,6 +77,139 @@ struct ArticleMarkdownSourceRenderer {
 
         return normalizedContentPath("/\(folder)/\(slug)/")
     }
+
+    private func preprocessedMarkdownBody(from markdown: String) -> String {
+        let sourcesDirectory = rootDirectory.appending(path: "Sources")
+        let body = markdownBody(from: markdown)
+        let (protectedBody, escapedTokens) = protectEscapedTokens(in: body)
+        let withCodeIncludes = expandCodeIncludes(in: protectedBody, sourcesDirectory: sourcesDirectory)
+        let withTextIncludes = expandTextIncludes(in: withCodeIncludes, sourcesDirectory: sourcesDirectory)
+        return restoreEscapedTokens(in: withTextIncludes, tokens: escapedTokens)
+    }
+
+    private func expandTextIncludes(in markdown: String, sourcesDirectory: URL) -> String {
+        replacingMatches(in: markdown, pattern: #"@\{text:([^}]+)\}"#) { match, source in
+            guard let pathRange = Range(match.range(at: 1), in: source),
+                  let include = loadInclude(String(source[pathRange]), sourcesDirectory: sourcesDirectory) else {
+                return nil
+            }
+
+            return include.trimmingCharacters(in: .newlines)
+        }
+    }
+
+    private func expandCodeIncludes(in markdown: String, sourcesDirectory: URL) -> String {
+        replacingMatches(in: markdown, pattern: #"@\{code(?::(noimports))?:([^}]+)\}"#) { match, source in
+            guard let pathRange = Range(match.range(at: 2), in: source),
+                  let include = loadInclude(String(source[pathRange]), sourcesDirectory: sourcesDirectory) else {
+                return nil
+            }
+
+            let rawPath = String(source[pathRange])
+            let noImports = match.range(at: 1).location != NSNotFound
+            let code = noImports ? stripLeadingImports(from: include) : include
+            let language = languageTag(for: rawPath)
+
+            return """
+            ```\(language)
+            \(code.trimmingCharacters(in: .newlines))
+            ```
+            """
+        }
+    }
+
+    private func protectEscapedTokens(in markdown: String) -> (String, [EscapedToken]) {
+        var tokens: [EscapedToken] = []
+        var index = 0
+        let protected = replacingMatches(in: markdown, pattern: #"\$@\{[^}]+\}"#) { match, source in
+            guard let matchRange = Range(match.range, in: source) else {
+                return nil
+            }
+
+            let placeholder = "__ARTICLE_ESCAPED_TOKEN_\(index)__"
+            let original = String(source[matchRange].dropFirst())
+            tokens.append(EscapedToken(placeholder: placeholder, original: original))
+            index += 1
+            return placeholder
+        }
+
+        return (protected, tokens)
+    }
+
+    private func restoreEscapedTokens(in markdown: String, tokens: [EscapedToken]) -> String {
+        tokens.reduce(markdown) { result, token in
+            result.replacingOccurrences(of: token.placeholder, with: token.original)
+        }
+    }
+
+    private func loadInclude(_ path: String, sourcesDirectory: URL) -> String? {
+        try? String(contentsOf: sourcesDirectory.appendingPathComponent(path), encoding: .utf8)
+    }
+
+    private func languageTag(for path: String) -> String {
+        let pathExtension = URL(fileURLWithPath: path).pathExtension
+        let aliases = [
+            "js": "javascript",
+            "ts": "typescript",
+            "md": "markdown",
+            "m": "objectivec"
+        ]
+
+        return aliases[pathExtension] ?? pathExtension
+    }
+
+    private func stripLeadingImports(from source: String) -> String {
+        let prefixes = ["import ", "from ", "use ", "#include"]
+        let lines = source.split(separator: "\n", omittingEmptySubsequences: false)
+        var index = 0
+
+        while index < lines.count {
+            let line = lines[index].trimmingCharacters(in: .whitespaces)
+
+            if line.isEmpty || prefixes.contains(where: { line.hasPrefix($0) }) {
+                index += 1
+                continue
+            }
+
+            break
+        }
+
+        guard index < lines.count else {
+            return ""
+        }
+
+        return lines[index...].joined(separator: "\n")
+    }
+}
+
+private struct EscapedToken {
+    let placeholder: String
+    let original: String
+}
+
+private func replacingMatches(
+    in source: String,
+    pattern: String,
+    replacement: (NSTextCheckingResult, String) -> String?
+) -> String {
+    guard let expression = try? NSRegularExpression(pattern: pattern) else {
+        return source
+    }
+
+    let nsRange = NSRange(source.startIndex..<source.endIndex, in: source)
+    let matches = expression.matches(in: source, range: nsRange)
+    var result = source
+
+    for match in matches.reversed() {
+        guard let range = Range(match.range, in: source),
+              let replacement = replacement(match, source) else {
+            continue
+        }
+
+        result.replaceSubrange(range, with: replacement)
+    }
+
+    return result
 }
 
 private func markdownBody(from markdown: String) -> String {

@@ -25,6 +25,7 @@ struct ArticleTOC: HTML {
             }
             .style(ArticleTOCStyle())
             .data("article-toc", "true")
+            .attribute("aria-label", "Contents")
         } else {
             EmptyHTML()
         }
