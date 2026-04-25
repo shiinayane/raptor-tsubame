@@ -297,8 +297,10 @@ struct SitePublishingTests {
     func generatedCSSIncludesMarkdownReadingRules() async throws {
         let harness = try await publishedSite()
 
-        let css = try harness.contents(of: "css/raptor-core.css")
+        let css = try harness.contents(of: "css/markdown-reading.css")
+        let article = try harness.contents(of: "posts/markdown-reading-lab/index.html")
 
+        #expect(article.contains("href=\"/css/markdown-reading.css\""))
         #expect(css.contains("[data-markdown-content=\"true\"]"))
         #expect(css.contains("--markdown-text"))
         #expect(css.contains("[data-color-scheme=\"dark\"] [data-markdown-content=\"true\"]"))

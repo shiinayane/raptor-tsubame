@@ -24,6 +24,8 @@ struct MainLayout: Layout {
     var body: some Document {
         Navigation { TopNavigation().body }
         Main {
+            MarkdownReadingStylesheet()
+
             Tag("div") {
                 Tag("div") {
                     Tag("div") {
