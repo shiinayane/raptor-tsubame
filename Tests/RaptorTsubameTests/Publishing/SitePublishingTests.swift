@@ -252,6 +252,7 @@ struct SitePublishingTests {
         let archive = try harness.contents(of: "archive/index.html")
         let about = try harness.contents(of: "about/index.html")
         let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
+        let markdownReadingLab = try harness.contents(of: "posts/markdown-reading-lab/index.html")
 
         try expectBlueThemeVisualHTML(in: homepage)
         try expectBlueThemeVisualHTML(in: archive)
@@ -275,6 +276,8 @@ struct SitePublishingTests {
         #expect(article.contains("data-markdown-content=\"true\""))
         #expect(article.contains("data-article-description=\"true\""))
         #expect(article.contains("data-article-meta-icon=\"true\""))
+        #expect(markdownReadingLab.contains("article-toc-style"))
+        #expect(markdownReadingLab.contains("data-article-toc=\"true\""))
     }
 
     @Test("article markdown lab publishes scoped reading markup")

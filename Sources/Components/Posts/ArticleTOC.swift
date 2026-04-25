@@ -23,7 +23,7 @@ struct ArticleTOC: HTML {
                     }
                 }
             }
-            .style(ArticleTOCStyle())
+            .style(ArticleTocStyle())
             .data("article-toc", "true")
             .attribute("aria-label", "Contents")
         } else {

@@ -47,7 +47,7 @@ struct MarkdownCompatibilityPublishingTests {
         let head = try headSlice(of: page)
 
         #expect(head.contains("href=\"/css/markdown-reading.css\""))
-        #expect(markdown.contains("<h2>Basic Inline Markup</h2>"))
+        #expect(markdown.contains(#"<h2 id="basic-inline-markup" data-article-heading-anchor="true">Basic Inline Markup</h2>"#))
         #expect(markdown.contains("<strong>strong text</strong>"))
         #expect(markdown.contains("<em>emphasis</em>"))
         #expect(markdown.contains("href=\"https://example.com\""))

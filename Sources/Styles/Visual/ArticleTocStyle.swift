@@ -1,7 +1,7 @@
 import Foundation
 import Raptor
 
-struct ArticleTOCStyle: Style {
+struct ArticleTocStyle: Style {
     func style(content: Content, environment: EnvironmentConditions) -> Content {
         let palette = SiteThemePalette.resolve(for: environment)
         let background = environment.colorScheme == .dark
