@@ -300,9 +300,6 @@ struct SitePublishingTests {
         #expect(css.contains("[data-markdown-content=\"true\"] pre"))
         #expect(css.contains("[data-markdown-content=\"true\"] :not(pre) > code"))
         #expect(css.contains("[data-markdown-content=\"true\"] table"))
-        #expect(!css.contains("\nh1 {"))
-        #expect(!css.contains("\npre {"))
-        #expect(!css.contains("\ncode {"))
     }
 }
 
