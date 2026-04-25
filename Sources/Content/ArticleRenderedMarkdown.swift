@@ -11,50 +11,133 @@ struct ArticleRenderedMarkdown: Sendable, Equatable {
     }
 
     private static func transform(_ html: String) -> (html: String, items: [ArticleOutlineItem]) {
-        let pattern = #"<h([23])([^>]*)>(.*?)</h\1>"#
-        guard let regex = try? NSRegularExpression(
-            pattern: pattern,
-            options: [.caseInsensitive, .dotMatchesLineSeparators]
-        ) else {
-            return (html, [])
-        }
-
-        let nsRange = NSRange(html.startIndex..<html.endIndex, in: html)
-        let matches = regex.matches(in: html, range: nsRange)
-
+        let matches = headingMatches(in: html)
         var slugger = ArticleHeadingSlugger()
         var items = [ArticleOutlineItem]()
         var transformed = ""
         var cursor = html.startIndex
 
         for match in matches {
-            guard
-                let fullRange = Range(match.range(at: 0), in: html),
-                let levelRange = Range(match.range(at: 1), in: html),
-                let attributeRange = Range(match.range(at: 2), in: html),
-                let contentRange = Range(match.range(at: 3), in: html),
-                let levelValue = Int(html[levelRange]),
-                let level = ArticleHeadingLevel(rawValue: levelValue)
-            else {
-                continue
-            }
+            transformed += html[cursor..<match.fullRange.lowerBound]
 
-            transformed += html[cursor..<fullRange.lowerBound]
-
-            let attributes = String(html[attributeRange])
-            let content = String(html[contentRange])
+            let attributes = String(html[match.attributeRange])
+            let content = String(html[match.contentRange])
             let title = plainText(from: content)
             let id = attributeValue(named: "id", in: attributes) ?? slugger.slug(for: title)
             let rewrittenAttributes = headingAttributes(from: attributes, id: id)
 
-            transformed += "<h\(level.rawValue)\(rewrittenAttributes)>\(content)</h\(level.rawValue)>"
-            cursor = fullRange.upperBound
-            items.append(ArticleOutlineItem(id: id, title: title, level: level))
+            transformed += "<h\(match.level.rawValue)\(rewrittenAttributes)>\(content)</h\(match.level.rawValue)>"
+            cursor = match.fullRange.upperBound
+            items.append(ArticleOutlineItem(id: id, title: title, level: match.level))
         }
 
         transformed += html[cursor...]
         return (transformed, items)
     }
+}
+
+private struct HeadingMatch {
+    let level: ArticleHeadingLevel
+    let fullRange: Range<String.Index>
+    let attributeRange: Range<String.Index>
+    let contentRange: Range<String.Index>
+}
+
+private func headingMatches(in html: String) -> [HeadingMatch] {
+    var matches = [HeadingMatch]()
+    var cursor = html.startIndex
+
+    while let tagStart = html[cursor...].firstIndex(of: "<") {
+        guard
+            let start = headingStart(at: tagStart, in: html),
+            let tagEnd = headingStartTagEnd(from: start.attributeStart, in: html)
+        else {
+            cursor = html.index(after: tagStart)
+            continue
+        }
+
+        let contentStart = html.index(after: tagEnd)
+        guard
+            let closingRange = html.range(
+                of: "</h\(start.level.rawValue)>",
+                options: [.caseInsensitive],
+                range: contentStart..<html.endIndex
+            )
+        else {
+            cursor = html.index(after: tagStart)
+            continue
+        }
+
+        matches.append(
+            HeadingMatch(
+                level: start.level,
+                fullRange: tagStart..<closingRange.upperBound,
+                attributeRange: start.attributeStart..<tagEnd,
+                contentRange: contentStart..<closingRange.lowerBound
+            )
+        )
+        cursor = closingRange.upperBound
+    }
+
+    return matches
+}
+
+private func headingStart(
+    at tagStart: String.Index,
+    in html: String
+) -> (level: ArticleHeadingLevel, attributeStart: String.Index)? {
+    guard html[tagStart] == "<" else {
+        return nil
+    }
+
+    let hIndex = html.index(after: tagStart)
+    guard hIndex < html.endIndex, html[hIndex].lowercased() == "h" else {
+        return nil
+    }
+
+    let levelIndex = html.index(after: hIndex)
+    guard
+        levelIndex < html.endIndex,
+        let levelValue = Int(String(html[levelIndex])),
+        let level = ArticleHeadingLevel(rawValue: levelValue)
+    else {
+        return nil
+    }
+
+    let attributeStart = html.index(after: levelIndex)
+    guard attributeStart < html.endIndex else {
+        return nil
+    }
+
+    let delimiter = html[attributeStart]
+    guard delimiter == ">" || delimiter.isWhitespace else {
+        return nil
+    }
+
+    return (level, attributeStart)
+}
+
+private func headingStartTagEnd(from start: String.Index, in html: String) -> String.Index? {
+    var cursor = start
+    var quotedBy: Character?
+
+    while cursor < html.endIndex {
+        let character = html[cursor]
+
+        if let quote = quotedBy {
+            if character == quote {
+                quotedBy = nil
+            }
+        } else if character == "\"" || character == "'" {
+            quotedBy = character
+        } else if character == ">" {
+            return cursor
+        }
+
+        cursor = html.index(after: cursor)
+    }
+
+    return nil
 }
 
 private func headingAttributes(from attributes: String, id: String) -> String {
@@ -73,20 +156,30 @@ private func headingAttributes(from attributes: String, id: String) -> String {
 
 private func attributeValue(named name: String, in attributes: String) -> String? {
     let escapedName = NSRegularExpression.escapedPattern(for: name)
-    let pattern = #"(?:^|\s)"# + escapedName + #"\s*=\s*"([^"]*)""#
+    let pattern = #"(?:^|\s)"# + escapedName + #"(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?(?=\s|$)"#
     guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else {
         return nil
     }
 
     let nsRange = NSRange(attributes.startIndex..<attributes.endIndex, in: attributes)
-    guard
-        let match = regex.firstMatch(in: attributes, range: nsRange),
-        let valueRange = Range(match.range(at: 1), in: attributes)
-    else {
+    guard let match = regex.firstMatch(in: attributes, range: nsRange) else {
         return nil
     }
 
-    return String(attributes[valueRange])
+    for rangeIndex in 1..<match.numberOfRanges {
+        let nsRange = match.range(at: rangeIndex)
+        guard nsRange.location != NSNotFound, let valueRange = Range(nsRange, in: attributes) else {
+            continue
+        }
+
+        return String(attributes[valueRange])
+    }
+
+    if match.range(at: 0).location != NSNotFound {
+        return ""
+    }
+
+    return nil
 }
 
 private func plainText(from html: String) -> String {
@@ -104,8 +197,6 @@ private func plainText(from html: String) -> String {
 private func decodeHTMLEntities(in text: String) -> String {
     text
         .replacingOccurrences(of: "&amp;", with: "&")
-        .replacingOccurrences(of: "&lt;", with: "<")
-        .replacingOccurrences(of: "&gt;", with: ">")
         .replacingOccurrences(of: "&quot;", with: "\"")
         .replacingOccurrences(of: "&#39;", with: "'")
 }

@@ -80,6 +80,56 @@ struct ArticleOutlineTests {
         #expect(rendered.outline.items.last?.id == "child-heading")
     }
 
+    @Test("rendered markdown preserves single quoted and unquoted heading IDs")
+    func renderedMarkdownPreservesSingleQuotedAndUnquotedHeadingIDs() {
+        let rendered = ArticleRenderedMarkdown(
+            html: """
+            <h2 id='custom-single'>Single Quoted</h2>
+            <h2 id=custom-unquoted>Unquoted</h2>
+            """
+        )
+
+        #expect(rendered.html.contains(#"<h2 id='custom-single' data-article-heading-anchor="true">Single Quoted</h2>"#))
+        #expect(rendered.html.contains(#"<h2 id=custom-unquoted data-article-heading-anchor="true">Unquoted</h2>"#))
+        #expect(rendered.html.ranges(of: "id=").count == 2)
+        #expect(rendered.outline.items.map(\.id) == ["custom-single", "custom-unquoted"])
+    }
+
+    @Test("rendered markdown preserves existing heading anchor markers")
+    func renderedMarkdownPreservesExistingHeadingAnchorMarkers() {
+        let rendered = ArticleRenderedMarkdown(
+            html: #"<h2 id="custom-id" data-article-heading-anchor="true">Marked</h2>"#
+        )
+
+        #expect(rendered.html == #"<h2 id="custom-id" data-article-heading-anchor="true">Marked</h2>"#)
+        #expect(rendered.outline.items == [
+            ArticleOutlineItem(id: "custom-id", title: "Marked", level: .h2)
+        ])
+    }
+
+    @Test("rendered markdown handles greater than signs in quoted heading attributes")
+    func renderedMarkdownHandlesGreaterThanSignsInQuotedHeadingAttributes() {
+        let rendered = ArticleRenderedMarkdown(
+            html: #"<h2 title="1 > 0">Title</h2>"#
+        )
+
+        #expect(rendered.html == #"<h2 title="1 > 0" id="title" data-article-heading-anchor="true">Title</h2>"#)
+        #expect(rendered.outline.items == [
+            ArticleOutlineItem(id: "title", title: "Title", level: .h2)
+        ])
+    }
+
+    @Test("rendered markdown keeps unsafe-looking escaped angle markup out of outline titles")
+    func renderedMarkdownKeepsEscapedAngleMarkupSafeInOutlineTitles() {
+        let rendered = ArticleRenderedMarkdown(
+            html: #"<h2>&lt;img src=x onerror=alert(1)&gt;</h2>"#
+        )
+
+        #expect(rendered.outline.items.first?.title == "&lt;img src=x onerror=alert(1)&gt;")
+        #expect(rendered.outline.items.first?.title.contains("<") == false)
+        #expect(rendered.outline.items.first?.title.contains(">") == false)
+    }
+
     @Test("rendered markdown ignores h1 and deeper headings")
     func renderedMarkdownIgnoresUnsupportedHeadingLevels() {
         let rendered = ArticleRenderedMarkdown(
