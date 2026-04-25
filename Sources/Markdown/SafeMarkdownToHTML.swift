@@ -9,9 +9,7 @@ struct SafeMarkdownToHTML: PostProcessor {
     private var processor = MarkdownToHTML()
 
     mutating func process(_ markup: String) throws -> ProcessedPost {
-        var processed = processor.process(markup)
-        processed.body = escapeCodeElementBodies(in: processed.body)
-        return processed
+        processor.process(escapeMarkdownCode(in: markup))
     }
 
     func delimitRawMarkup(_ widgetHTML: String) -> String {
@@ -19,37 +17,105 @@ struct SafeMarkdownToHTML: PostProcessor {
     }
 }
 
-private func escapeCodeElementBodies(in html: String) -> String {
+private func escapeMarkdownCode(in markup: String) -> String {
     var result = ""
-    var remainder = html[...]
+    var index = markup.startIndex
+    var openFence: MarkdownFence?
 
-    while let openRange = remainder.range(of: "<code") {
-        guard isCodeTagBoundary(in: remainder, after: openRange.upperBound) else {
-            result += remainder[..<openRange.upperBound]
-            remainder = remainder[openRange.upperBound...]
-            continue
+    while index < markup.endIndex {
+        let lineEnd = markup[index...].firstIndex(of: "\n") ?? markup.endIndex
+        let line = String(markup[index..<lineEnd])
+        let newline = lineEnd < markup.endIndex ? "\n" : ""
+
+        if let fence = openFence {
+            if closesFence(line, fence: fence) {
+                result += line + newline
+                openFence = nil
+            } else {
+                result += escapeHTMLText(line) + newline
+            }
+        } else if let fence = openingFence(in: line) {
+            result += line + newline
+            openFence = fence
+        } else {
+            result += escapeInlineCode(in: line) + newline
         }
 
-        result += remainder[..<openRange.lowerBound]
+        index = lineEnd < markup.endIndex ? markup.index(after: lineEnd) : lineEnd
+    }
 
-        guard let openEnd = remainder[openRange.upperBound...].firstIndex(of: ">"),
-              let closeRange = remainder[openEnd...].range(of: "</code>")
-        else {
-            result += remainder[openRange.lowerBound...]
+    return result
+}
+
+private struct MarkdownFence {
+    let character: Character
+    let count: Int
+}
+
+private func openingFence(in line: String) -> MarkdownFence? {
+    let trimmed = line.dropFirst(min(indentationCount(in: line), 3))
+    guard let first = trimmed.first, first == "`" || first == "~" else {
+        return nil
+    }
+
+    let count = trimmed.prefix { $0 == first }.count
+    guard count >= 3 else { return nil }
+
+    return MarkdownFence(character: first, count: count)
+}
+
+private func closesFence(_ line: String, fence: MarkdownFence) -> Bool {
+    let trimmed = line.dropFirst(min(indentationCount(in: line), 3))
+    let count = trimmed.prefix { $0 == fence.character }.count
+    return count >= fence.count
+}
+
+private func indentationCount(in line: String) -> Int {
+    line.prefix { $0 == " " }.count
+}
+
+private func escapeInlineCode(in line: String) -> String {
+    var result = ""
+    var index = line.startIndex
+
+    while let delimiterRange = nextBacktickRun(in: line, startingAt: index) {
+        result += line[index..<delimiterRange.lowerBound]
+
+        let delimiter = String(line[delimiterRange])
+        let contentStart = delimiterRange.upperBound
+
+        guard let closingRange = line.range(
+            of: delimiter,
+            range: contentStart..<line.endIndex
+        ) else {
+            result += line[delimiterRange.lowerBound...]
             return result
         }
 
-        let openingTag = remainder[openRange.lowerBound...openEnd]
-        let codeBody = remainder[remainder.index(after: openEnd)..<closeRange.lowerBound]
-
-        result += openingTag
-        result += escapeHTMLText(String(codeBody))
-        result += "</code>"
-        remainder = remainder[closeRange.upperBound...]
+        result += delimiter
+        result += escapeHTMLText(String(line[contentStart..<closingRange.lowerBound]))
+        result += delimiter
+        index = closingRange.upperBound
     }
 
-    result += remainder
+    result += line[index...]
     return result
+}
+
+private func nextBacktickRun(
+    in line: String,
+    startingAt start: String.Index
+) -> Range<String.Index>? {
+    guard let first = line[start...].firstIndex(of: "`") else {
+        return nil
+    }
+
+    var end = first
+    while end < line.endIndex, line[end] == "`" {
+        end = line.index(after: end)
+    }
+
+    return first..<end
 }
 
 private func escapeHTMLText(_ text: String) -> String {
@@ -79,13 +145,6 @@ private func escapeHTMLText(_ text: String) -> String {
     }
 
     return escaped
-}
-
-private func isCodeTagBoundary(in html: Substring, after index: Substring.Index) -> Bool {
-    guard index < html.endIndex else { return false }
-
-    let character = html[index]
-    return character == ">" || character == "/" || character.isWhitespace
 }
 
 private func validHTMLEntityEnd(in text: String, startingAt ampersand: String.Index) -> String.Index? {

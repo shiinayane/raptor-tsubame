@@ -49,6 +49,26 @@ struct SafeMarkdownToHTMLTests {
         #expect(!processed.body.contains("<span>visible</span>"))
     }
 
+    @Test("literal closing code tags inside code cannot escape the code element")
+    func escapesLiteralClosingCodeTagsInsideCode() throws {
+        var processor = SafeMarkdownToHTML()
+
+        let processed = try processor.process(
+            """
+            Inline hostile code: `</code><script>alert("inline")</script>`.
+
+            ```html
+            </code><script>alert("block")</script>
+            ```
+            """
+        )
+
+        #expect(processed.body.contains("&lt;/code&gt;&lt;script&gt;alert(\"inline\")&lt;/script&gt;"))
+        #expect(processed.body.contains("&lt;/code&gt;&lt;script&gt;alert(\"block\")&lt;/script&gt;"))
+        #expect(!processed.body.contains(#"<script>alert("inline")</script>"#))
+        #expect(!processed.body.contains(#"<script>alert("block")</script>"#))
+    }
+
     @Test("multiple real code elements are escaped")
     func escapesMultipleCodeElements() throws {
         var processor = SafeMarkdownToHTML()
