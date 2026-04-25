@@ -15,7 +15,7 @@
 
 | 分类 | Markdown/HTML 模式 | 当前行为 | 维护说明 |
 | --- | --- | --- | --- |
-| Supported | 普通段落、标题、strong/emphasis、链接 | 正常生成对应 HTML，并经过文章页管线发布。 | 作为基础作者语法使用。 |
+| Supported | 普通段落、H2+ headings、strong/emphasis、链接 | 正常生成对应 HTML，并经过文章页管线发布。 | 作为基础作者语法使用；首个 H1 会被 Raptor 作为文章标题消费，在 `removeTitleFromBody` 为 true 时不会保留在 Markdown body 输出中。 |
 | Supported | Inline code、fenced code | 代码内容按文本输出，HTML 片段在代码语境中会被转义。 | HTML 示例应优先放在 fenced code 中。 |
 | Supported | 图片、简单有序/无序列表、blockquote、table、horizontal rule | 当前夹具和测试覆盖到生成结构，样式由 scoped Markdown CSS 处理。 | 复杂排版发布前仍建议检查生成 HTML。 |
 | Supported with security expectation | raw HTML block、inline HTML | Raptor/Tsubame 当前策略是允许 raw HTML 在代码块外作为真实 HTML 输出。 | 只在文章确实需要真实 HTML 时使用；不要把不可信输入当作 raw HTML 发布。 |
