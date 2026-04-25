@@ -23,6 +23,7 @@ struct ExampleSite: Site {
     var author = "Tsubame"
     var profile = SiteProfile.default
     nonisolated var themes: [any Theme] { SiteTheme() }
+    var postProcessor: SafeMarkdownToHTML { .init() }
 
     var homePage = HomePage(pageNumber: 1, totalPages: 1)
     var layout = MainLayout()
