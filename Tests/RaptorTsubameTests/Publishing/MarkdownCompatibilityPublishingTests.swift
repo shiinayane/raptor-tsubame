@@ -63,9 +63,12 @@ struct MarkdownCompatibilityPublishingTests {
     @Test("documents raw HTML and HTML code behavior")
     func documentsHTMLCompatibilityBehavior() async throws {
         let markdown = try await compatibilityMarkdown()
+        let compactMarkdown = compactHTMLWhitespace(in: markdown)
 
-        #expect(markdown.contains("data-compat-raw-html=\"true\""))
-        #expect(markdown.contains("data-compat-inline-html=\"true\""))
+        #expect(compactMarkdown.contains(#"<div data-compat-raw-html="true"> Raw HTML should render as HTML. </div>"#))
+        #expect(markdown.contains(#"<span data-compat-inline-html="true">Inline HTML should render as HTML.</span>"#))
+        #expect(!markdown.contains("&lt;div data-compat-raw-html="))
+        #expect(!markdown.contains("&lt;span data-compat-inline-html="))
         #expect(markdown.contains("&lt;/code&gt;&lt;script&gt;alert(\"inline\")&lt;/script&gt;"))
         #expect(markdown.contains("&lt;/code&gt;&lt;script&gt;alert(\"block\")&lt;/script&gt;"))
         #expect(markdown.contains("&lt;already escaped=\"true\"&gt;"))
@@ -114,4 +117,8 @@ private func headSlice(of html: String) throws -> String {
     let headOpen = try #require(html.range(of: "<head"))
     let headClose = try #require(html.range(of: "</head>"))
     return String(html[headOpen.lowerBound..<headClose.upperBound])
+}
+
+private func compactHTMLWhitespace(in html: String) -> String {
+    html.split(whereSeparator: \.isWhitespace).joined(separator: " ")
 }
