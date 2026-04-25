@@ -9,18 +9,17 @@ struct ArticleContent: HTML {
     let older: Post?
 
     var body: some HTML {
-        let renderedMarkdown = ArticleRenderedMarkdown(
-            html: renderedHTML(
-                from: post.text
-                    .data("markdown-content", "true")
-            )
-        )
+        let renderedMarkdown = ArticleMarkdownSourceRenderer().render(post: post)
 
         Tag("article") {
             VStack(alignment: .leading, spacing: 22) {
                 ArticleHeader(post: post, category: category, tags: tags)
-                ArticleTOC(outline: renderedMarkdown.outline)
-                ArticleBody(renderedMarkdown: renderedMarkdown)
+                if let renderedMarkdown {
+                    ArticleTOC(outline: renderedMarkdown.outline)
+                    ArticleBody(renderedMarkdown: renderedMarkdown)
+                } else {
+                    ArticleBody(post: post)
+                }
                 ArticleNavigation(newer: newer, older: older)
             }
         }
