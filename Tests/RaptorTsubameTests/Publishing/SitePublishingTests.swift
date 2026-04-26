@@ -483,13 +483,11 @@ private func expectSharedNavigation(in html: String) throws {
 
     #expect(nav.contains("data-top-navigation=\"true\""))
     #expect(occurrenceCount(of: "<nav", in: nav) == 1)
+    try expectTopNavigationListStructure(in: nav)
     #expect(brand.contains("href=\"/\""))
     #expect(brand.contains("aria-label=\"Raptor Tsubame home\""))
     #expect(brand.contains("top-navigation-brand-style"))
-    #expect(nav.contains("top-navigation-style"))
-    #expect(nav.contains("top-navigation-links-style"))
     #expect(nav.contains("top-navigation-actions-style"))
-    #expect(nav.contains("data-nav-primary=\"true\""))
     #expect(nav.contains("data-nav-actions=\"reserved\""))
     #expect(nav.contains("aria-hidden=\"true\""))
 
@@ -506,6 +504,24 @@ private func topNavigationSlice(of html: String) throws -> String {
     let navStart = try #require(html[..<marker.lowerBound].range(of: "<nav", options: .backwards))
     let navEnd = try #require(html[marker.upperBound...].range(of: "</nav>"))
     return String(html[navStart.lowerBound..<navEnd.upperBound])
+}
+
+private func expectTopNavigationListStructure(in nav: String) throws {
+    let items = listItemSlices(in: nav)
+    #expect(items.count == 5)
+    #expect(items.filter { $0.contains("data-nav-brand=\"true\"") }.count == 1)
+    #expect(items.filter { $0.contains("data-nav-item=\"home\"") }.count == 1)
+    #expect(items.filter { $0.contains("data-nav-item=\"archive\"") }.count == 1)
+    #expect(items.filter { $0.contains("data-nav-item=\"about\"") }.count == 1)
+    #expect(items.filter { $0.contains("data-nav-actions=\"reserved\"") }.count == 1)
+}
+
+private func listItemSlices(in html: String) -> [String] {
+    html.components(separatedBy: "<li").dropFirst().compactMap { fragment in
+        let candidate = "<li" + fragment
+        guard let end = candidate.range(of: "</li>") else { return nil }
+        return String(candidate[..<end.upperBound])
+    }
 }
 
 private func expectActiveNavItem(in nav: String, item: String, href: String) throws {

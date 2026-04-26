@@ -6,29 +6,22 @@ struct TopNavigation: HTML {
     let selection: NavigationSelection
 
     var body: some HTML {
-        Tag("div") {
-            Link(siteName, destination: SiteRoutes.home)
-                .style(TopNavigationBrandStyle())
-                .attribute("aria-label", "\(siteName) home")
-                .data("nav-brand", "true")
+        Link(siteName, destination: SiteRoutes.home)
+            .style(TopNavigationBrandStyle())
+            .attribute("aria-label", "\(siteName) home")
+            .data("top-navigation", "true")
+            .data("nav-brand", "true")
 
-            Tag("div") {
-                ForEach(NavigationItem.primary) { item in
-                    primaryLink(item)
-                }
-            }
-            .style(TopNavigationLinksStyle())
-            .data("nav-primary", "true")
-
-            Tag("div") {
-                EmptyHTML()
-            }
-            .style(TopNavigationActionsStyle())
-            .attribute("aria-hidden", "true")
-            .data("nav-actions", "reserved")
+        ForEach(NavigationItem.primary) { item in
+            primaryLink(item)
         }
-        .style(TopNavigationStyle())
-        .data("top-navigation", "true")
+
+        Tag("span") {
+            EmptyHTML()
+        }
+        .style(TopNavigationActionsStyle())
+        .attribute("aria-hidden", "true")
+        .data("nav-actions", "reserved")
     }
 
     private func primaryLink(_ item: NavigationItem) -> some HTML {

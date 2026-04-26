@@ -31,7 +31,7 @@ struct MainLayout: Layout {
     }
 
     var body: some Document {
-        Navigation { TopNavigation(siteName: site.name, selection: navigationSelection) }
+        Navigation { TopNavigation(siteName: site.name, selection: navigationSelection).body }
         Main {
             Tag("div") {
                 Tag("div") {
