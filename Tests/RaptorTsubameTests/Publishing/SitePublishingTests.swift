@@ -473,6 +473,46 @@ struct SitePublishingTests {
             #expect(rule.contains("rgb(36 71 98 / 100%)"))
         }
     }
+
+    @Test("generated CSS includes top navigation and footer chrome")
+    func generatedCSSIncludesTopNavigationAndFooterChrome() async throws {
+        let harness = try await publishedSite()
+        let css = try harness.contents(of: "css/raptor-core.css")
+
+        #expect(css.contains(".top-navigation-brand-style"))
+        #expect(css.contains(".chrome-button-link-style"))
+        #expect(css.contains(".page-footer-style"))
+        #expect(css.contains(".page-footer-links-style"))
+        #expect(css.contains(".page-footer-link-style"))
+
+        let brandRule = try cssRule(in: css, containing: ".top-navigation-brand-style")
+        #expect(brandRule.contains("display: inline-flex;"))
+        #expect(brandRule.contains("text-decoration: none;"))
+        #expect(brandRule.contains("rgb(19 40 62 / 100%)"))
+
+        let footerRule = try cssRule(in: css, containing: ".page-footer-style")
+        #expect(footerRule.contains("display: flex;"))
+        #expect(footerRule.contains("border-top:"))
+        #expect(footerRule.contains("rgb(88 113 139 / 100%)"))
+        #expect(footerRule.contains("rgb(200 221 242 / 100%)"))
+
+        let footerLinksRule = try cssRule(in: css, containing: ".page-footer-links-style")
+        #expect(footerLinksRule.contains("justify-content: center;"))
+        #expect(footerLinksRule.contains("flex-wrap: wrap;"))
+
+        let footerLinkRule = try cssRule(in: css, containing: ".page-footer-link-style")
+        #expect(footerLinkRule.contains("text-decoration: none;"))
+        #expect(footerLinkRule.contains("rgb(74 139 203 / 100%)"))
+
+        try expectDarkBlueThemeRule(in: css, containing: ".top-navigation-brand-style") { rule in
+            #expect(rule.contains("rgb(220 236 255 / 100%)"))
+        }
+
+        try expectDarkBlueThemeRule(in: css, containing: ".page-footer-style") { rule in
+            #expect(rule.contains("rgb(142 169 197 / 100%)"))
+            #expect(rule.contains("rgb(36 71 98 / 100%)"))
+        }
+    }
 }
 
 private func headSlice(of html: String) throws -> String {
