@@ -2,6 +2,7 @@ import Foundation
 import Raptor
 
 struct MainLayout: Layout {
+    @Environment(\.page) private var page
     @Environment(\.posts) private var posts
     @Environment(\.site) private var site
 
@@ -21,6 +22,10 @@ struct MainLayout: Layout {
         PostQueries.sidebarTags(posts)
     }
 
+    private var sidebarSelection: SidebarSelection {
+        SidebarSelection(path: page.url.path)
+    }
+
     var body: some Document {
         Navigation { TopNavigation().body }
         Main {
@@ -34,8 +39,8 @@ struct MainLayout: Layout {
                     Tag("div") {
                         SidebarContainer {
                             SidebarProfile(profile: sidebarProfile)
-                            SidebarCategories(items: sidebarCategories)
-                            SidebarTags(items: sidebarTags)
+                            SidebarCategories(items: sidebarCategories, selection: sidebarSelection)
+                            SidebarTags(items: sidebarTags, selection: sidebarSelection)
                         }
                     }
                     .style(ShellSidebarStyle())

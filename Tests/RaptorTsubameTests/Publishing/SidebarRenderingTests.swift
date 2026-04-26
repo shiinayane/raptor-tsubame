@@ -66,6 +66,42 @@ struct SidebarRenderingTests {
         try expectSidebarShell(in: tag)
         #expect(tag.contains("Tag: Intro"))
     }
+
+    @Test("category detail page marks the active sidebar category")
+    func categoryDetailPageMarksActiveSidebarCategory() async throws {
+        let harness = try await publishedSite()
+        let category = try harness.contents(of: "categories/updates/index.html")
+        let sidebar = try sidebarSlice(of: category)
+
+        #expect(sidebar.contains("data-sidebar-nav-item=\"category\""))
+        #expect(sidebar.contains("data-sidebar-term-slug=\"updates\""))
+        #expect(sidebar.contains("data-sidebar-current=\"true\""))
+        #expect(sidebar.contains("aria-current=\"page\""))
+        #expect(!sidebar.contains("data-sidebar-tag-chip=\"true\" aria-current=\"page\""))
+    }
+
+    @Test("tag detail page marks the active sidebar tag")
+    func tagDetailPageMarksActiveSidebarTag() async throws {
+        let harness = try await publishedSite()
+        let tag = try harness.contents(of: "tags/intro/index.html")
+        let sidebar = try sidebarSlice(of: tag)
+
+        #expect(sidebar.contains("data-sidebar-tag-chip=\"true\""))
+        #expect(sidebar.contains("data-sidebar-term-slug=\"intro\""))
+        #expect(sidebar.contains("data-sidebar-current=\"true\""))
+        #expect(sidebar.contains("aria-current=\"page\""))
+        #expect(!sidebar.contains("data-sidebar-nav-item=\"category\" aria-current=\"page\""))
+    }
+
+    @Test("non-taxonomy pages do not mark a sidebar current item")
+    func nonTaxonomyPagesDoNotMarkSidebarCurrentItem() async throws {
+        let harness = try await publishedSite()
+        let article = try harness.contents(of: "posts/welcome-to-tsubame/index.html")
+        let sidebar = try sidebarSlice(of: article)
+
+        #expect(!sidebar.contains("data-sidebar-current=\"true\""))
+        #expect(!sidebar.contains("aria-current=\"page\""))
+    }
 }
 
 private func expectSidebarShell(in html: String) throws {
@@ -92,4 +128,11 @@ private func expectSidebarSection(
     for needle in needles {
         #expect(window.contains(needle))
     }
+}
+
+private func sidebarSlice(of html: String) throws -> Substring {
+    let markerRange = try #require(html.range(of: "data-sidebar-container=\"true\""))
+    let closeRange = try #require(html[markerRange.lowerBound...].range(of: "</aside>"))
+
+    return html[markerRange.lowerBound..<closeRange.upperBound]
 }
