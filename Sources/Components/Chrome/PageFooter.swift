@@ -5,7 +5,7 @@ struct PageFooter: HTML {
     let siteName: String
     let year: Int
 
-    init(siteName: String, year: Int = Calendar.current.component(.year, from: Date())) {
+    init(siteName: String, year: Int) {
         self.siteName = siteName
         self.year = year
     }
@@ -13,10 +13,11 @@ struct PageFooter: HTML {
     var body: some HTML {
         Tag("div") {
             Text("Copyright \(year) \(siteName). All Rights Reserved.")
+                .style(ChromeMutedTextStyle())
                 .data("footer-copyright", "true")
 
             Tag("div") {
-                footerLink("RSS", destination: "/rss.xml", marker: "rss", label: "RSS feed")
+                footerLink("RSS", destination: "/feed.rss", marker: "rss", label: "RSS feed")
                 footerLink("Sitemap", destination: "/sitemap.xml", marker: "sitemap", label: "Sitemap")
                 footerLink("Raptor", destination: "https://raptor.build", marker: "raptor", label: "Raptor static site generator")
             }

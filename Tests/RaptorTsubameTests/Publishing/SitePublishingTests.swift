@@ -248,17 +248,19 @@ struct SitePublishingTests {
 
         let homepage = try harness.contents(of: "index.html")
         let footer = try footerSlice(of: homepage)
+        let rssLink = try openingTag(containing: "data-footer-link=\"rss\"", in: footer)
+        let sitemapLink = try openingTag(containing: "data-footer-link=\"sitemap\"", in: footer)
+        let raptorLink = try openingTag(containing: "data-footer-link=\"raptor\"", in: footer)
 
         #expect(footer.contains("data-site-footer=\"true\""))
-        #expect(footer.contains("Raptor Tsubame"))
-        #expect(footer.contains("data-footer-link=\"rss\""))
-        #expect(footer.contains("href=\"/rss.xml\""))
-        #expect(footer.contains("data-footer-link=\"sitemap\""))
-        #expect(footer.contains("href=\"/sitemap.xml\""))
-        #expect(footer.contains("data-footer-link=\"raptor\""))
-        #expect(footer.contains("href=\"https://raptor.build\""))
+        #expect(footer.contains("Copyright 2026 Raptor Tsubame. All Rights Reserved."))
+        #expect(rssLink.contains("href=\"/feed.rss\""))
+        #expect(sitemapLink.contains("href=\"/sitemap.xml\""))
+        #expect(raptorLink.contains("href=\"https://raptor.build\""))
         #expect(footer.contains("page-footer-style"))
         #expect(footer.contains("page-footer-links-style"))
+        #expect(harness.fileExists("feed.rss"))
+        #expect(harness.fileExists("sitemap.xml"))
     }
 
     @Test("top navigation marks active primary routes")

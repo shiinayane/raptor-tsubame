@@ -30,6 +30,10 @@ struct MainLayout: Layout {
         NavigationSelection(path: page.url.path)
     }
 
+    private var footerYear: Int {
+        PostQueries.latestPublishedYear(posts, fallback: 2026)
+    }
+
     var body: some Document {
         Navigation { TopNavigation(siteName: site.name, selection: navigationSelection).body }
         Main {
@@ -58,6 +62,6 @@ struct MainLayout: Layout {
             .style(PageCanvasStyle())
         }
         .pageResource("/css/markdown-reading.css", relationship: .stylesheet)
-        Footer { PageFooter(siteName: site.name) }
+        Footer { PageFooter(siteName: site.name, year: footerYear) }
     }
 }

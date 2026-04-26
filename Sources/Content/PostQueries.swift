@@ -29,6 +29,10 @@ enum PostQueries {
             .sorted { $0.year > $1.year }
     }
 
+    static func latestPublishedYear<S: Sequence>(_ posts: S, fallback: Int) -> Int where S.Element == Post {
+        archiveGroups(posts).first?.year ?? fallback
+    }
+
     static func paginate(_ posts: [Post], pageSize: Int) -> [[Post]] {
         precondition(pageSize > 0, "Page size must be greater than zero.")
 
