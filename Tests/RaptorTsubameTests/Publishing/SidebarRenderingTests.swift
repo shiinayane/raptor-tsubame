@@ -72,12 +72,20 @@ struct SidebarRenderingTests {
         let harness = try await publishedSite()
         let category = try harness.contents(of: "categories/updates/index.html")
         let sidebar = try sidebarSlice(of: category)
+        let updatesCategory = try openingTag(
+            containing: "data-sidebar-term-slug=\"updates\"",
+            in: sidebar
+        )
+        let introTag = try openingTag(
+            containing: "data-sidebar-term-slug=\"intro\"",
+            in: sidebar
+        )
 
-        #expect(sidebar.contains("data-sidebar-nav-item=\"category\""))
-        #expect(sidebar.contains("data-sidebar-term-slug=\"updates\""))
-        #expect(sidebar.contains("data-sidebar-current=\"true\""))
-        #expect(sidebar.contains("aria-current=\"page\""))
-        #expect(!sidebar.contains("data-sidebar-tag-chip=\"true\" aria-current=\"page\""))
+        #expect(updatesCategory.contains("data-sidebar-nav-item=\"category\""))
+        #expect(updatesCategory.contains("data-sidebar-current=\"true\""))
+        #expect(updatesCategory.contains("aria-current=\"page\""))
+        #expect(!introTag.contains("data-sidebar-current=\"true\""))
+        #expect(!introTag.contains("aria-current=\"page\""))
     }
 
     @Test("tag detail page marks the active sidebar tag")
@@ -85,12 +93,20 @@ struct SidebarRenderingTests {
         let harness = try await publishedSite()
         let tag = try harness.contents(of: "tags/intro/index.html")
         let sidebar = try sidebarSlice(of: tag)
+        let introTag = try openingTag(
+            containing: "data-sidebar-term-slug=\"intro\"",
+            in: sidebar
+        )
+        let updatesCategory = try openingTag(
+            containing: "data-sidebar-term-slug=\"updates\"",
+            in: sidebar
+        )
 
-        #expect(sidebar.contains("data-sidebar-tag-chip=\"true\""))
-        #expect(sidebar.contains("data-sidebar-term-slug=\"intro\""))
-        #expect(sidebar.contains("data-sidebar-current=\"true\""))
-        #expect(sidebar.contains("aria-current=\"page\""))
-        #expect(!sidebar.contains("data-sidebar-nav-item=\"category\" aria-current=\"page\""))
+        #expect(introTag.contains("data-sidebar-tag-chip=\"true\""))
+        #expect(introTag.contains("data-sidebar-current=\"true\""))
+        #expect(introTag.contains("aria-current=\"page\""))
+        #expect(!updatesCategory.contains("data-sidebar-current=\"true\""))
+        #expect(!updatesCategory.contains("aria-current=\"page\""))
     }
 
     @Test("non-taxonomy pages do not mark a sidebar current item")
@@ -135,4 +151,12 @@ private func sidebarSlice(of html: String) throws -> Substring {
     let closeRange = try #require(html[markerRange.lowerBound...].range(of: "</aside>"))
 
     return html[markerRange.lowerBound..<closeRange.upperBound]
+}
+
+private func openingTag(containing marker: String, in html: Substring) throws -> Substring {
+    let markerRange = try #require(html.range(of: marker))
+    let openingBracket = try #require(html[..<markerRange.lowerBound].lastIndex(of: "<"))
+    let closingBracket = try #require(html[markerRange.upperBound...].firstIndex(of: ">"))
+
+    return html[openingBracket...closingBracket]
 }
