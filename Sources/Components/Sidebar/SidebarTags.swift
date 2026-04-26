@@ -13,6 +13,7 @@ struct SidebarTags: HTML {
                     SidebarTagChip(item: item, isActive: selection.isActive(item))
                 }
             }
+            .style(SidebarTagCloudStyle())
             .data("sidebar-tag-cloud", "true")
         }
         .style(SidebarPanelStyle())

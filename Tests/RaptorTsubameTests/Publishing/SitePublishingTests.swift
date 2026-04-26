@@ -351,6 +351,21 @@ struct SitePublishingTests {
         #expect(css.contains("[data-markdown-content=\"true\"] :not(pre) > code"))
         #expect(css.contains("[data-markdown-content=\"true\"] table"))
     }
+
+    @Test("generated CSS includes sidebar navigation treatments")
+    func generatedCSSIncludesSidebarNavigationTreatments() async throws {
+        let harness = try await publishedSite()
+        let css = try harness.contents(of: "css/raptor-core.css")
+
+        #expect(css.contains(".sidebar-section-title-style"))
+        #expect(css.contains(".sidebar-nav-item-style"))
+        #expect(css.contains(".sidebar-nav-label-style"))
+        #expect(css.contains(".sidebar-count-badge-style"))
+        #expect(css.contains(".sidebar-tag-chip-style"))
+        #expect(css.contains(".sidebar-tag-cloud-style"))
+        #expect(css.contains("background-color: rgb(255 255 255 / 100%)"))
+        #expect(css.contains("color: rgb(74 139 203 / 100%)"))
+    }
 }
 
 private func headSlice(of html: String) throws -> String {
@@ -595,6 +610,10 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(sidebarPanelRule.contains("rgb(251 253 255 / 100%)"))
     #expect(sidebarPanelRule.contains("rgb(200 221 242 / 100%)"))
     #expect(sidebarPanelRule.contains("rgb(19 40 62 / 100%)"))
+
+    let pageCanvasRule = try cssRule(in: css, containing: ".page-canvas-style")
+    #expect(pageCanvasRule.contains("rgb(247 251 255 / 100%)"))
+    #expect(!pageCanvasRule.contains("rgb(242 248 255 / 100%)"))
 
     let articleSurfaceRule = try cssRule(in: css, containing: ".article-surface-style")
     #expect(articleSurfaceRule.contains("rgb(251 253 255 / 100%)"))

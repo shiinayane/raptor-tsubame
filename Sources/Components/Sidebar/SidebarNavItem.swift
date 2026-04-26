@@ -7,19 +7,28 @@ struct SidebarNavItem: HTML {
 
     var body: some HTML {
         if isActive {
-            Link(label, destination: item.path)
+            Link(destination: item.path) {
+                linkContent
+            }
+                .style(SidebarNavItemStyle(isActive: isActive))
                 .data("sidebar-nav-item", "category")
                 .data("sidebar-term-slug", item.term.slug)
                 .data("sidebar-current", "true")
                 .aria(.current, "page")
         } else {
-            Link(label, destination: item.path)
+            Link(destination: item.path) {
+                linkContent
+            }
+                .style(SidebarNavItemStyle(isActive: isActive))
                 .data("sidebar-nav-item", "category")
                 .data("sidebar-term-slug", item.term.slug)
         }
     }
 
-    private var label: String {
-        "\(item.name) (\(item.count))"
+    @InlineContentBuilder private var linkContent: some InlineContent {
+        InlineText(item.name)
+            .style(SidebarNavLabelStyle())
+        InlineText("\(item.count)")
+            .style(SidebarCountBadgeStyle(isActive: isActive))
     }
 }

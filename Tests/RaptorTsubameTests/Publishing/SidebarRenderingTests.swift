@@ -139,7 +139,7 @@ private func expectSidebarSection(
     contains needles: [String]
 ) throws {
     let markerRange = try #require(html.range(of: marker))
-    let window = html[markerRange.lowerBound...].prefix(768)
+    let window = html[markerRange.lowerBound...].prefix(2_048)
 
     for needle in needles {
         #expect(window.contains(needle))

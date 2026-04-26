@@ -7,6 +7,7 @@ struct SidebarSectionTitle: HTML {
     var body: some HTML {
         Text(text)
             .font(.title5)
+            .style(SidebarSectionTitleStyle())
             .data("sidebar-section-title", text.lowercased())
     }
 }

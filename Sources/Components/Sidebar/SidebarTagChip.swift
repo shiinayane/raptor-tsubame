@@ -7,19 +7,28 @@ struct SidebarTagChip: HTML {
 
     var body: some HTML {
         if isActive {
-            Link(label, destination: item.path)
+            Link(destination: item.path) {
+                linkContent
+            }
+                .style(SidebarTagChipStyle(isActive: isActive))
                 .data("sidebar-tag-chip", "true")
                 .data("sidebar-term-slug", item.term.slug)
                 .data("sidebar-current", "true")
                 .aria(.current, "page")
         } else {
-            Link(label, destination: item.path)
+            Link(destination: item.path) {
+                linkContent
+            }
+                .style(SidebarTagChipStyle(isActive: isActive))
                 .data("sidebar-tag-chip", "true")
                 .data("sidebar-term-slug", item.term.slug)
         }
     }
 
-    private var label: String {
-        "\(item.name) (\(item.count))"
+    @InlineContentBuilder private var linkContent: some InlineContent {
+        InlineText(item.name)
+            .style(SidebarTagLabelStyle())
+        InlineText("\(item.count)")
+            .style(SidebarCountBadgeStyle(isActive: isActive))
     }
 }
