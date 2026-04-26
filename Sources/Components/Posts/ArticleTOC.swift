@@ -9,6 +9,7 @@ struct ArticleTOC: HTML {
             Tag("nav") {
                 Text("Contents")
                     .font(.title5)
+                    .style(ArticleTocTitleStyle())
                     .data("article-toc-title", "true")
 
                 Tag("ol") {
@@ -17,11 +18,16 @@ struct ArticleTOC: HTML {
                             Link(destination: "#\(item.id)") {
                                 escapedHTML(item.title)
                             }
+                            .style(ArticleTocLinkStyle(level: item.level))
+                            .data("article-toc-link", "true")
                         }
+                        .style(ArticleTocItemStyle(level: item.level))
                         .data("article-toc-item", "true")
                         .data("article-toc-level", "h\(item.level.rawValue)")
                     }
                 }
+                .style(ArticleTocListStyle())
+                .data("article-toc-list", "true")
             }
             .style(ArticleTocStyle())
             .data("article-toc", "true")

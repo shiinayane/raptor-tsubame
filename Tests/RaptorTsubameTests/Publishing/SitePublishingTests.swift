@@ -196,11 +196,18 @@ struct SitePublishingTests {
         let page = try harness.contents(of: "posts/markdown-reading-lab/index.html")
         let main = try mainSlice(of: page)
         let markdown = try markdownSlice(of: main)
+        let toc = try articleTOCSlice(of: main)
 
-        #expect(main.contains("data-article-toc=\"true\""))
-        #expect(main.contains(#"aria-label="Contents""#))
-        #expect(main.contains("href=\"#heading-level-two\""))
-        #expect(main.contains("href=\"#heading-level-three\""))
+        #expect(toc.contains("data-article-toc=\"true\""))
+        #expect(toc.contains("data-article-toc-title=\"true\""))
+        #expect(toc.contains("data-article-toc-list=\"true\""))
+        #expect(toc.contains("data-article-toc-item=\"true\""))
+        #expect(toc.contains("data-article-toc-level=\"h2\""))
+        #expect(toc.contains("data-article-toc-level=\"h3\""))
+        #expect(toc.contains("data-article-toc-link=\"true\""))
+        #expect(toc.contains(#"aria-label="Contents""#))
+        #expect(toc.contains("href=\"#heading-level-two\""))
+        #expect(toc.contains("href=\"#heading-level-three\""))
         #expect(markdown.contains(#"<h2 id="heading-level-two" data-article-heading-anchor="true">Heading Level Two</h2>"#))
         #expect(markdown.contains(#"<h3 id="heading-level-three" data-article-heading-anchor="true">Heading Level Three</h3>"#))
     }
@@ -357,6 +364,13 @@ private func markdownSlice(of html: String) throws -> String {
     let openStart = try #require(html[..<marker.lowerBound].range(of: "<", options: .backwards))
     let end = html[marker.upperBound...].range(of: "data-article-navigation")?.lowerBound ?? html.endIndex
     return String(html[openStart.lowerBound..<end])
+}
+
+private func articleTOCSlice(of html: String) throws -> String {
+    let marker = try #require(html.range(of: "data-article-toc=\"true\""))
+    let openStart = try #require(html[..<marker.lowerBound].range(of: "<", options: .backwards))
+    let closeRange = try #require(html[marker.upperBound...].range(of: "</nav>"))
+    return String(html[openStart.lowerBound..<closeRange.upperBound])
 }
 
 private func htmlCodeBlockWindow(in markdown: String) throws -> String {

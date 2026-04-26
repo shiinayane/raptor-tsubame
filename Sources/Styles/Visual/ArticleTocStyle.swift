@@ -28,3 +28,23 @@ struct ArticleTocStyle: Style {
         }
     }
 }
+
+struct ArticleTocTitleStyle: Style {
+    func style(content: Content, environment: EnvironmentConditions) -> Content { content }
+}
+
+struct ArticleTocListStyle: Style {
+    func style(content: Content, environment: EnvironmentConditions) -> Content { content }
+}
+
+struct ArticleTocItemStyle: Style {
+    let level: ArticleHeadingLevel
+
+    func style(content: Content, environment: EnvironmentConditions) -> Content { content }
+}
+
+struct ArticleTocLinkStyle: Style {
+    let level: ArticleHeadingLevel
+
+    func style(content: Content, environment: EnvironmentConditions) -> Content { content }
+}
