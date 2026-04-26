@@ -559,6 +559,11 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(css.contains(".article-navigation-style"))
     #expect(css.contains(".article-navigation-row-style"))
     #expect(css.contains(".article-navigation-link-style"))
+    #expect(css.contains(".article-toc-style"))
+    #expect(css.contains(".article-toc-title-style"))
+    #expect(css.contains(".article-toc-list-style"))
+    #expect(css.contains(".article-toc-item-style"))
+    #expect(css.contains(".article-toc-link-style"))
 
     #expect(css.contains("rgb(247 251 255 / 100%)"))
     #expect(css.contains("rgb(242 248 255 / 100%)"))
@@ -595,6 +600,29 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
     #expect(articleSurfaceRule.contains("rgb(251 253 255 / 100%)"))
     #expect(articleSurfaceRule.contains("rgb(200 221 242 / 100%)"))
     #expect(articleSurfaceRule.contains("rgb(19 40 62 / 100%)"))
+
+    let tocRule = try cssRule(in: css, containing: ".article-toc-style")
+    #expect(tocRule.contains("rgb(251 253 255 / 100%)"))
+    #expect(tocRule.contains("rgb(200 221 242 / 100%)"))
+    #expect(tocRule.contains("border-radius:"))
+
+    let tocTitleRule = try cssRule(in: css, containing: ".article-toc-title-style")
+    #expect(tocTitleRule.contains("text-transform: uppercase;"))
+    #expect(tocTitleRule.contains("letter-spacing: 0.12em;"))
+    #expect(tocTitleRule.contains("rgb(74 139 203 / 100%)"))
+
+    let tocListRule = try cssRule(in: css, containing: ".article-toc-list-style")
+    #expect(tocListRule.contains("list-style: none;"))
+    #expect(tocListRule.contains("padding: 0px;"))
+
+    #expect(css.contains("border-left: 3px solid rgb(74 139 203 / 100%);"))
+    #expect(css.contains("padding-left: 12px;"))
+    #expect(css.contains("padding-left: 28px;"))
+    #expect(css.contains("rgb(88 113 139 / 100%)"))
+    #expect(css.contains("rgb(142 169 197 / 100%)"))
+
+    let tocLinkRule = try cssRule(in: css, containing: ".article-toc-link-style")
+    #expect(tocLinkRule.contains("display: block;"))
 
     let readingIconRule = try cssRule(in: css, containing: ".article-reading-icon-style")
     #expect(readingIconRule.contains("align-items: center;"))
