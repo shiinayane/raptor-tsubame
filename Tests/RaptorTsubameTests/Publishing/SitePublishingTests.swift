@@ -361,6 +361,7 @@ struct SitePublishingTests {
         #expect(css.contains(".sidebar-nav-item-style"))
         #expect(css.contains(".sidebar-nav-label-style"))
         #expect(css.contains(".sidebar-count-badge-style"))
+        #expect(css.contains(".sidebar-tag-label-style"))
         #expect(css.contains(".sidebar-tag-chip-style"))
         #expect(css.contains(".sidebar-tag-cloud-style"))
         #expect(css.contains("background-color: rgb(255 255 255 / 100%)"))
