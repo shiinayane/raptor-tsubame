@@ -15,6 +15,7 @@ struct SidebarNavItem: HTML {
                 .data("sidebar-term-slug", item.term.slug)
                 .data("sidebar-current", "true")
                 .aria(.current, "page")
+                .aria(.label, "\(item.name) (\(item.count))")
         } else {
             Link(destination: item.path) {
                 linkContent
@@ -22,6 +23,7 @@ struct SidebarNavItem: HTML {
                 .style(SidebarNavItemStyle(isActive: isActive))
                 .data("sidebar-nav-item", "category")
                 .data("sidebar-term-slug", item.term.slug)
+                .aria(.label, "\(item.name) (\(item.count))")
         }
     }
 

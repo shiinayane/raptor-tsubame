@@ -15,6 +15,7 @@ struct SidebarTagChip: HTML {
                 .data("sidebar-term-slug", item.term.slug)
                 .data("sidebar-current", "true")
                 .aria(.current, "page")
+                .aria(.label, "\(item.name) (\(item.count))")
         } else {
             Link(destination: item.path) {
                 linkContent
@@ -22,6 +23,7 @@ struct SidebarTagChip: HTML {
                 .style(SidebarTagChipStyle(isActive: isActive))
                 .data("sidebar-tag-chip", "true")
                 .data("sidebar-term-slug", item.term.slug)
+                .aria(.label, "\(item.name) (\(item.count))")
         }
     }
 

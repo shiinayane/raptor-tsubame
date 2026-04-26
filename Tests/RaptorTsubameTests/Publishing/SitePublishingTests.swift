@@ -364,8 +364,35 @@ struct SitePublishingTests {
         #expect(css.contains(".sidebar-tag-label-style"))
         #expect(css.contains(".sidebar-tag-chip-style"))
         #expect(css.contains(".sidebar-tag-cloud-style"))
-        #expect(css.contains("background-color: rgb(255 255 255 / 100%)"))
-        #expect(css.contains("color: rgb(74 139 203 / 100%)"))
+
+        let navItemRule = try cssRule(in: css, containing: ".sidebar-nav-item-style")
+        #expect(navItemRule.contains("display: flex;"))
+        #expect(navItemRule.contains("justify-content: space-between;"))
+        #expect(navItemRule.contains("rgb(251 253 255 / 100%)") || navItemRule.contains("rgb(255 255 255 / 100%)"))
+        #expect(navItemRule.contains("rgb(200 221 242 / 100%)") || navItemRule.contains("rgb(74 139 203 / 100%)"))
+
+        let countBadgeRule = try cssRule(in: css, containing: ".sidebar-count-badge-style")
+        #expect(countBadgeRule.contains("border-radius: 999px;"))
+        #expect(countBadgeRule.contains("rgb(200 221 242 / 100%)") || countBadgeRule.contains("rgb(74 139 203 / 100%)"))
+
+        let tagChipRule = try cssRule(in: css, containing: ".sidebar-tag-chip-style")
+        #expect(tagChipRule.contains("display: inline-flex;"))
+        #expect(tagChipRule.contains("border-radius: 999px;"))
+        #expect(tagChipRule.contains("rgb(251 253 255 / 100%)") || tagChipRule.contains("rgb(255 255 255 / 100%)"))
+        #expect(tagChipRule.contains("rgb(200 221 242 / 100%)") || tagChipRule.contains("rgb(74 139 203 / 100%)"))
+
+        let tagCloudRule = try cssRule(in: css, containing: ".sidebar-tag-cloud-style")
+        #expect(tagCloudRule.contains("display: flex;"))
+        #expect(tagCloudRule.contains("flex-wrap: wrap;"))
+        #expect(tagCloudRule.contains("gap: 8px;"))
+
+        try expectDarkBlueThemeRule(in: css, containing: ".sidebar-nav-item-style") { rule in
+            #expect(
+                rule.contains("rgb(16 34 54 / 100%)")
+                    || rule.contains("rgb(36 71 98 / 100%)")
+                    || rule.contains("rgb(120 184 245 / 100%)")
+            )
+        }
     }
 }
 

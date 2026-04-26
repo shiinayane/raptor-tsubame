@@ -76,16 +76,19 @@ struct SidebarRenderingTests {
             containing: "data-sidebar-term-slug=\"updates\"",
             in: sidebar
         )
-        let introTag = try openingTag(
-            containing: "data-sidebar-term-slug=\"intro\"",
+        let notesCategory = try openingTag(
+            containing: "data-sidebar-term-slug=\"notes\"",
             in: sidebar
         )
 
         #expect(updatesCategory.contains("data-sidebar-nav-item=\"category\""))
         #expect(updatesCategory.contains("data-sidebar-current=\"true\""))
         #expect(updatesCategory.contains("aria-current=\"page\""))
-        #expect(!introTag.contains("data-sidebar-current=\"true\""))
-        #expect(!introTag.contains("aria-current=\"page\""))
+        #expect(updatesCategory.contains("aria-label=\"Updates (1)\""))
+        #expect(notesCategory.contains("data-sidebar-nav-item=\"category\""))
+        #expect(notesCategory.contains("aria-label=\"Notes (2)\""))
+        #expect(!notesCategory.contains("data-sidebar-current=\"true\""))
+        #expect(!notesCategory.contains("aria-current=\"page\""))
     }
 
     @Test("tag detail page marks the active sidebar tag")
@@ -97,16 +100,19 @@ struct SidebarRenderingTests {
             containing: "data-sidebar-term-slug=\"intro\"",
             in: sidebar
         )
-        let updatesCategory = try openingTag(
-            containing: "data-sidebar-term-slug=\"updates\"",
+        let raptorTag = try openingTag(
+            containing: "data-sidebar-term-slug=\"raptor\"",
             in: sidebar
         )
 
         #expect(introTag.contains("data-sidebar-tag-chip=\"true\""))
         #expect(introTag.contains("data-sidebar-current=\"true\""))
         #expect(introTag.contains("aria-current=\"page\""))
-        #expect(!updatesCategory.contains("data-sidebar-current=\"true\""))
-        #expect(!updatesCategory.contains("aria-current=\"page\""))
+        #expect(introTag.contains("aria-label=\"Intro (1)\""))
+        #expect(raptorTag.contains("data-sidebar-tag-chip=\"true\""))
+        #expect(raptorTag.contains("aria-label=\"Raptor (2)\""))
+        #expect(!raptorTag.contains("data-sidebar-current=\"true\""))
+        #expect(!raptorTag.contains("aria-current=\"page\""))
     }
 
     @Test("non-taxonomy pages do not mark a sidebar current item")
