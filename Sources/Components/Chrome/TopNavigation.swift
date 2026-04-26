@@ -15,13 +15,6 @@ struct TopNavigation: HTML {
         ForEach(NavigationItem.primary) { item in
             primaryLink(item)
         }
-
-        Tag("span") {
-            EmptyHTML()
-        }
-        .style(TopNavigationActionsStyle())
-        .attribute("aria-hidden", "true")
-        .data("nav-actions", "reserved")
     }
 
     private func primaryLink(_ item: NavigationItem) -> some HTML {

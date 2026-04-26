@@ -262,6 +262,10 @@ struct SitePublishingTests {
         #expect(occurrenceCount(of: "data-nav-current=\"true\"", in: pageTwo) == 1)
         #expect(occurrenceCount(of: "data-nav-current=\"true\"", in: archive) == 1)
         #expect(occurrenceCount(of: "data-nav-current=\"true\"", in: about) == 1)
+        #expect(occurrenceCount(of: "aria-current=\"page\"", in: homepage) == 1)
+        #expect(occurrenceCount(of: "aria-current=\"page\"", in: pageTwo) == 1)
+        #expect(occurrenceCount(of: "aria-current=\"page\"", in: archive) == 1)
+        #expect(occurrenceCount(of: "aria-current=\"page\"", in: about) == 1)
         try expectNoActivePrimaryNav(in: post)
         try expectNoActivePrimaryNav(in: category)
         try expectNoActivePrimaryNav(in: tag)
@@ -479,17 +483,16 @@ private func htmlCodeBlockWindow(in markdown: String) throws -> String {
 
 private func expectSharedNavigation(in html: String) throws {
     let nav = try topNavigationSlice(of: html)
+    let navTag = try openingTag(startingWith: "<nav", in: nav)
     let brand = try openingTag(containing: "data-nav-brand=\"true\"", in: nav)
 
     #expect(nav.contains("data-top-navigation=\"true\""))
+    #expect(openingTag(navTag, containsClass: "navbar"))
     #expect(occurrenceCount(of: "<nav", in: nav) == 1)
     try expectTopNavigationListStructure(in: nav)
     #expect(brand.contains("href=\"/\""))
     #expect(brand.contains("aria-label=\"Raptor Tsubame home\""))
     #expect(brand.contains("top-navigation-brand-style"))
-    #expect(nav.contains("top-navigation-actions-style"))
-    #expect(nav.contains("data-nav-actions=\"reserved\""))
-    #expect(nav.contains("aria-hidden=\"true\""))
 
     try expectLink(in: nav, label: "Home", href: "/")
     try expectLink(in: nav, label: "Archive", href: "/archive/")
@@ -508,12 +511,11 @@ private func topNavigationSlice(of html: String) throws -> String {
 
 private func expectTopNavigationListStructure(in nav: String) throws {
     let items = listItemSlices(in: nav)
-    #expect(items.count == 5)
+    #expect(items.count == 4)
     #expect(items.filter { $0.contains("data-nav-brand=\"true\"") }.count == 1)
     #expect(items.filter { $0.contains("data-nav-item=\"home\"") }.count == 1)
     #expect(items.filter { $0.contains("data-nav-item=\"archive\"") }.count == 1)
     #expect(items.filter { $0.contains("data-nav-item=\"about\"") }.count == 1)
-    #expect(items.filter { $0.contains("data-nav-actions=\"reserved\"") }.count == 1)
 }
 
 private func listItemSlices(in html: String) -> [String] {

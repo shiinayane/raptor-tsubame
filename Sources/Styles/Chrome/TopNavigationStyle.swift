@@ -69,10 +69,3 @@ struct TopNavigationLinksStyle: Style {
         }
     }
 }
-
-struct TopNavigationActionsStyle: Style {
-    func style(content: Content, environment: EnvironmentConditions) -> Content {
-        content
-            .style(.display(.none))
-    }
-}
