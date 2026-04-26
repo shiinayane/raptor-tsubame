@@ -623,6 +623,7 @@ private func expectBlueThemeVisualCSS(in css: String) throws {
 
     let tocLinkRule = try cssRule(in: css, containing: ".article-toc-link-style")
     #expect(tocLinkRule.contains("display: block;"))
+    #expect(tocLinkRule.contains("line-height: 1.45;"))
 
     let readingIconRule = try cssRule(in: css, containing: ".article-reading-icon-style")
     #expect(readingIconRule.contains("align-items: center;"))

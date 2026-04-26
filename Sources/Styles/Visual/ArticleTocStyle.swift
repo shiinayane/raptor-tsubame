@@ -85,7 +85,7 @@ struct ArticleTocLinkStyle: Style {
 
         content
             .style(.display(.block))
-            .style(.lineHeight(1.45))
+            .style(.custom("line-height", value: "1.45"))
             .foregroundStyle(level == .h2 ? palette.text : palette.mutedText)
             .textDecoration(.none)
     }
