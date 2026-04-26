@@ -242,6 +242,25 @@ struct SitePublishingTests {
         try expectFooterOutsideMain(in: homepage)
     }
 
+    @Test("shared footer renders site identity and publishing links")
+    func sharedFooterRendersSiteIdentityAndPublishingLinks() async throws {
+        let harness = try await publishedSite()
+
+        let homepage = try harness.contents(of: "index.html")
+        let footer = try footerSlice(of: homepage)
+
+        #expect(footer.contains("data-site-footer=\"true\""))
+        #expect(footer.contains("Raptor Tsubame"))
+        #expect(footer.contains("data-footer-link=\"rss\""))
+        #expect(footer.contains("href=\"/rss.xml\""))
+        #expect(footer.contains("data-footer-link=\"sitemap\""))
+        #expect(footer.contains("href=\"/sitemap.xml\""))
+        #expect(footer.contains("data-footer-link=\"raptor\""))
+        #expect(footer.contains("href=\"https://raptor.build\""))
+        #expect(footer.contains("page-footer-style"))
+        #expect(footer.contains("page-footer-links-style"))
+    }
+
     @Test("top navigation marks active primary routes")
     func topNavigationMarksActivePrimaryRoutes() async throws {
         let harness = try await publishedSite()
@@ -507,6 +526,13 @@ private func topNavigationSlice(of html: String) throws -> String {
     let navStart = try #require(html[..<marker.lowerBound].range(of: "<nav", options: .backwards))
     let navEnd = try #require(html[marker.upperBound...].range(of: "</nav>"))
     return String(html[navStart.lowerBound..<navEnd.upperBound])
+}
+
+private func footerSlice(of html: String) throws -> String {
+    let marker = try #require(html.range(of: "data-site-footer=\"true\""))
+    let footerStart = try #require(html[..<marker.lowerBound].range(of: "<footer", options: .backwards))
+    let closeRange = try #require(html[marker.upperBound...].range(of: "</footer>"))
+    return String(html[footerStart.lowerBound..<closeRange.upperBound])
 }
 
 private func expectTopNavigationListStructure(in nav: String) throws {

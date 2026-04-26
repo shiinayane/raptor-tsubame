@@ -58,6 +58,6 @@ struct MainLayout: Layout {
             .style(PageCanvasStyle())
         }
         .pageResource("/css/markdown-reading.css", relationship: .stylesheet)
-        Footer { PageFooter() }
+        Footer { PageFooter(siteName: site.name) }
     }
 }
