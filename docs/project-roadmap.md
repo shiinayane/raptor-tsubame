@@ -128,12 +128,33 @@ Visual acceptance:
 - Accessibility and responsive behavior should be verified alongside HTML output.
 - The generated site should remain inspectable through published artifacts and local preview.
 
+## Framework Completion Track
+
+The site should not move into fine visual refinement until the remaining Fuwari-aligned framework surfaces are complete. The detailed comparison is recorded in `docs/fuwari-framework-gap-analysis.md`.
+
+The framework-completion stages are:
+
+- Stage 9: Site Chrome And UI Primitives. Complete the top navigation, footer shell, route-aware primary nav, mobile nav behavior, and shared card/button/badge/section-title primitives.
+- Stage 10: Home Feed And Post Card Framework. Upgrade homepage and paginated post lists with richer post cards, metadata, taxonomy links, descriptions or excerpts, reading stats, optional covers, and stronger pagination.
+- Stage 11: Discovery And Taxonomy Framework. Upgrade archive, category, and tag pages into real discovery surfaces, then finalize sidebar taxonomy behavior.
+- Stage 12: Article Completion And Markdown Infrastructure. Finish article peripherals, code-block behavior, Prism warning handling, license or ownership block policy, structured metadata, and Markdown extension policy.
+- Stage 13: Identity And Publishing Readiness. Complete profile/avatar/social-link modeling, about page structure, footer publishing links, RSS/sitemap/robots/favicon/SEO verification, and final framework acceptance checks.
+
+After Stage 13, the site framework should be considered complete enough for a separate fine visual refinement track. Search, user-facing theme switcher, hue picker, page transitions, banner system, comments, full i18n, and right-side dynamic TOC remain post-framework enhancements unless deliberately promoted later.
+
+## Deferred Visual Notes
+
+These notes are accepted follow-up observations, but should not be implemented until the broader base framework is complete enough to batch visual refinements safely.
+
+- Sidebar tags should not show counts. Tags are a lightweight browsing affordance, and count badges add unnecessary density.
+- Sidebar category rows need a width/layout pass. The current category treatment works structurally, but the row width and alignment should be tuned together with the later sidebar visual pass.
+
 ## Current Recommendation
 
 Stage 7.1 is complete as the conservative content contract foundation.
-Stage 7.2A is complete as the article reading structure and container-style foundation.
-Stage 7.2B is complete as the article header and cover upgrade, even though its original documents were initially misnumbered as Stage 7.3.
+Stage 7.2 is complete enough for the current framework track: article structure, header/cover, typography compatibility work, inline TOC foundation, and TOC visual refinement are in place.
+Stage 8 is complete as the left sidebar framework: profile, categories, tags, route-aware active states, and sidebar navigation styling are in place.
 
-The next implementation stage should remain inside Stage 7.2 as Stage 7.2C Full Reading System. It should focus on Markdown descendant typography, code block and inline code styling, and the article bottom area before moving into Stage 7.3 Discovery System.
+The next implementation stage should be Stage 9: Site Chrome And UI Primitives. Navigation is currently the weakest outer-framework surface, and shared primitives are needed before upgrading post cards, archive pages, and taxonomy pages without duplicating style decisions.
 
-Stage 7.3 Discovery System should start only after Stage 7.2 has a sufficiently complete reading experience. Avoid implementing archive/search/discovery features before article typography and reading affordances are stable.
+Avoid starting fine visual refinement until Stages 9 through 13 are complete. Visual improvements inside those stages should be baseline framework visuals, not final polish.
