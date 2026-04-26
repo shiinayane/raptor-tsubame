@@ -394,6 +394,35 @@ struct SitePublishingTests {
             )
         }
     }
+
+    @Test("generated CSS includes chrome primitive styles")
+    func generatedCSSIncludesChromePrimitiveStyles() async throws {
+        let harness = try await publishedSite()
+        let css = try harness.contents(of: "css/raptor-core.css")
+
+        #expect(css.contains(".chrome-surface-style"))
+        #expect(css.contains(".chrome-button-link-style"))
+        #expect(css.contains(".chrome-badge-style"))
+        #expect(css.contains(".chrome-section-title-style"))
+        #expect(css.contains(".chrome-icon-box-style"))
+        #expect(css.contains(".chrome-muted-text-style"))
+
+        let surfaceRule = try cssRule(in: css, containing: ".chrome-surface-style")
+        #expect(surfaceRule.contains("rgb(251 253 255 / 100%)"))
+        #expect(surfaceRule.contains("rgb(200 221 242 / 100%)"))
+
+        let buttonRule = try cssRule(in: css, containing: ".chrome-button-link-style")
+        #expect(buttonRule.contains("text-decoration: none;"))
+        #expect(buttonRule.contains("border-radius:"))
+
+        let badgeRule = try cssRule(in: css, containing: ".chrome-badge-style")
+        #expect(badgeRule.contains("border-radius: 999px;"))
+
+        try expectDarkBlueThemeRule(in: css, containing: ".chrome-surface-style") { rule in
+            #expect(rule.contains("rgb(11 23 38 / 100%)"))
+            #expect(rule.contains("rgb(36 71 98 / 100%)"))
+        }
+    }
 }
 
 private func headSlice(of html: String) throws -> String {

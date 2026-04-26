@@ -26,8 +26,9 @@ struct HomePage: Page {
         VStack(alignment: .leading, spacing: 24) {
             if pageNumber == 1 {
                 // Raptor renders post bodies in an isolated build context, so
-                // article-only styles are seeded once through a normal page render.
+                // isolated styles are seeded once through a normal page render.
                 ArticleStyleSeed()
+                ChromeStyleSeed()
             }
 
             PostList(posts: pagePosts)
