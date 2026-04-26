@@ -26,8 +26,12 @@ struct MainLayout: Layout {
         SidebarSelection(path: page.url.path)
     }
 
+    private var navigationSelection: NavigationSelection {
+        NavigationSelection(path: page.url.path)
+    }
+
     var body: some Document {
-        Navigation { TopNavigation().body }
+        Navigation { TopNavigation(siteName: site.name, selection: navigationSelection).body }
         Main {
             Tag("div") {
                 Tag("div") {

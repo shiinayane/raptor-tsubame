@@ -242,6 +242,27 @@ struct SitePublishingTests {
         try expectFooterOutsideMain(in: homepage)
     }
 
+    @Test("top navigation marks active primary routes")
+    func topNavigationMarksActivePrimaryRoutes() async throws {
+        let harness = try await publishedSite()
+
+        let homepage = try topNavigationSlice(of: harness.contents(of: "index.html"))
+        let pageTwo = try topNavigationSlice(of: harness.contents(of: "2/index.html"))
+        let archive = try topNavigationSlice(of: harness.contents(of: "archive/index.html"))
+        let about = try topNavigationSlice(of: harness.contents(of: "about/index.html"))
+        let post = try topNavigationSlice(of: harness.contents(of: "posts/welcome-to-tsubame/index.html"))
+        let category = try topNavigationSlice(of: harness.contents(of: "categories/updates/index.html"))
+        let tag = try topNavigationSlice(of: harness.contents(of: "tags/intro/index.html"))
+
+        try expectActiveNavItem(in: homepage, item: "home", href: "/")
+        try expectActiveNavItem(in: pageTwo, item: "home", href: "/")
+        try expectActiveNavItem(in: archive, item: "archive", href: "/archive/")
+        try expectActiveNavItem(in: about, item: "about", href: "/about/")
+        try expectNoActivePrimaryNav(in: post)
+        try expectNoActivePrimaryNav(in: category)
+        try expectNoActivePrimaryNav(in: tag)
+    }
+
     @Test("generated shell CSS keeps desktop layout behind regular breakpoint")
     func generatedShellCSSKeepsDesktopLayoutBehindRegularBreakpoint() async throws {
         let harness = try await publishedSite()
@@ -453,42 +474,44 @@ private func htmlCodeBlockWindow(in markdown: String) throws -> String {
 }
 
 private func expectSharedNavigation(in html: String) throws {
-    try expectLink(in: html, label: "Home", href: "/")
-    try expectLink(in: html, label: "Archive", href: "/archive/")
-    try expectLink(in: html, label: "About", href: "/about/")
-    try expectOneNavLinkPerListItem(in: html)
+    let nav = try topNavigationSlice(of: html)
+    let brand = try openingTag(containing: "data-nav-brand=\"true\"", in: nav)
+
+    #expect(nav.contains("data-top-navigation=\"true\""))
+    #expect(brand.contains("href=\"/\""))
+    #expect(brand.contains("aria-label=\"Raptor Tsubame home\""))
+    #expect(brand.contains("top-navigation-brand-style"))
+    #expect(nav.contains("top-navigation-style"))
+    #expect(nav.contains("top-navigation-links-style"))
+    #expect(nav.contains("top-navigation-actions-style"))
+    #expect(nav.contains("data-nav-primary=\"true\""))
+    #expect(nav.contains("data-nav-actions=\"reserved\""))
+
+    try expectLink(in: nav, label: "Home", href: "/")
+    try expectLink(in: nav, label: "Archive", href: "/archive/")
+    try expectLink(in: nav, label: "About", href: "/about/")
+    #expect(nav.contains("data-nav-item=\"home\""))
+    #expect(nav.contains("data-nav-item=\"archive\""))
+    #expect(nav.contains("data-nav-item=\"about\""))
 }
 
-private func expectOneNavLinkPerListItem(in html: String) throws {
-    let navStart = try #require(html.range(of: "<nav"))
-    let navEnd = try #require(html.range(of: "</nav>"))
-    let nav = String(html[navStart.lowerBound..<navEnd.upperBound])
+private func topNavigationSlice(of html: String) throws -> String {
+    let marker = try #require(html.range(of: "data-top-navigation=\"true\""))
+    let navStart = try #require(html[..<marker.lowerBound].range(of: "<nav", options: .backwards))
+    let navEnd = try #require(html[marker.upperBound...].range(of: "</nav>"))
+    return String(html[navStart.lowerBound..<navEnd.upperBound])
+}
 
-    let listItemFragments = nav.components(separatedBy: "<li").dropFirst()
-    var listItems: [String] = []
-    listItems.reserveCapacity(listItemFragments.count)
+private func expectActiveNavItem(in nav: String, item: String, href: String) throws {
+    let tag = try openingTag(containing: "data-nav-item=\"\(item)\"", in: nav)
+    #expect(tag.contains("href=\"\(href)\""))
+    #expect(tag.contains("data-nav-current=\"true\""))
+    #expect(tag.contains("aria-current=\"page\""))
+}
 
-    for fragment in listItemFragments {
-        let candidate = "<li" + fragment
-        guard let end = candidate.range(of: "</li>") else { continue }
-        listItems.append(String(candidate[..<end.upperBound]))
-    }
-
-    #expect(listItems.count == 3)
-
-    let expectedHrefs = ["/", "/archive/", "/about/"]
-    for href in expectedHrefs {
-        let matches = listItems.filter { $0.contains("href=\"\(href)\"") }
-        #expect(matches.count == 1)
-    }
-
-    // Ensure each item doesn't contain multiple nav destinations.
-    for item in listItems {
-        let hrefCount = expectedHrefs.reduce(into: 0) { count, href in
-            if item.contains("href=\"\(href)\"") { count += 1 }
-        }
-        #expect(hrefCount == 1)
-    }
+private func expectNoActivePrimaryNav(in nav: String) throws {
+    #expect(!nav.contains("data-nav-current=\"true\""))
+    #expect(!nav.contains("aria-current=\"page\""))
 }
 
 private func expectLink(
