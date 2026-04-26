@@ -258,6 +258,10 @@ struct SitePublishingTests {
         try expectActiveNavItem(in: pageTwo, item: "home", href: "/")
         try expectActiveNavItem(in: archive, item: "archive", href: "/archive/")
         try expectActiveNavItem(in: about, item: "about", href: "/about/")
+        #expect(occurrenceCount(of: "data-nav-current=\"true\"", in: homepage) == 1)
+        #expect(occurrenceCount(of: "data-nav-current=\"true\"", in: pageTwo) == 1)
+        #expect(occurrenceCount(of: "data-nav-current=\"true\"", in: archive) == 1)
+        #expect(occurrenceCount(of: "data-nav-current=\"true\"", in: about) == 1)
         try expectNoActivePrimaryNav(in: post)
         try expectNoActivePrimaryNav(in: category)
         try expectNoActivePrimaryNav(in: tag)
@@ -478,6 +482,7 @@ private func expectSharedNavigation(in html: String) throws {
     let brand = try openingTag(containing: "data-nav-brand=\"true\"", in: nav)
 
     #expect(nav.contains("data-top-navigation=\"true\""))
+    #expect(occurrenceCount(of: "<nav", in: nav) == 1)
     #expect(brand.contains("href=\"/\""))
     #expect(brand.contains("aria-label=\"Raptor Tsubame home\""))
     #expect(brand.contains("top-navigation-brand-style"))
@@ -486,6 +491,7 @@ private func expectSharedNavigation(in html: String) throws {
     #expect(nav.contains("top-navigation-actions-style"))
     #expect(nav.contains("data-nav-primary=\"true\""))
     #expect(nav.contains("data-nav-actions=\"reserved\""))
+    #expect(nav.contains("aria-hidden=\"true\""))
 
     try expectLink(in: nav, label: "Home", href: "/")
     try expectLink(in: nav, label: "Archive", href: "/archive/")

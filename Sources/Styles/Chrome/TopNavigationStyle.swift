@@ -73,9 +73,6 @@ struct TopNavigationLinksStyle: Style {
 struct TopNavigationActionsStyle: Style {
     func style(content: Content, environment: EnvironmentConditions) -> Content {
         content
-            .style(.display(.flex))
-            .style(.alignItems(.center))
-            .style(.justifyContent(.flexEnd))
-            .style(.minWidth(.px(0)))
+            .style(.display(.none))
     }
 }

@@ -5,29 +5,17 @@ struct TopNavigation: HTML {
     let siteName: String
     let selection: NavigationSelection
 
-    private var homeItem: NavigationItem {
-        NavigationItem.primary[0]
-    }
-
-    private var archiveItem: NavigationItem {
-        NavigationItem.primary[1]
-    }
-
-    private var aboutItem: NavigationItem {
-        NavigationItem.primary[2]
-    }
-
     var body: some HTML {
-        Tag("nav") {
+        Tag("div") {
             Link(siteName, destination: SiteRoutes.home)
                 .style(TopNavigationBrandStyle())
                 .attribute("aria-label", "\(siteName) home")
                 .data("nav-brand", "true")
 
             Tag("div") {
-                primaryLink(homeItem)
-                primaryLink(archiveItem)
-                primaryLink(aboutItem)
+                ForEach(NavigationItem.primary) { item in
+                    primaryLink(item)
+                }
             }
             .style(TopNavigationLinksStyle())
             .data("nav-primary", "true")
@@ -36,6 +24,7 @@ struct TopNavigation: HTML {
                 EmptyHTML()
             }
             .style(TopNavigationActionsStyle())
+            .attribute("aria-hidden", "true")
             .data("nav-actions", "reserved")
         }
         .style(TopNavigationStyle())
