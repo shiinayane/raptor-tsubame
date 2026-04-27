@@ -156,7 +156,8 @@ Stage 7.1 is complete as the conservative content contract foundation.
 Stage 7.2 is complete enough for the current framework track: article structure, header/cover, typography compatibility work, inline TOC foundation, and TOC visual refinement are in place.
 Stage 8 is complete as the left sidebar framework: profile, categories, tags, route-aware active states, and sidebar navigation styling are in place.
 Stage 9 is complete enough as the site chrome and UI primitive foundation: top navigation, footer, route-aware primary links, and shared chrome primitives are in place.
+Stage 10 is complete enough as the home feed and post card framework: richer post cards, taxonomy metadata, reading stats, optional covers, pagination treatment, and markup-discipline tests are in place.
 
-The next implementation stage should be Stage 10: Home Feed And Post Card Framework. It should upgrade the homepage and paginated post-list surfaces while first recording and applying the Raptor markup discipline concern around unnecessary `Div`, `class`, and `data-*` growth.
+The next implementation stage should be Stage 11: Discovery And Taxonomy Framework. It should upgrade archive, category, and tag discovery surfaces, then finalize sidebar taxonomy display by removing visible tag counts and tuning category rows.
 
 Avoid starting fine visual refinement until Stages 9 through 13 are complete. Visual improvements inside those stages should be baseline framework visuals, not final polish.
