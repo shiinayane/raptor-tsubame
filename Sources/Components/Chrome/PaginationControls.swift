@@ -42,17 +42,30 @@ struct PaginationControls: HTML {
         } else {
             HStack(spacing: 12) {
                 if let newerPath = model.newerPath {
-                    Link("Newer", destination: newerPath)
+                    ChromeButtonLink(
+                        "Newer",
+                        destination: newerPath,
+                        markerName: "pagination-link",
+                        markerValue: "newer"
+                    )
                 }
 
                 Spacer()
                 Text { model.pageLabel }
+                    .style(ChromeMutedTextStyle())
+                    .data("pagination-page", "true")
                 Spacer()
 
                 if let olderPath = model.olderPath {
-                    Link("Older", destination: olderPath)
+                    ChromeButtonLink(
+                        "Older",
+                        destination: olderPath,
+                        markerName: "pagination-link",
+                        markerValue: "older"
+                    )
                 }
             }
+            .data("pagination", "true")
         }
     }
 }

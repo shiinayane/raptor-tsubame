@@ -10,5 +10,6 @@ struct PostList: HTML {
                 PostListItem(post: post)
             }
         }
+        .data("home-feed", "true")
     }
 }

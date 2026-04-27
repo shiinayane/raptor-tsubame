@@ -51,6 +51,44 @@ struct SitePublishingTests {
         #expect(!pageTwo.contains("Draft Hidden"))
     }
 
+    @Test("homepage renders rich post card feed")
+    func homepageRendersRichPostCardFeed() async throws {
+        let harness = try await publishedSite()
+        let homepage = try harness.contents(of: "index.html")
+        let main = try mainSlice(of: homepage)
+        let firstPostCard = try firstPostCardSlice(in: main)
+
+        #expect(main.contains("data-home-feed=\"true\""))
+        #expect(occurrenceCount(of: "data-post-card=\"true\"", in: main) == 2)
+        #expect(main.contains("data-post-card-taxonomy=\"true\""))
+        #expect(main.contains("data-post-card-stats=\"true\""))
+        #expect(firstPostCard.contains("data-post-card-taxonomy=\"true\""))
+        #expect(firstPostCard.contains("data-post-card-stats=\"true\""))
+        #expect(!firstPostCard.contains("data-post-card-title=\"true\""))
+        #expect(!firstPostCard.contains("data-post-card-meta=\"true\""))
+        #expect(!firstPostCard.contains("data-post-card-description=\"true\""))
+        #expect(main.contains("Building a Personal Website in Swift"))
+        #expect(main.contains("Fuwari Study Notes"))
+        #expect(main.contains("The first published post in the fixture set."))
+        #expect(main.contains("Structural notes from studying the Fuwari theme."))
+        #expect(main.contains("datetime=\"2026-04-21T00:00:00Z\""))
+        #expect(main.contains("datetime=\"2026-03-01T00:00:00Z\""))
+    }
+
+    @Test("paginated homepage keeps rich feed and pagination markers")
+    func paginatedHomepageKeepsRichFeedAndPaginationMarkers() async throws {
+        let harness = try await publishedSite()
+        let pageTwo = try harness.contents(of: "2/index.html")
+        let main = try mainSlice(of: pageTwo)
+
+        #expect(main.contains("data-home-feed=\"true\""))
+        #expect(main.contains("data-post-card=\"true\""))
+        #expect(main.contains("data-pagination=\"true\""))
+        #expect(main.contains("data-pagination-page=\"true\""))
+        #expect(main.contains("data-pagination-link=\"newer\""))
+        #expect(!main.contains("data-pagination-link=\"older\""))
+    }
+
     @Test("archive contains all published posts")
     func archiveContainsAllPublishedPosts() async throws {
         let harness = try await publishedSite()
@@ -474,6 +512,27 @@ struct SitePublishingTests {
         }
     }
 
+    @Test("generated CSS includes post card feed styles")
+    func generatedCSSIncludesPostCardFeedStyles() async throws {
+        let harness = try await publishedSite()
+        let css = try harness.contents(of: "css/raptor-core.css")
+        let paginatedHomepage = try harness.contents(of: "2/index.html")
+
+        #expect(css.contains(".post-card-style"))
+        #expect(css.contains(".post-card-taxonomy-style"))
+        #expect(css.contains(".post-card-stats-style"))
+        #expect(css.contains(".chrome-button-link-style"))
+
+        if paginatedHomepage.contains("data-post-card-cover=\"true\"") {
+            #expect(css.contains(".post-card-cover-style"))
+            #expect(css.contains(".post-card-cover-image-style"))
+        }
+
+        try expectDarkBlueThemeRule(in: css, containing: ".post-card-stats-style") { rule in
+            #expect(rule.contains("rgb(142 169 197 / 100%)"))
+        }
+    }
+
     @Test("generated CSS includes top navigation and footer chrome")
     func generatedCSSIncludesTopNavigationAndFooterChrome() async throws {
         let harness = try await publishedSite()
@@ -533,6 +592,19 @@ private func articleTOCSlice(of html: String) throws -> String {
     let openStart = try #require(html[..<marker.lowerBound].range(of: "<", options: .backwards))
     let closeRange = try #require(html[marker.upperBound...].range(of: "</nav>"))
     return String(html[openStart.lowerBound..<closeRange.upperBound])
+}
+
+private func firstPostCardSlice(in html: String) throws -> String {
+    let marker = try #require(html.range(of: "data-post-card=\"true\""))
+    let openStart = try #require(html[..<marker.lowerBound].range(of: "<", options: .backwards))
+    let afterMarker = html[marker.upperBound...]
+    let nextCard = afterMarker.range(of: "data-post-card=\"true\"")?.lowerBound
+    let feedEnd = afterMarker.range(of: "data-pagination=\"true\"")?.lowerBound
+        ?? afterMarker.range(of: "</main>")?.lowerBound
+        ?? html.endIndex
+    let sliceEnd = nextCard ?? feedEnd
+
+    return String(html[openStart.lowerBound..<sliceEnd])
 }
 
 private func htmlCodeBlockWindow(in markdown: String) throws -> String {
