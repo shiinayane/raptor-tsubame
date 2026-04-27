@@ -148,13 +148,15 @@ These notes are accepted follow-up observations, but should not be implemented u
 
 - Sidebar tags should not show counts. Tags are a lightweight browsing affordance, and count badges add unnecessary density.
 - Sidebar category rows need a width/layout pass. The current category treatment works structurally, but the row width and alignment should be tuned together with the later sidebar visual pass.
+- Stage 10 should include a semantic markup discipline checkpoint. The project should not keep adding wrapper `Div`s, generated/hand-authored classes, or `data-*` markers without a clear structural reason. Raptor-generated `Style` classes are acceptable; arbitrary class escape hatches and marker sprawl should be avoided.
 
 ## Current Recommendation
 
 Stage 7.1 is complete as the conservative content contract foundation.
 Stage 7.2 is complete enough for the current framework track: article structure, header/cover, typography compatibility work, inline TOC foundation, and TOC visual refinement are in place.
 Stage 8 is complete as the left sidebar framework: profile, categories, tags, route-aware active states, and sidebar navigation styling are in place.
+Stage 9 is complete enough as the site chrome and UI primitive foundation: top navigation, footer, route-aware primary links, and shared chrome primitives are in place.
 
-The next implementation stage should be Stage 9: Site Chrome And UI Primitives. Navigation is currently the weakest outer-framework surface, and shared primitives are needed before upgrading post cards, archive pages, and taxonomy pages without duplicating style decisions.
+The next implementation stage should be Stage 10: Home Feed And Post Card Framework. It should upgrade the homepage and paginated post-list surfaces while first recording and applying the Raptor markup discipline concern around unnecessary `Div`, `class`, and `data-*` growth.
 
 Avoid starting fine visual refinement until Stages 9 through 13 are complete. Visual improvements inside those stages should be baseline framework visuals, not final polish.

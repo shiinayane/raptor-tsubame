@@ -381,3 +381,17 @@ Swift-native ≠ No CSS
 It means:
 
 CSS is structured, named, and controlled — not scattered.
+
+## Raptor Markup Discipline
+
+Raptor Tsubame should preserve Raptor's declarative component intent. Swift components should describe site structure, `Style` types should own visual rules, and raw HTML/class escape hatches should stay limited to renderer boundaries.
+
+Use `Style` types and `.style(...)` for visual classes. A generated class from a Raptor `Style` is expected and is not the same as hand-authoring arbitrary CSS classes in page code.
+
+Use `data-*` markers only at component boundaries, route-level structures, or important state boundaries that tests or scoped CSS need to address. Do not add markers to every internal leaf node.
+
+Use semantic HTML where Raptor exposes an appropriate primitive. Use `Div` or stack layout components only when the wrapper represents a real layout grouping such as a card, feed, metadata row, or responsive media/text split.
+
+Rendered Markdown is an HTML string boundary. A single wrapper such as `data-markdown-content="true"` is acceptable there because the content is no longer a normal Raptor component tree.
+
+Before adding a wrapper, answer: what structure does this represent, can an existing semantic element express it, and will a future maintainer understand why this node exists?
