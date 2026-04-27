@@ -445,18 +445,20 @@ struct SitePublishingTests {
 
         #expect(harness.fileExists("js/prism.js"))
         #expect(harness.fileExists("css/prism.css"))
+        #expect(harness.fileExists("css/prism-themes.css"))
 
         let prismJS = try harness.contents(of: "js/prism.js")
         let prismCSS = try harness.contents(of: "css/prism.css")
-        let coreCSS = try harness.contents(of: "css/raptor-core.css")
+        let prismThemeCSS = try harness.contents(of: "css/prism-themes.css")
         let markdownReadingLab = try harness.contents(of: "posts/markdown-reading-lab/index.html")
 
         #expect(prismJS.contains("Prism.languages.markup"))
         #expect(prismJS.contains("Prism.languages.swift"))
-        #expect(prismJS.contains("Prism.languages.css"))
+        #expect(prismJS.contains("languages.css"))
         #expect(prismCSS.contains("[data-highlighter-theme] pre[class*=\"language-\"]"))
-        #expect(coreCSS.contains("data-highlighter-theme"))
-        #expect(coreCSS.contains("--highlighter-theme: \"xcode\""))
+        #expect(prismThemeCSS.contains(#"[data-highlighter-theme="xcode"]"#))
+        #expect(prismThemeCSS.contains(#"[data-inline-highlighter-theme="xcode"]"#))
+        #expect(prismThemeCSS.contains("--hl-keyword:"))
         #expect(markdownReadingLab.contains("href=\"/css/prism.css\""))
         #expect(markdownReadingLab.contains("src=\"/js/prism.js\""))
     }
