@@ -414,7 +414,8 @@ struct SitePublishingTests {
         #expect(markdown.contains("href=\"https://example.com\""))
         #expect(markdown.contains("<pre"))
         #expect(markdown.contains("language-swift"))
-        #expect(markdown.contains("language-html"))
+        #expect(markdown.contains("language-xml"))
+        #expect(!markdown.contains("language-html"))
     }
 
     @Test("markdown HTML code remains visible while raw HTML stays raw")
@@ -430,7 +431,8 @@ struct SitePublishingTests {
         #expect(markdown.contains("inline&lt;/span&gt;"))
 
         let htmlCodeWindow = try htmlCodeBlockWindow(in: markdown)
-        #expect(htmlCodeWindow.contains("language-html"))
+        #expect(htmlCodeWindow.contains("language-xml"))
+        #expect(!htmlCodeWindow.contains("language-html"))
         #expect(htmlCodeWindow.contains("html-code-sample"))
         #expect(htmlCodeWindow.contains("Hello HTML"))
         #expect(htmlCodeWindow.contains("&lt;div"))
@@ -692,7 +694,7 @@ private func firstPostCardSlice(in html: String) throws -> String {
 }
 
 private func htmlCodeBlockWindow(in markdown: String) throws -> String {
-    let language = try #require(markdown.range(of: "language-html"))
+    let language = try #require(markdown.range(of: "language-xml"))
     let preStart = try #require(markdown[..<language.lowerBound].range(of: "<pre", options: .backwards))
     let preEnd = try #require(markdown[language.upperBound...].range(of: "</pre>"))
     return String(markdown[preStart.lowerBound..<preEnd.upperBound])

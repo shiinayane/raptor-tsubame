@@ -72,6 +72,8 @@ struct MarkdownCompatibilityPublishingTests {
         #expect(markdown.contains("&lt;/code&gt;&lt;script&gt;alert(\"inline\")&lt;/script&gt;"))
         #expect(markdown.contains("&lt;/code&gt;&lt;script&gt;alert(\"block\")&lt;/script&gt;"))
         #expect(markdown.contains("&lt;already escaped=\"true\"&gt;"))
+        #expect(markdown.contains(#"<code class="language-xml">"#))
+        #expect(!markdown.contains(#"<code class="language-html">"#))
         #expect(!markdown.contains(#"<script>alert("inline")</script>"#))
         #expect(!markdown.contains(#"<script>alert("block")</script>"#))
         #expect(!markdown.contains("<script"))
