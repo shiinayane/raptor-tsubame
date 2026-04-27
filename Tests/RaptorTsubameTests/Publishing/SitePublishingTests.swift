@@ -439,6 +439,28 @@ struct SitePublishingTests {
         #expect(!htmlCodeWindow.contains("</div>"))
     }
 
+    @Test("generated output includes Prism assets and syntax theme CSS")
+    func generatedOutputIncludesPrismAssetsAndSyntaxThemeCSS() async throws {
+        let harness = try await publishedSite()
+
+        #expect(harness.fileExists("js/prism.js"))
+        #expect(harness.fileExists("css/prism.css"))
+
+        let prismJS = try harness.contents(of: "js/prism.js")
+        let prismCSS = try harness.contents(of: "css/prism.css")
+        let coreCSS = try harness.contents(of: "css/raptor-core.css")
+        let markdownReadingLab = try harness.contents(of: "posts/markdown-reading-lab/index.html")
+
+        #expect(prismJS.contains("Prism.languages.markup"))
+        #expect(prismJS.contains("Prism.languages.swift"))
+        #expect(prismJS.contains("Prism.languages.css"))
+        #expect(prismCSS.contains("[data-highlighter-theme] pre[class*=\"language-\"]"))
+        #expect(coreCSS.contains("data-highlighter-theme"))
+        #expect(coreCSS.contains("--highlighter-theme: \"xcode\""))
+        #expect(markdownReadingLab.contains("href=\"/css/prism.css\""))
+        #expect(markdownReadingLab.contains("src=\"/js/prism.js\""))
+    }
+
     @Test("generated CSS includes scoped markdown reading rules")
     func generatedCSSIncludesMarkdownReadingRules() async throws {
         let harness = try await publishedSite()
