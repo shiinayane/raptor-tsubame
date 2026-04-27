@@ -130,6 +130,45 @@ struct ContentMetadataTests {
         #expect(first.buildDirectory == second.buildDirectory)
     }
 
+    @Test("published site cache fingerprint changes when inputs change")
+    func publishedSiteCacheFingerprintChangesWhenInputsChange() throws {
+        let rootDirectory = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: rootDirectory) }
+
+        let sourcesDirectory = rootDirectory.appending(path: "Sources")
+        let postsDirectory = rootDirectory.appending(path: "Posts/posts")
+        try FileManager.default.createDirectory(at: sourcesDirectory, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: postsDirectory, withIntermediateDirectories: true)
+
+        try "// source\n".write(
+            to: sourcesDirectory.appending(path: "Example.swift"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try "# Post\n".write(
+            to: postsDirectory.appending(path: "example.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try "// package\n".write(
+            to: rootDirectory.appending(path: "Package.swift"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let first = try TestPublishHarness.cacheFingerprint(rootDirectory: rootDirectory)
+
+        try "# Post\n\nChanged.\n".write(
+            to: postsDirectory.appending(path: "example.md"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let second = try TestPublishHarness.cacheFingerprint(rootDirectory: rootDirectory)
+
+        #expect(first != second)
+    }
+
     private func writePost(named fileName: String, published: String, to directory: URL) throws {
         let fileURL = directory.appending(path: fileName)
         try """

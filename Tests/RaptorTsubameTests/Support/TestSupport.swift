@@ -5,18 +5,24 @@ struct TestPublishHarness: Sendable {
     let rootDirectory: URL
     let buildDirectoryPath: String
     let buildDirectory: URL
+    let cacheFingerprint: String
 
     init() throws {
         self.rootDirectory = packageRoot()
-        self.buildDirectoryPath = ".build/raptor-tsubame-test-sites/\(UUID().uuidString)"
+        self.cacheFingerprint = try Self.cacheFingerprint(rootDirectory: rootDirectory)
+        self.buildDirectoryPath = ".build/raptor-tsubame-test-sites/published-\(cacheFingerprint)"
         self.buildDirectory = rootDirectory.appending(path: buildDirectoryPath)
-
-        cleanup()
     }
 
     func publish() async throws {
+        if isReusableBuildDirectory {
+            return
+        }
+
+        cleanup()
         var site = ExampleSite(rootDirectory: rootDirectory)
         try await site.publish(buildDirectoryPath: buildDirectoryPath)
+        try cacheFingerprint.write(to: cacheMarkerURL, atomically: true, encoding: .utf8)
     }
 
     func fileExists(_ relativePath: String) -> Bool {
@@ -29,6 +35,98 @@ struct TestPublishHarness: Sendable {
 
     func cleanup() {
         try? FileManager.default.removeItem(at: buildDirectory)
+    }
+
+    static func cacheFingerprint(rootDirectory: URL) throws -> String {
+        var hash = StableHash()
+
+        for file in try cacheInputFiles(rootDirectory: rootDirectory) {
+            let relativePath = file.path.replacingOccurrences(of: rootDirectory.path, with: "")
+            let data = try Data(contentsOf: file)
+            hash.update("path:\(relativePath.count):\(relativePath)\n")
+            hash.update("size:\(data.count)\n")
+            hash.update(data)
+        }
+
+        return hash.hexDigest
+    }
+
+    private var cacheMarkerURL: URL {
+        buildDirectory.appending(path: ".raptor-tsubame-cache")
+    }
+
+    private var isReusableBuildDirectory: Bool {
+        let indexURL = buildDirectory.appending(path: "index.html")
+        guard FileManager.default.fileExists(atPath: indexURL.path) else {
+            return false
+        }
+
+        let marker = try? String(contentsOf: cacheMarkerURL, encoding: .utf8)
+        return marker == cacheFingerprint
+    }
+
+    private static func cacheInputFiles(rootDirectory: URL) throws -> [URL] {
+        let localInputs = [
+            rootDirectory.appending(path: "Package.swift"),
+            rootDirectory.appending(path: "Package.resolved"),
+            rootDirectory.appending(path: "Sources"),
+            rootDirectory.appending(path: "Posts"),
+            rootDirectory.appending(path: "Resources")
+        ]
+        let raptorSources = rootDirectory
+            .deletingLastPathComponent()
+            .appending(path: "raptor/Sources")
+
+        return try (localInputs + [raptorSources])
+            .flatMap(regularFiles)
+            .sorted { $0.path < $1.path }
+    }
+
+    private static func regularFiles(in url: URL) throws -> [URL] {
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory) else {
+            return []
+        }
+
+        if !isDirectory.boolValue {
+            return [url]
+        }
+
+        guard let enumerator = FileManager.default.enumerator(
+            at: url,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return []
+        }
+
+        var files: [URL] = []
+        for case let file as URL in enumerator {
+            let values = try file.resourceValues(forKeys: [.isRegularFileKey])
+            if values.isRegularFile == true {
+                files.append(file)
+            }
+        }
+        return files
+    }
+}
+
+private struct StableHash {
+    private var value: UInt64 = 0xcbf29ce484222325
+
+    var hexDigest: String {
+        String(format: "%016llx", value)
+    }
+
+    mutating func update(_ string: String) {
+        update(Data(string.utf8))
+    }
+
+    mutating func update(_ data: Data) {
+        for byte in data {
+            value ^= UInt64(byte)
+            value &*= 0x100000001b3
+        }
     }
 }
 
