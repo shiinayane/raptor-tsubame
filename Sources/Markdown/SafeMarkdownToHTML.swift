@@ -9,7 +9,7 @@ struct SafeMarkdownToHTML: PostProcessor {
     private var processor = MarkdownToHTML()
 
     mutating func process(_ markup: String) throws -> ProcessedPost {
-        processor.process(escapeMarkdownCode(in: markup))
+        processor.process(escapeMarkdownCode(in: normalizeMarkdownFenceLanguages(in: markup)))
     }
 
     func delimitRawMarkup(_ widgetHTML: String) -> String {
@@ -45,6 +45,54 @@ private func escapeMarkdownCode(in markup: String) -> String {
     }
 
     return result
+}
+
+private func normalizeMarkdownFenceLanguages(in markup: String) -> String {
+    var result = ""
+    var index = markup.startIndex
+    var openFence: MarkdownFence?
+
+    while index < markup.endIndex {
+        let lineEnd = markup[index...].firstIndex(of: "\n") ?? markup.endIndex
+        let line = String(markup[index..<lineEnd])
+        let newline = lineEnd < markup.endIndex ? "\n" : ""
+
+        if let fence = openFence {
+            result += line + newline
+
+            if closesFence(line, fence: fence) {
+                openFence = nil
+            }
+        } else if let fence = openingFence(in: line) {
+            result += normalizeFenceOpeningLine(line) + newline
+            openFence = fence
+        } else {
+            result += line + newline
+        }
+
+        index = lineEnd < markup.endIndex ? markup.index(after: lineEnd) : lineEnd
+    }
+
+    return result
+}
+
+private func normalizeFenceOpeningLine(_ line: String) -> String {
+    let indentation = line.prefix(min(indentationCount(in: line), 3))
+    let trimmed = line.dropFirst(indentation.count)
+    guard let first = trimmed.first, first == "`" || first == "~" else {
+        return line
+    }
+
+    let fenceLength = trimmed.prefix { $0 == first }.count
+    guard fenceLength >= 3 else { return line }
+
+    let info = trimmed.dropFirst(fenceLength)
+    let leadingWhitespace = info.prefix { $0.isWhitespace }
+    let language = info.dropFirst(leadingWhitespace.count)
+    guard language.lowercased() == "html" else { return line }
+
+    let fence = String(repeating: String(first), count: fenceLength)
+    return "\(indentation)\(fence)\(leadingWhitespace)xml"
 }
 
 private struct MarkdownFence {

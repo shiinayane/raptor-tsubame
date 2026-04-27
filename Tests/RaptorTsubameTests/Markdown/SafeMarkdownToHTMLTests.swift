@@ -32,6 +32,26 @@ struct SafeMarkdownToHTMLTests {
         #expect(!processed.body.contains(#"<div class="raw">Raw</div>"#))
     }
 
+    @Test("HTML fences use bundled Prism markup highlighter while keeping escaped code")
+    func htmlFencesUseBundledPrismMarkupHighlighter() throws {
+        var processor = SafeMarkdownToHTML()
+
+        let processed = try processor.process(
+            """
+            ```html
+            <section data-demo="true">Visible code</section>
+            ```
+            """
+        )
+
+        #expect(processed.body.contains(#"<code class="language-xml">"#))
+        #expect(processed.body.contains(#"&lt;section data-demo="true"&gt;Visible code&lt;/section&gt;"#))
+        #expect(!processed.body.contains(#"<code class="language-html">"#))
+        #expect(!processed.body.contains(#"<section data-demo="true">Visible code</section>"#))
+        #expect(processor.syntaxHighlighterLanguages.contains(.markup))
+        #expect(!processor.syntaxHighlighterLanguages.contains(.html))
+    }
+
     @Test("raw HTML with code-prefixed custom elements is not consumed as code")
     func leavesCodePrefixedRawHTMLElementUntouched() throws {
         var processor = SafeMarkdownToHTML()
