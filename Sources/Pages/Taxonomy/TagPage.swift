@@ -15,8 +15,10 @@ struct TagPage: Page {
 
     var body: some HTML {
         VStack(alignment: .leading, spacing: 24) {
-            TaxonomyPostListHeader(title: "Tag: \(term.name)", count: tagPosts.count)
+            TaxonomyPostListHeader(kind: .tag, termName: term.name, count: tagPosts.count)
             PostList(posts: tagPosts)
         }
+        .style(TaxonomyDetailStyle())
+        .data("taxonomy-detail", TaxonomyKind.tag.rawValue)
     }
 }

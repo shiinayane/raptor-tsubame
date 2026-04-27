@@ -4,6 +4,24 @@ import Raptor
 enum TaxonomyKind: String, Sendable {
     case tag
     case category
+
+    var displayName: String {
+        switch self {
+        case .tag:
+            "Tag"
+        case .category:
+            "Category"
+        }
+    }
+
+    var pluralName: String {
+        switch self {
+        case .tag:
+            "Tags"
+        case .category:
+            "Categories"
+        }
+    }
 }
 
 struct TaxonomyTerm: Sendable, Identifiable {

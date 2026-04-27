@@ -29,16 +29,26 @@ struct TaxonomyPublishingTests {
         let tags = try harness.contents(of: "tags/index.html")
         try expectSharedSidebarShell(
             in: tags,
-            contentNeedles: ["Tags", "Design (1)", "Raptor (2)"]
+            contentNeedles: ["Tags", "Design", "Raptor"]
         )
-        #expect(tags.contains("Design (1)"))
-        #expect(tags.contains("Raptor (2)"))
+        #expect(tags.contains("data-taxonomy-index=\"tag\""))
+        #expect(tags.contains("data-taxonomy-index-item=\"tag\""))
+        #expect(tags.contains("10 tags"))
+        #expect(tags.contains(">Tag<"))
+        #expect(tags.contains(">Design<"))
+        #expect(tags.contains(">Raptor<"))
+        #expect(tags.contains("href=\"/tags/design/\""))
+        #expect(tags.contains("href=\"/tags/raptor/\""))
+        #expect(tags.contains(">1 post<"))
+        #expect(tags.contains(">2 posts<"))
 
         let raptor = try harness.contents(of: "tags/raptor/index.html")
         try expectSharedSidebarShell(
             in: raptor,
             contentNeedles: ["Tag: Raptor", "Raptor Notes", "Fuwari Study Notes"]
         )
+        #expect(raptor.contains("data-taxonomy-detail=\"tag\""))
+        #expect(raptor.contains("data-taxonomy-detail-header=\"true\""))
         #expect(raptor.contains("Raptor Notes"))
         #expect(raptor.contains("Fuwari Study Notes"))
         #expect(!raptor.contains("Welcome To Tsubame"))
@@ -51,16 +61,26 @@ struct TaxonomyPublishingTests {
         let categories = try harness.contents(of: "categories/index.html")
         try expectSharedSidebarShell(
             in: categories,
-            contentNeedles: ["Categories", "Notes (2)", "Updates (1)"]
+            contentNeedles: ["Categories", "Notes", "Updates"]
         )
-        #expect(categories.contains("Notes (2)"))
-        #expect(categories.contains("Updates (1)"))
+        #expect(categories.contains("data-taxonomy-index=\"category\""))
+        #expect(categories.contains("data-taxonomy-index-item=\"category\""))
+        #expect(categories.contains("3 categories"))
+        #expect(categories.contains(">Category<"))
+        #expect(categories.contains(">Notes<"))
+        #expect(categories.contains(">Updates<"))
+        #expect(categories.contains("href=\"/categories/notes/\""))
+        #expect(categories.contains("href=\"/categories/updates/\""))
+        #expect(categories.contains(">1 post<"))
+        #expect(categories.contains(">2 posts<"))
 
         let notes = try harness.contents(of: "categories/notes/index.html")
         try expectSharedSidebarShell(
             in: notes,
             contentNeedles: ["Category: Notes", "Raptor Notes", "Fuwari Study Notes"]
         )
+        #expect(notes.contains("data-taxonomy-detail=\"category\""))
+        #expect(notes.contains("data-taxonomy-detail-header=\"true\""))
         #expect(notes.contains("Raptor Notes"))
         #expect(notes.contains("Fuwari Study Notes"))
         #expect(!notes.contains("Welcome To Tsubame"))

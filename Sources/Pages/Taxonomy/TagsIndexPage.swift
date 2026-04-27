@@ -20,7 +20,8 @@ struct TagsIndexPage: Page {
     var body: some HTML {
         VStack(alignment: .leading, spacing: 24) {
             Text("Tags").font(.title1)
-            TaxonomyIndexList(items: items)
+            TaxonomyIndexList(items: items, kind: .tag)
         }
+        .data("taxonomy-index", TaxonomyKind.tag.rawValue)
     }
 }

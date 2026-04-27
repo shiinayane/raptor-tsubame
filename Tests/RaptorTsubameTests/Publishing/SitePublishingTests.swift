@@ -103,6 +103,24 @@ struct SitePublishingTests {
         #expect(archive.contains("Fuwari Study Notes"))
     }
 
+    @Test("archive renders grouped discovery entries")
+    func archiveRendersGroupedDiscoveryEntries() async throws {
+        let harness = try await publishedSite()
+
+        let archive = try mainSlice(of: harness.contents(of: "archive/index.html"))
+        let firstEntry = try archiveEntrySlice(containing: "Building a Personal Website in Swift", in: archive)
+
+        #expect(archive.contains("data-archive-page=\"true\""))
+        #expect(archive.contains("data-archive-year-group=\"true\""))
+        #expect(archive.contains("data-archive-entry=\"true\""))
+        #expect(firstEntry.contains("datetime=\"2026-04-21T00:00:00Z\""))
+        #expect(firstEntry.contains("href=\"/posts/build-website-in-swift\""))
+        #expect(firstEntry.contains("Building a Personal Website in Swift"))
+        #expect(firstEntry.contains("The first published post in the fixture set."))
+        #expect(firstEntry.contains("href=\"/categories/tech/\""))
+        #expect(firstEntry.contains("href=\"/tags/swift/\""))
+    }
+
     @Test("renders about from markdown content")
     func rendersAboutFromMarkdown() async throws {
         let harness = try await publishedSite()
@@ -131,11 +149,11 @@ struct SitePublishingTests {
         )
         try expectSharedSidebarShell(
             in: tags,
-            contentNeedles: ["Tags", "Design (1)", "Raptor (2)"]
+            contentNeedles: ["Tags", "Design", "Raptor"]
         )
         try expectSharedSidebarShell(
             in: categories,
-            contentNeedles: ["Categories", "Notes (2)", "Updates (1)"]
+            contentNeedles: ["Categories", "Notes", "Updates"]
         )
     }
 
@@ -351,7 +369,7 @@ struct SitePublishingTests {
         let tocTag = try openingTag(containing: "data-article-toc=\"true\"", in: markdownReadingLab)
 
         try expectBlueThemeVisualHTML(in: homepage)
-        try expectBlueThemeVisualHTML(in: archive)
+        try expectBlueThemeArchiveHTML(in: archive)
         try expectBlueThemeShellHTML(in: about)
         try expectBlueThemeShellHTML(in: article)
         #expect(article.contains("page-canvas-style"))
@@ -483,6 +501,36 @@ struct SitePublishingTests {
         }
     }
 
+    @Test("generated CSS includes discovery styles")
+    func generatedCSSIncludesDiscoveryStyles() async throws {
+        let harness = try await publishedSite()
+        let css = try harness.contents(of: "css/raptor-core.css")
+
+        #expect(css.contains(".archive-discovery-page-style"))
+        #expect(css.contains(".archive-year-group-style"))
+        #expect(css.contains(".archive-entry-style"))
+        #expect(css.contains(".archive-entry-title-style"))
+        #expect(css.contains(".taxonomy-index-list-style"))
+        #expect(css.contains(".taxonomy-index-summary-style"))
+        #expect(css.contains(".taxonomy-index-item-style"))
+        #expect(css.contains(".taxonomy-index-item-context-style"))
+        #expect(css.contains(".taxonomy-detail-style"))
+        #expect(css.contains(".taxonomy-detail-context-style"))
+        #expect(css.contains(".taxonomy-post-list-header-style"))
+
+        let archiveEntryRule = try cssRule(in: css, containing: ".archive-entry-style")
+        #expect(archiveEntryRule.contains("border-radius: 16px;"))
+        #expect(archiveEntryRule.contains("rgb(255 255 255 / 100%)"))
+
+        let taxonomyItemRule = try cssRule(in: css, containing: ".taxonomy-index-item-style")
+        #expect(taxonomyItemRule.contains("display: flex;"))
+        #expect(taxonomyItemRule.contains("justify-content: space-between;"))
+
+        try expectDarkBlueThemeRule(in: css, containing: ".archive-entry-style") { rule in
+            #expect(rule.contains("rgb(16 34 54 / 100%)"))
+        }
+    }
+
     @Test("generated CSS includes chrome primitive styles")
     func generatedCSSIncludesChromePrimitiveStyles() async throws {
         let harness = try await publishedSite()
@@ -592,6 +640,18 @@ private func articleTOCSlice(of html: String) throws -> String {
     let openStart = try #require(html[..<marker.lowerBound].range(of: "<", options: .backwards))
     let closeRange = try #require(html[marker.upperBound...].range(of: "</nav>"))
     return String(html[openStart.lowerBound..<closeRange.upperBound])
+}
+
+private func archiveEntrySlice(containing title: String, in html: String) throws -> String {
+    let titleRange = try #require(html.range(of: title))
+    let entryStart = try #require(html[..<titleRange.lowerBound].range(of: "data-archive-entry=\"true\"", options: .backwards))
+    let openStart = try #require(html[..<entryStart.lowerBound].range(of: "<", options: .backwards))
+    let afterTitle = html[titleRange.upperBound...]
+    let nextEntry = afterTitle.range(of: "data-archive-entry=\"true\"")?.lowerBound
+    let groupEnd = afterTitle.range(of: "data-archive-year-group=\"true\"")?.lowerBound
+    let sliceEnd = nextEntry ?? groupEnd ?? html.endIndex
+
+    return String(html[openStart.lowerBound..<sliceEnd])
 }
 
 private func firstPostCardSlice(in html: String) throws -> String {
@@ -736,6 +796,19 @@ private func expectBlueThemeVisualHTML(in html: String) throws {
     #expect(main.contains("metadata-text-style"))
     #expect(main.contains("data-post-card=\"true\""))
     #expect(main.contains("data-post-meta=\"true\""))
+}
+
+private func expectBlueThemeArchiveHTML(in html: String) throws {
+    try expectBlueThemeShellHTML(in: html)
+
+    let main = try mainSlice(of: html)
+
+    #expect(main.contains("archive-discovery-page-style"))
+    #expect(main.contains("archive-year-group-style"))
+    #expect(main.contains("archive-entry-style"))
+    #expect(main.contains("archive-entry-title-style"))
+    #expect(main.contains("data-archive-page=\"true\""))
+    #expect(main.contains("data-archive-entry=\"true\""))
 }
 
 private func expectBlueThemeShellHTML(in html: String) throws {

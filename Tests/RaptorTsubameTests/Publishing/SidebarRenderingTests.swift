@@ -100,6 +100,11 @@ struct SidebarRenderingTests {
             containing: "data-sidebar-term-slug=\"intro\"",
             in: sidebar
         )
+        let introChip = try elementSlice(
+            containing: "data-sidebar-term-slug=\"intro\"",
+            closingTag: "</a>",
+            in: sidebar
+        )
         let raptorTag = try openingTag(
             containing: "data-sidebar-term-slug=\"raptor\"",
             in: sidebar
@@ -109,6 +114,8 @@ struct SidebarRenderingTests {
         #expect(introTag.contains("data-sidebar-current=\"true\""))
         #expect(introTag.contains("aria-current=\"page\""))
         #expect(introTag.contains("aria-label=\"Intro (1)\""))
+        #expect(!introChip.contains("sidebar-count-badge-style"))
+        #expect(!introChip.contains(">1</span>"))
         #expect(raptorTag.contains("data-sidebar-tag-chip=\"true\""))
         #expect(raptorTag.contains("aria-label=\"Raptor (2)\""))
         #expect(!raptorTag.contains("data-sidebar-current=\"true\""))
@@ -165,4 +172,16 @@ private func openingTag(containing marker: String, in html: Substring) throws ->
     let closingBracket = try #require(html[markerRange.upperBound...].firstIndex(of: ">"))
 
     return html[openingBracket...closingBracket]
+}
+
+private func elementSlice(
+    containing marker: String,
+    closingTag: String,
+    in html: Substring
+) throws -> Substring {
+    let markerRange = try #require(html.range(of: marker))
+    let openingBracket = try #require(html[..<markerRange.lowerBound].lastIndex(of: "<"))
+    let closingRange = try #require(html[markerRange.upperBound...].range(of: closingTag))
+
+    return html[openingBracket..<closingRange.upperBound]
 }

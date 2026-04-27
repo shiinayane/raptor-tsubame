@@ -2,13 +2,18 @@ import Foundation
 import Raptor
 
 struct TaxonomyPostListHeader: HTML {
-    let title: String
+    let kind: TaxonomyKind
+    let termName: String
     let count: Int
 
     var body: some HTML {
         VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(.title1)
-            Text("\(count) posts")
+            Text(kind.displayName)
+                .style(TaxonomyDetailContextStyle())
+            Text("\(kind.displayName): \(termName)").font(.title1)
+            Text("\(count) \(count == 1 ? "post" : "posts")")
         }
+        .style(TaxonomyPostListHeaderStyle())
+        .data("taxonomy-detail-header", "true")
     }
 }

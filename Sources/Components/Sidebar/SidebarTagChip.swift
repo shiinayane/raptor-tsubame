@@ -30,7 +30,5 @@ struct SidebarTagChip: HTML {
     @InlineContentBuilder private var linkContent: some InlineContent {
         InlineText(item.name)
             .style(SidebarTagLabelStyle())
-        InlineText("\(item.count)")
-            .style(SidebarCountBadgeStyle(isActive: isActive))
     }
 }

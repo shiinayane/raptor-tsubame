@@ -20,7 +20,8 @@ struct CategoriesIndexPage: Page {
     var body: some HTML {
         VStack(alignment: .leading, spacing: 24) {
             Text("Categories").font(.title1)
-            TaxonomyIndexList(items: items)
+            TaxonomyIndexList(items: items, kind: .category)
         }
+        .data("taxonomy-index", TaxonomyKind.category.rawValue)
     }
 }

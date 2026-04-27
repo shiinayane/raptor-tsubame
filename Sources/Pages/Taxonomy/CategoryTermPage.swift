@@ -15,8 +15,10 @@ struct CategoryTermPage: Page {
 
     var body: some HTML {
         VStack(alignment: .leading, spacing: 24) {
-            TaxonomyPostListHeader(title: "Category: \(term.name)", count: categoryPosts.count)
+            TaxonomyPostListHeader(kind: .category, termName: term.name, count: categoryPosts.count)
             PostList(posts: categoryPosts)
         }
+        .style(TaxonomyDetailStyle())
+        .data("taxonomy-detail", TaxonomyKind.category.rawValue)
     }
 }
